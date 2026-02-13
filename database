@@ -1,0 +1,4 @@
+CREATE DATABASE IF NOT EXISTS dbi_database;
+USE dbi_database;
+show tables;	
+select * from users;
