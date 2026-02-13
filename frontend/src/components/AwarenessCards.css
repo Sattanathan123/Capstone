@@ -1,0 +1,183 @@
+.awareness-section {
+  padding: 5rem 3rem;
+  background: linear-gradient(180deg, white 0%, #f8f9fa 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.awareness-section::before {
+  content: '';
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(0, 61, 130, 0.03), transparent);
+  border-radius: 50%;
+  top: -200px;
+  right: -200px;
+  animation: float 20s infinite ease-in-out;
+}
+
+.awareness-section::after {
+  content: '';
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(255, 153, 51, 0.03), transparent);
+  border-radius: 50%;
+  bottom: -150px;
+  left: -150px;
+  animation: float 25s infinite ease-in-out reverse;
+}
+
+@keyframes float {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(50px, 50px); }
+}
+
+.awareness-header {
+  text-align: center;
+  margin-bottom: 4rem;
+  position: relative;
+  z-index: 1;
+}
+
+.awareness-header h2 {
+  color: #003d82;
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+}
+
+.awareness-header p {
+  color: #6c757d;
+  font-size: 1.2rem;
+}
+
+.awareness-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.awareness-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  padding: 2.5rem;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid #e9ecef;
+  position: relative;
+  overflow: hidden;
+  transform-style: preserve-3d;
+  cursor: pointer;
+}
+
+.awareness-card:hover {
+  border-color: #ff9933;
+  box-shadow: 0 20px 60px rgba(0, 61, 130, 0.15);
+  background: white;
+}
+
+.awareness-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  background: linear-gradient(90deg, #003d82, #0056b3, #ff9933);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s ease;
+}
+
+.awareness-card:hover::before {
+  transform: scaleX(1);
+}
+
+.awareness-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  padding: 2px;
+  background: linear-gradient(135deg, transparent, rgba(255, 153, 51, 0.2), transparent);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.awareness-card:hover::after {
+  opacity: 1;
+}
+
+.awareness-icon {
+  font-size: 4.5rem;
+  margin-bottom: 1.5rem;
+  display: inline-block;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
+}
+
+.awareness-card h3 {
+  color: #003d82;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+  transition: color 0.3s ease;
+}
+
+.awareness-card:hover h3 {
+  color: #ff9933;
+}
+
+.awareness-desc {
+  color: #495057;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.awareness-details {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.awareness-details li {
+  color: #6c757d;
+  padding: 0.7rem 0;
+  padding-left: 1.8rem;
+  position: relative;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.awareness-details li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: #138808;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+  .awareness-section {
+    padding: 3rem 1rem;
+  }
+
+  .awareness-header h2 {
+    font-size: 1.8rem;
+  }
+
+  .awareness-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}

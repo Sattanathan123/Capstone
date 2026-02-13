@@ -1,0 +1,245 @@
+.features {
+  min-height: calc(100vh - 200px);
+}
+
+.features-hero {
+  background: linear-gradient(135deg, #138808 0%, #0d6006 100%);
+  color: white;
+  padding: 4rem 3rem;
+  text-align: center;
+}
+
+.features-hero h2 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.features-hero p {
+  font-size: 1.2rem;
+  opacity: 0.95;
+}
+
+.features-content {
+  padding: 3rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.feature-category {
+  margin-bottom: 4rem;
+}
+
+.feature-category h3 {
+  color: #003d82;
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  border-left: 4px solid #ff9933;
+  padding-left: 1rem;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
+}
+
+.feature-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  border-color: #ff9933;
+}
+
+.feature-icon {
+  font-size: 3.5rem;
+  margin-bottom: 1rem;
+}
+
+.feature-card h4 {
+  color: #003d82;
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+}
+
+.feature-card p {
+  color: #495057;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.feature-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.feature-card ul li {
+  color: #6c757d;
+  padding: 0.5rem 0;
+  padding-left: 1.5rem;
+  position: relative;
+}
+
+.feature-card ul li::before {
+  content: "→";
+  position: absolute;
+  left: 0;
+  color: #ff9933;
+  font-weight: bold;
+}
+
+.benefits-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 1.5rem;
+}
+
+.benefit-item {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.benefit-item:hover {
+  background: white;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  border-color: #ff9933;
+  transform: translateX(8px);
+}
+
+.check {
+  width: 30px;
+  height: 30px;
+  background: linear-gradient(135deg, #138808, #0d6006);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(19, 136, 8, 0.3);
+}
+
+.benefit-item h5 {
+  color: #003d82;
+  font-size: 1.2rem;
+  margin: 0 0 0.5rem 0;
+}
+
+.benefit-item p {
+  color: #6c757d;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.security-section {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 3rem;
+  border-radius: 12px;
+  margin-top: 3rem;
+}
+
+.security-section h3 {
+  color: #003d82;
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  text-align: center;
+  border: none;
+  padding: 0;
+}
+
+.security-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+}
+
+.security-item {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.security-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(0, 61, 130, 0.05), rgba(255, 153, 51, 0.05));
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.security-item:hover::before {
+  opacity: 1;
+}
+
+.security-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.shield {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 1rem;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.1));
+}
+
+.security-item h5 {
+  color: #003d82;
+  font-size: 1.2rem;
+  margin-bottom: 0.8rem;
+}
+
+.security-item p {
+  color: #6c757d;
+  line-height: 1.6;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .features-hero {
+    padding: 2rem 1rem;
+  }
+
+  .features-hero h2 {
+    font-size: 1.8rem;
+  }
+
+  .features-content {
+    padding: 2rem 1rem;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .benefits-list {
+    grid-template-columns: 1fr;
+  }
+
+  .security-section {
+    padding: 2rem 1rem;
+  }
+}

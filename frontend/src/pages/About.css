@@ -1,0 +1,213 @@
+.about {
+  min-height: calc(100vh - 200px);
+}
+
+.about-hero {
+  background: linear-gradient(135deg, #ff9933 0%, #e68a2e 100%);
+  color: white;
+  padding: 4rem 3rem;
+  text-align: center;
+}
+
+.about-hero h2 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.lead {
+  font-size: 1.3rem;
+  opacity: 0.95;
+}
+
+.about-content {
+  padding: 3rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.content-block {
+  margin-bottom: 3rem;
+}
+
+.content-block h3 {
+  color: #003d82;
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  border-left: 4px solid #ff9933;
+  padding-left: 1rem;
+}
+
+.content-block p {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: #495057;
+}
+
+.challenge-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.challenge-item {
+  background: linear-gradient(135deg, #f8f9fa, #ffffff);
+  padding: 1.5rem;
+  border-radius: 8px;
+  border-left: 4px solid #ff9933;
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.challenge-item:hover {
+  transform: translateX(10px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border-left-width: 6px;
+}
+
+.challenge-item .icon {
+  font-size: 2rem;
+}
+
+.challenge-item p {
+  margin: 0;
+  font-size: 1rem;
+  color: #495057;
+}
+
+.impact-goals {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 3rem;
+  border-radius: 12px;
+  margin: 3rem 0;
+}
+
+.impact-goals h3 {
+  color: #003d82;
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  text-align: center;
+  border: none;
+  padding: 0;
+}
+
+.goals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+}
+
+.goal-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.goal-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, #003d82, #ff9933);
+  transform: scaleX(0);
+  transition: transform 0.4s ease;
+}
+
+.goal-card:hover::after {
+  transform: scaleX(1);
+}
+
+.goal-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
+}
+
+.goal-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.goal-card h4 {
+  color: #003d82;
+  font-size: 1.3rem;
+  margin-bottom: 0.8rem;
+}
+
+.goal-card p {
+  color: #6c757d;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.tech-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.tech-badge {
+  background: linear-gradient(135deg, #003d82, #0056b3);
+  color: white;
+  padding: 0.8rem 1.5rem;
+  border-radius: 25px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  box-shadow: 0 2px 8px rgba(0, 61, 130, 0.3);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.tech-badge::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s;
+}
+
+.tech-badge:hover::before {
+  left: 100%;
+}
+
+.tech-badge:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 61, 130, 0.4);
+}
+
+@media (max-width: 768px) {
+  .about-hero {
+    padding: 2rem 1rem;
+  }
+
+  .about-hero h2 {
+    font-size: 1.8rem;
+  }
+
+  .about-content {
+    padding: 2rem 1rem;
+  }
+
+  .content-block h3 {
+    font-size: 1.5rem;
+  }
+
+  .impact-goals {
+    padding: 2rem 1rem;
+  }
+}
