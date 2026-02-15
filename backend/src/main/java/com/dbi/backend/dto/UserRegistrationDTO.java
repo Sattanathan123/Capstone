@@ -26,4 +26,22 @@ public class UserRegistrationDTO {
     private Double annualIncome;
     private String incomeSource;
     private String role;
+    
+    // Role-specific fields
+    private String employeeId;
+    private String idCardNumber;
+    private String assignedState;
+    private String assignedDistrict;
+    private String assignedBlock;
+    private String departmentName;
+    private String designation;
+    private String officeLocation;
+    private String adminLevel;
+    private String accessGrantedBy;
+    private String auditLicenseNumber;
+    private String monitoringState;
+    private String monitoringDistrict;
+    private String departmentToMonitor;
+    private String sanctioningLevel;
+    private Double maxSanctionAmount;
 }

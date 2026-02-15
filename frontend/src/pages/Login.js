@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import './Login.css';
 
-const Login = ({ setActiveTab }) => {
+const Login = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     mobileNumber: '',
     aadhaarNumber: '',
@@ -11,6 +13,8 @@ const Login = ({ setActiveTab }) => {
 
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showAadhaar, setShowAadhaar] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -44,6 +48,8 @@ const Login = ({ setActiveTab }) => {
 
     setLoading(true);
     try {
+      console.log('Login attempt with:', { mobileNumber: formData.mobileNumber, aadhaarNumber: formData.aadhaarNumber });
+      
       const response = await fetch('http://localhost:8080/api/users/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -52,16 +58,26 @@ const Login = ({ setActiveTab }) => {
 
       if (response.ok) {
         const data = await response.json();
-        localStorage.setItem('dbiToken', data.token);
-        localStorage.setItem('dbiUser', JSON.stringify(data.user));
+        console.log('Login successful:', data);
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
         alert('Login successful!');
-        // Redirect to dashboard based on role
-        window.location.href = '/dashboard';
+        
+        // Redirect based on role
+        if (data.user.role === 'BENEFICIARY') {
+          window.location.href = '/beneficiary/dashboard';
+        } else if (['DEPT_ADMIN', 'DISTRICT_ADMIN', 'STATE_ADMIN', 'FIELD_VERIFICATION_OFFICER', 'SYSTEM_ADMIN', 'MONITORING_AUDIT_OFFICER', 'SCHEME_SANCTIONING_AUTHORITY'].includes(data.user.role)) {
+          window.location.href = '/admin/dashboard';
+        } else {
+          window.location.href = '/dashboard';
+        }
       } else {
         const errorData = await response.text();
+        console.error('Login failed:', errorData);
         alert('Login failed: ' + errorData);
       }
     } catch (error) {
+      console.error('Login error:', error);
       alert('Error connecting to server: ' + error.message);
     } finally {
       setLoading(false);
@@ -77,26 +93,17 @@ const Login = ({ setActiveTab }) => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <div className="visual-elements">
-            <div className="lock-icon">🔐</div>
-            <div className="shield-icon">🛡️</div>
-            <div className="check-icon">✅</div>
-          </div>
-          
           <h1>Digital Beneficiary Identification</h1>
           <p className="subtitle">Verified Access to Government Welfare Services</p>
           
           <div className="features-list">
             <div className="feature-item">
-              <span className="icon">🔒</span>
               <span>Secure Access</span>
             </div>
             <div className="feature-item">
-              <span className="icon">🛡️</span>
               <span>Government Verified</span>
             </div>
             <div className="feature-item">
-              <span className="icon">✓</span>
               <span>Verified User</span>
             </div>
           </div>
@@ -131,27 +138,45 @@ const Login = ({ setActiveTab }) => {
 
             <div className="form-group">
               <label>Aadhaar Number *</label>
-              <input 
-                type="password" 
-                name="aadhaarNumber" 
-                value={formData.aadhaarNumber} 
-                onChange={handleChange} 
-                placeholder="Enter 12-digit Aadhaar number"
-                maxLength="12"
-              />
+              <div style={{ position: 'relative' }}>
+                <input 
+                  type={showAadhaar ? 'text' : 'password'} 
+                  name="aadhaarNumber" 
+                  value={formData.aadhaarNumber} 
+                  onChange={handleChange} 
+                  placeholder="Enter 12-digit Aadhaar number"
+                  maxLength="12"
+                />
+                <button 
+                  type="button" 
+                  className="password-toggle" 
+                  onClick={() => setShowAadhaar(!showAadhaar)}
+                >
+                  {showAadhaar ? '👁️‍🗨️' : '👁️‍🗨️'}
+                </button>
+              </div>
               {errors.aadhaarNumber && <span className="error">{errors.aadhaarNumber}</span>}
               <small>Your Aadhaar is masked for security</small>
             </div>
 
             <div className="form-group">
               <label>Password *</label>
-              <input 
-                type="password" 
-                name="password" 
-                value={formData.password} 
-                onChange={handleChange} 
-                placeholder="Enter your password"
-              />
+              <div style={{ position: 'relative' }}>
+                <input 
+                  type={showPassword ? 'text' : 'password'} 
+                  name="password" 
+                  value={formData.password} 
+                  onChange={handleChange} 
+                  placeholder="Enter your password"
+                />
+                <button 
+                  type="button" 
+                  className="password-toggle" 
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? '👁️‍🗨️' : '👁️‍🗨️'}
+                </button>
+              </div>
               {errors.password && <span className="error">{errors.password}</span>}
             </div>
 
@@ -161,7 +186,7 @@ const Login = ({ setActiveTab }) => {
 
             <div className="form-links">
               <a href="#" className="link">Forgot Password?</a>
-              <a href="#" className="link primary" onClick={(e) => { e.preventDefault(); setActiveTab('register'); }}>
+              <a href="#" className="link primary" onClick={(e) => { e.preventDefault(); navigate('/register'); }}>
                 New User? Register Here
               </a>
             </div>

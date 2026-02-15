@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import './Register.css';
 
-const Register = ({ setActiveTab }) => {
+const Register = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     fullName: '',
     gender: '',
@@ -22,7 +24,7 @@ const Register = ({ setActiveTab }) => {
     pincode: '',
     annualIncome: '',
     incomeSource: '',
-    role: ''
+    role: 'BENEFICIARY'
   });
 
   const [errors, setErrors] = useState({});
@@ -72,7 +74,6 @@ const Register = ({ setActiveTab }) => {
     if (!formData.pincode || !/^\d{6}$/.test(formData.pincode)) {
       newErrors.pincode = 'Valid 6-digit pincode is required';
     }
-    if (!formData.role) newErrors.role = 'Role is required';
     return newErrors;
   };
 
@@ -98,13 +99,13 @@ const Register = ({ setActiveTab }) => {
       const response = await fetch('http://localhost:8080/api/users/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({ ...formData, role: 'BENEFICIARY' })
       });
 
       if (response.ok) {
         alert('Registration successful! Redirecting to login...');
         setTimeout(() => {
-          setActiveTab('login');
+          navigate('/login');
           window.scrollTo(0, 0);
         }, 1500);
       } else {
@@ -134,6 +135,9 @@ const Register = ({ setActiveTab }) => {
 
   return (
     <div className="register-page">
+      <button className="back-button" onClick={() => navigate('/register')}>
+        ← Back to Role Selection
+      </button>
       <div className="register-left">
         <motion.div 
           className="left-content"
@@ -192,12 +196,7 @@ const Register = ({ setActiveTab }) => {
                 </div>
                 <div className="form-group">
                   <label>Gender *</label>
-                  <select name="gender" value={formData.gender} onChange={handleChange}>
-                    <option value="">Select Gender</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Other">Other</option>
-                  </select>
+                  <input type="text" name="gender" value={formData.gender} onChange={handleChange} placeholder="Male/Female/Other" />
                   {errors.gender && <span className="error">{errors.gender}</span>}
                 </div>
               </div>
@@ -275,13 +274,7 @@ const Register = ({ setActiveTab }) => {
               <div className="form-row">
                 <div className="form-group">
                   <label>Caste Category *</label>
-                  <select name="casteCategory" value={formData.casteCategory} onChange={handleChange}>
-                    <option value="">Select Category</option>
-                    <option value="SC">Scheduled Caste (SC)</option>
-                    <option value="ST">Scheduled Tribe (ST)</option>
-                    <option value="OBC">Other Backward Class (OBC)</option>
-                    <option value="General">General</option>
-                  </select>
+                  <input type="text" name="casteCategory" value={formData.casteCategory} onChange={handleChange} placeholder="SC/ST/OBC/General" />
                   {errors.casteCategory && <span className="error">{errors.casteCategory}</span>}
                 </div>
                 <div className="form-group">
@@ -312,12 +305,7 @@ const Register = ({ setActiveTab }) => {
               <div className="form-row">
                 <div className="form-group">
                   <label>State *</label>
-                  <select name="state" value={formData.state} onChange={handleChange}>
-                    <option value="">Select State</option>
-                    {indianStates.map(state => (
-                      <option key={state} value={state}>{state}</option>
-                    ))}
-                  </select>
+                  <input type="text" name="state" value={formData.state} onChange={handleChange} placeholder="Enter state" />
                   {errors.state && <span className="error">{errors.state}</span>}
                 </div>
                 <div className="form-group">
@@ -352,32 +340,8 @@ const Register = ({ setActiveTab }) => {
                 </div>
                 <div className="form-group">
                   <label>Income Source</label>
-                  <select name="incomeSource" value={formData.incomeSource} onChange={handleChange}>
-                    <option value="">Select Source</option>
-                    <option value="Agriculture">Agriculture</option>
-                    <option value="Business">Business</option>
-                    <option value="Employment">Employment</option>
-                    <option value="Daily Wage">Daily Wage</option>
-                    <option value="Other">Other</option>
-                  </select>
+                  <input type="text" name="incomeSource" value={formData.incomeSource} onChange={handleChange} placeholder="Agriculture/Business/Employment/Daily Wage/Other" />
                 </div>
-              </div>
-            </div>
-
-            <div className="form-section">
-              <h3>User Role</h3>
-              <div className="form-group">
-                <label>Select Role *</label>
-                <select name="role" value={formData.role} onChange={handleChange}>
-                  <option value="">Select Role</option>
-                  <option value="BENEFICIARY">Beneficiary</option>
-                  <option value="FIELD_OFFICER">Field Verification Officer</option>
-                  <option value="STATE_ADMIN">Department Admin</option>
-                  <option value="BENEFICIARY">System Administrator</option>
-                  <option value="FIELD_OFFICER">Monitoring & Audit Officer</option>
-                  <option value="FIELD_OFFICER">Scheme Sanctioning Authority</option> 
-                </select>
-                {errors.role && <span className="error">{errors.role}</span>}
               </div>
             </div>
 

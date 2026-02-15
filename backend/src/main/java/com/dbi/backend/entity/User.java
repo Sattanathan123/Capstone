@@ -64,8 +64,26 @@ public class User {
     
     private String incomeSource;
     
+    // Role-specific fields
+    private String employeeId;
+    private String idCardNumber;
+    private String assignedState;
+    private String assignedDistrict;
+    private String assignedBlock;
+    private String departmentName;
+    private String designation;
+    private String officeLocation;
+    private String adminLevel;
+    private String accessGrantedBy;
+    private String auditLicenseNumber;
+    private String monitoringState;
+    private String monitoringDistrict;
+    private String departmentToMonitor;
+    private String sanctioningLevel;
+    private Double maxSanctionAmount;
+    
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private UserRole role;
     
     @Column(nullable = false, updatable = false)
