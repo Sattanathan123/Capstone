@@ -3,12 +3,15 @@ package com.dbi.backend.service;
 import com.dbi.backend.dto.BeneficiaryEligibleSchemesDTO;
 import com.dbi.backend.entity.Scheme;
 import com.dbi.backend.entity.User;
+import com.dbi.backend.entity.Application;
 import com.dbi.backend.repository.SchemeRepository;
 import com.dbi.backend.repository.UserRepository;
+import com.dbi.backend.repository.ApplicationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.time.LocalDateTime;
 
 @Service
 public class BeneficiarySchemeService {
@@ -18,6 +21,9 @@ public class BeneficiarySchemeService {
     
     @Autowired
     private SchemeRepository schemeRepository;
+    
+    @Autowired
+    private ApplicationRepository applicationRepository;
     
     public BeneficiaryEligibleSchemesDTO getEligibleSchemes(Long userId) throws Exception {
         User user = userRepository.findById(userId)
@@ -44,24 +50,26 @@ public class BeneficiarySchemeService {
     }
     
     private boolean isEligible(User user, Scheme scheme) {
-        // Check income eligibility
         if (user.getAnnualIncome() == null) {
             return false;
         }
+        
         boolean incomeEligible = user.getAnnualIncome() >= scheme.getMinIncome() 
                                 && user.getAnnualIncome() <= scheme.getMaxIncome();
         
-        // Check community eligibility
-        boolean communityEligible = scheme.getCommunity().equalsIgnoreCase(user.getCasteCategory())
-                                   || scheme.getCommunity().equalsIgnoreCase("OTHERS")
-                                   || scheme.getCommunity().equalsIgnoreCase("ALL");
+        String schemeCommunity = scheme.getCommunity().toUpperCase();
+        String userCommunity = user.getCasteCategory().toUpperCase();
+        boolean communityEligible = schemeCommunity.equals(userCommunity)
+                                   || schemeCommunity.equals("OTHERS")
+                                   || schemeCommunity.equals("ALL");
         
-        // Check occupation eligibility
-        boolean occupationEligible = scheme.getOccupation().equalsIgnoreCase(user.getIncomeSource())
-                                    || scheme.getOccupation().equalsIgnoreCase("Others")
-                                    || scheme.getOccupation().equalsIgnoreCase("ALL");
+        String schemeOccupation = scheme.getOccupation().toUpperCase();
+        String userOccupation = user.getIncomeSource().toUpperCase();
+        boolean occupationEligible = schemeOccupation.equals(userOccupation)
+                                    || schemeOccupation.equals("OTHERS")
+                                    || schemeOccupation.equals("ALL")
+                                    || schemeOccupation.contains("AGRICULTURE") && userOccupation.contains("AGRI");
         
-        // Scheme must be active
         boolean isActive = "ACTIVE".equalsIgnoreCase(scheme.getStatus());
         
         return incomeEligible && communityEligible && occupationEligible && isActive;
@@ -74,13 +82,43 @@ public class BeneficiarySchemeService {
         Scheme scheme = schemeRepository.findById(schemeId)
             .orElseThrow(() -> new Exception("Scheme not found"));
         
-        // Verify eligibility before applying
         if (!isEligible(user, scheme)) {
             throw new Exception("You are not eligible for this scheme");
         }
         
-        // TODO: Create application record in database
-        // For now, just validate eligibility
-        System.out.println("Application submitted for user: " + user.getId() + " scheme: " + scheme.getId());
+        Application app = new Application();
+        app.setUser(user);
+        app.setScheme(scheme);
+        app.setStatus("SUBMITTED");
+        app.setAppliedDate(LocalDateTime.now());
+        applicationRepository.save(app);
+    }
+    
+    public List<ApplicationDTO> getUserApplications(Long userId) {
+        return applicationRepository.findByUserId(userId).stream()
+            .map(app -> new ApplicationDTO(
+                app.getId(),
+                app.getScheme().getSchemeName(),
+                app.getStatus(),
+                app.getAppliedDate(),
+                app.getRemarks()
+            ))
+            .collect(Collectors.toList());
+    }
+    
+    public static class ApplicationDTO {
+        public Long id;
+        public String schemeName;
+        public String status;
+        public LocalDateTime appliedDate;
+        public String remarks;
+        
+        public ApplicationDTO(Long id, String schemeName, String status, LocalDateTime appliedDate, String remarks) {
+            this.id = id;
+            this.schemeName = schemeName;
+            this.status = status;
+            this.appliedDate = appliedDate;
+            this.remarks = remarks;
+        }
     }
 }

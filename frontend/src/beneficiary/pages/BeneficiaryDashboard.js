@@ -7,6 +7,7 @@ const BeneficiaryDashboard = () => {
   const navigate = useNavigate();
   const [beneficiary, setBeneficiary] = useState(null);
   const [eligibleSchemes, setEligibleSchemes] = useState([]);
+  const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -16,52 +17,33 @@ const BeneficiaryDashboard = () => {
   const fetchBeneficiaryData = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:8080/api/beneficiary/eligible-schemes', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const [schemesRes, appsRes] = await Promise.all([
+        fetch('http://localhost:8080/api/beneficiary/eligible-schemes', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }),
+        fetch('http://localhost:8080/api/beneficiary/applications', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+      ]);
 
-      if (response.ok) {
-        const data = await response.json();
+      if (schemesRes.ok) {
+        const data = await schemesRes.json();
         setBeneficiary(data.beneficiary);
         setEligibleSchemes(data.eligibleSchemes);
-      } else {
-        alert('Failed to load data');
+      }
+      if (appsRes.ok) {
+        const apps = await appsRes.json();
+        setApplications(apps);
       }
     } catch (error) {
       console.error('Error fetching data:', error);
-      alert('Error loading dashboard');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleApply = async (schemeId) => {
-    if (!window.confirm('Are you sure you want to apply for this scheme?')) {
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:8080/api/beneficiary/apply/${schemeId}`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.ok) {
-        alert('Application submitted successfully!');
-        fetchBeneficiaryData();
-      } else {
-        const error = await response.text();
-        alert('Application failed: ' + error);
-      }
-    } catch (error) {
-      console.error('Error applying:', error);
-      alert('Error submitting application');
-    }
+  const handleApply = (schemeId) => {
+    navigate(`/beneficiary/apply/${schemeId}`);
   };
 
   const handleLogout = () => {
@@ -115,6 +97,50 @@ const BeneficiaryDashboard = () => {
             </div>
           </div>
         </section>
+
+        {/* Application Tracking Section */}
+        {applications.length > 0 && (
+          <section className="tracking-section">
+            <h2>📍 Track Your Applications</h2>
+            <div className="applications-list">
+              {applications.map((app) => (
+                <div key={app.id} className="application-card">
+                  <div className="app-header">
+                    <h3>{app.schemeName}</h3>
+                    <span className={`status-badge ${app.status.toLowerCase()}`}>
+                      {app.status}
+                    </span>
+                  </div>
+                  <div className="journey-map">
+                    <div className={`journey-step ${['SUBMITTED', 'UNDER_REVIEW', 'APPROVED', 'DISBURSED'].includes(app.status) ? 'completed' : ''}`}>
+                      <div className="step-icon">📝</div>
+                      <div className="step-label">Submitted</div>
+                    </div>
+                    <div className={`journey-line ${['UNDER_REVIEW', 'APPROVED', 'DISBURSED'].includes(app.status) ? 'completed' : ''}`}></div>
+                    <div className={`journey-step ${['UNDER_REVIEW', 'APPROVED', 'DISBURSED'].includes(app.status) ? 'completed' : ''}`}>
+                      <div className="step-icon">🔍</div>
+                      <div className="step-label">Under Review</div>
+                    </div>
+                    <div className={`journey-line ${['APPROVED', 'DISBURSED'].includes(app.status) ? 'completed' : ''}`}></div>
+                    <div className={`journey-step ${['APPROVED', 'DISBURSED'].includes(app.status) ? 'completed' : app.status === 'REJECTED' ? 'rejected' : ''}`}>
+                      <div className="step-icon">{app.status === 'REJECTED' ? '❌' : '✅'}</div>
+                      <div className="step-label">{app.status === 'REJECTED' ? 'Rejected' : 'Approved'}</div>
+                    </div>
+                    <div className={`journey-line ${app.status === 'DISBURSED' ? 'completed' : ''}`}></div>
+                    <div className={`journey-step ${app.status === 'DISBURSED' ? 'completed' : ''}`}>
+                      <div className="step-icon">💰</div>
+                      <div className="step-label">Disbursed</div>
+                    </div>
+                  </div>
+                  <div className="app-details">
+                    <span>Applied: {new Date(app.appliedDate).toLocaleDateString()}</span>
+                    {app.remarks && <p className="remarks">Remarks: {app.remarks}</p>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Eligible Schemes Section */}
         <section className="schemes-section">

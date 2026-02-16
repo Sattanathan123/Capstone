@@ -15,6 +15,7 @@ import SystemAdminRegister from './pages/register/SystemAdminRegister';
 import MonitoringOfficerRegister from './pages/register/MonitoringOfficerRegister';
 import SanctioningAuthorityRegister from './pages/register/SanctioningAuthorityRegister';
 import BeneficiaryDashboard from './beneficiary/pages/BeneficiaryDashboard';
+import SchemeApplication from './beneficiary/pages/SchemeApplication';
 import DepartmentAdminDashboard from './admin/pages/DepartmentAdminDashboard';
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
         <Route path="/register/monitoring-officer" element={<MonitoringOfficerRegister />} />
         <Route path="/register/sanctioning-authority" element={<SanctioningAuthorityRegister />} />
         <Route path="/beneficiary/dashboard" element={<ProtectedRoute role="BENEFICIARY"><BeneficiaryDashboard /></ProtectedRoute>} />
+        <Route path="/beneficiary/apply/:schemeId" element={<ProtectedRoute role="BENEFICIARY"><SchemeApplication /></ProtectedRoute>} />
         <Route path="/admin/dashboard" element={<ProtectedRoute roles={["DEPT_ADMIN", "DISTRICT_ADMIN", "STATE_ADMIN", "FIELD_VERIFICATION_OFFICER", "SYSTEM_ADMIN", "MONITORING_AUDIT_OFFICER", "SCHEME_SANCTIONING_AUTHORITY"]}><DepartmentAdminDashboard /></ProtectedRoute>} />
         <Route path="/*" element={<MainLayout />} />
       </Routes>

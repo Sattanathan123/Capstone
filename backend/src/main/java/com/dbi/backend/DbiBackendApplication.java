@@ -7,5 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class DbiBackendApplication {
     public static void main(String[] args) {
         SpringApplication.run(DbiBackendApplication.class, args);
+        System.out.print("Connection Successful");
     }
 }

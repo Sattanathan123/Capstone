@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/beneficiary")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:4000"})
 public class BeneficiaryController {
     
     @Autowired
@@ -37,6 +37,17 @@ public class BeneficiaryController {
             return ResponseEntity.ok("{\"message\": \"Application submitted successfully\"}");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("{\"error\": \"" + e.getMessage() + "\"}");
+        }
+    }
+    
+    @GetMapping("/applications")
+    public ResponseEntity<?> getApplications(@RequestHeader("Authorization") String token) {
+        try {
+            Long userId = extractUserIdFromToken(token);
+            return ResponseEntity.ok(beneficiarySchemeService.getUserApplications(userId));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body("{\"error\": \"" + e.getMessage() + "\"}");
         }
     }
