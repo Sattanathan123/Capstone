@@ -126,6 +126,11 @@ public class UserService {
         return new LoginResponseDTO(token, userDTO);
     }
     
+    public User getUserById(Long userId) throws Exception {
+        return userRepository.findById(userId)
+            .orElseThrow(() -> new Exception("User not found"));
+    }
+    
     private String hashPassword(String password) throws Exception {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
         byte[] hash = digest.digest(password.getBytes(StandardCharsets.UTF_8));

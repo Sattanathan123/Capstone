@@ -17,23 +17,28 @@ const BeneficiaryDashboard = () => {
   const fetchBeneficiaryData = async () => {
     try {
       const token = localStorage.getItem('token');
-      const [schemesRes, appsRes] = await Promise.all([
-        fetch('http://localhost:8080/api/beneficiary/eligible-schemes', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch('http://localhost:8080/api/beneficiary/applications', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        })
-      ]);
+      const schemesRes = await fetch('http://localhost:8080/api/beneficiary/eligible-schemes', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
 
       if (schemesRes.ok) {
         const data = await schemesRes.json();
         setBeneficiary(data.beneficiary);
         setEligibleSchemes(data.eligibleSchemes);
       }
-      if (appsRes.ok) {
-        const apps = await appsRes.json();
-        setApplications(apps);
+      
+      try {
+        const appsRes = await fetch('http://localhost:8080/api/beneficiary/applications', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (appsRes.ok) {
+          const apps = await appsRes.json();
+          setApplications(apps);
+        } else {
+          setApplications([]);
+        }
+      } catch (err) {
+        setApplications([]);
       }
     } catch (error) {
       console.error('Error fetching data:', error);

@@ -22,19 +22,18 @@ const SchemeApplication = () => {
   const fetchData = async () => {
     try {
       const token = localStorage.getItem('token');
-      const user = JSON.parse(localStorage.getItem('user'));
       
-      const schemeRes = await fetch(`http://localhost:8080/api/schemes/${schemeId}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      
-      const beneficiaryRes = await fetch('http://localhost:8080/api/beneficiary/profile', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const [schemeRes, profileRes] = await Promise.all([
+        fetch(`http://localhost:8080/api/beneficiary/schemes/${schemeId}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }),
+        fetch('http://localhost:8080/api/users/profile', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+      ]);
 
       if (schemeRes.ok) setScheme(await schemeRes.json());
-      if (beneficiaryRes.ok) setBeneficiary(await beneficiaryRes.json());
-      else setBeneficiary(user);
+      if (profileRes.ok) setBeneficiary(await profileRes.json());
     } catch (error) {
       console.error('Error:', error);
     } finally {
@@ -62,7 +61,7 @@ const SchemeApplication = () => {
 
       if (response.ok) {
         alert('Application submitted successfully!');
-        navigate('/beneficiary/dashboard');
+        window.location.href = '/beneficiary/dashboard';
       } else {
         alert('Application failed: ' + await response.text());
       }
@@ -156,30 +155,22 @@ const SchemeApplication = () => {
           <section className="form-section">
             <h3>Required Documents</h3>
             <div className="documents-grid">
-              {scheme?.requiresAadhaar && (
-                <div className="document-upload">
-                  <label>Aadhaar Card *</label>
-                  <input type="file" onChange={(e) => handleFileChange(e, 'aadhaar')} accept=".pdf,.jpg,.jpeg,.png" />
-                </div>
-              )}
-              {scheme?.requiresIncomeCertificate && (
-                <div className="document-upload">
-                  <label>Income Certificate *</label>
-                  <input type="file" onChange={(e) => handleFileChange(e, 'incomeCertificate')} accept=".pdf,.jpg,.jpeg,.png" />
-                </div>
-              )}
-              {scheme?.requiresCommunityCertificate && (
-                <div className="document-upload">
-                  <label>Community Certificate *</label>
-                  <input type="file" onChange={(e) => handleFileChange(e, 'communityCertificate')} accept=".pdf,.jpg,.jpeg,.png" />
-                </div>
-              )}
-              {scheme?.requiresOccupationProof && (
-                <div className="document-upload">
-                  <label>Occupation Proof *</label>
-                  <input type="file" onChange={(e) => handleFileChange(e, 'occupationProof')} accept=".pdf,.jpg,.jpeg,.png" />
-                </div>
-              )}
+              <div className="document-upload">
+                <label>Aadhaar Card *</label>
+                <input type="file" onChange={(e) => handleFileChange(e, 'aadhaar')} accept=".pdf,.jpg,.jpeg,.png" required />
+              </div>
+              <div className="document-upload">
+                <label>Income Certificate *</label>
+                <input type="file" onChange={(e) => handleFileChange(e, 'incomeCertificate')} accept=".pdf,.jpg,.jpeg,.png" required />
+              </div>
+              <div className="document-upload">
+                <label>Community Certificate *</label>
+                <input type="file" onChange={(e) => handleFileChange(e, 'communityCertificate')} accept=".pdf,.jpg,.jpeg,.png" required />
+              </div>
+              <div className="document-upload">
+                <label>Occupation Proof *</label>
+                <input type="file" onChange={(e) => handleFileChange(e, 'occupationProof')} accept=".pdf,.jpg,.jpeg,.png" required />
+              </div>
             </div>
           </section>
 

@@ -18,50 +18,53 @@ public class Scheme {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Column(nullable = false)
+    @Column(name = "scheme_name")
     private String schemeName;
     
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "scheme_description", columnDefinition = "TEXT")
     private String schemeDescription;
     
-    @Column(nullable = false)
-    private String schemeComponent; // ADARSH_GRAM, GIA, HOSTEL
+    @Column(name = "benefit_type")
+    private String benefitType;
     
-    @Column(nullable = false)
-    private String status; // ACTIVE, INACTIVE
+    @Column(name = "scheme_component")
+    private String schemeComponent;
     
-    // Eligibility Criteria
-    @Column(nullable = false)
+    @Column(name = "status")
+    private String status;
+    
+    @Column(name = "min_income")
     private Double minIncome;
     
-    @Column(nullable = false)
+    @Column(name = "max_income")
     private Double maxIncome;
     
-    @Column(nullable = false)
-    private String community; // SC, ST, OBC, GENERAL, OTHERS
-    
-    @Column(nullable = false)
-    private String occupation;
-    
-    // Benefit Details
-    @Column(nullable = false)
-    private String benefitType; // FINANCIAL, SERVICE, INFRASTRUCTURE
-    
-    @Column(nullable = false)
+    @Column(name = "max_benefit_amount")
     private Double maxBenefitAmount;
     
-    // Timeline
-    @Column(nullable = false)
+    @Column(name = "community")
+    private String community;
+    
+    @Column(name = "occupation")
+    private String occupation;
+    
+    @Column(name = "application_start_date")
     private LocalDate applicationStartDate;
     
-    @Column(nullable = false)
+    @Column(name = "application_end_date")
     private LocalDate applicationEndDate;
     
-    // Documents Required
-    private Boolean requiresAadhaar = true;
-    private Boolean requiresIncomeCertificate = true;
-    private Boolean requiresCommunityCertificate = true;
-    private Boolean requiresOccupationProof = true;
+    @Column(name = "requires_aadhaar")
+    private Boolean requiresAadhaar;
+    
+    @Column(name = "requires_income_certificate")
+    private Boolean requiresIncomeCertificate;
+    
+    @Column(name = "requires_community_certificate")
+    private Boolean requiresCommunityCertificate;
+    
+    @Column(name = "requires_occupation_proof")
+    private Boolean requiresOccupationProof;
     
     @Column(name = "created_at")
     private LocalDateTime createdAt;
