@@ -26,9 +26,8 @@ function App() {
         <Route path="/register" element={<RoleSelection />} />
         <Route path="/register/beneficiary" element={<Register />} />
         <Route path="/register/field-officer" element={<FieldOfficerRegister />} />
-        <Route path="/register/dept-admin" element={<DeptAdminRegister />} />
+        <Route path="/register/district-admin" element={<DeptAdminRegister />} />
         <Route path="/register/system-admin" element={<SystemAdminRegister />} />
-        <Route path="/register/monitoring-officer" element={<MonitoringOfficerRegister />} />
         <Route path="/register/sanctioning-authority" element={<SanctioningAuthorityRegister />} />
         <Route path="/beneficiary/dashboard" element={<ProtectedRoute role="BENEFICIARY"><BeneficiaryDashboard /></ProtectedRoute>} />
         <Route path="/beneficiary/apply/:schemeId" element={<ProtectedRoute role="BENEFICIARY"><SchemeApplication /></ProtectedRoute>} />

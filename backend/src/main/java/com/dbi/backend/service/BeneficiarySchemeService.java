@@ -91,10 +91,12 @@ public class BeneficiarySchemeService {
         }
         
         Application app = new Application();
+        app.setApplicationId("APP" + System.currentTimeMillis() + userId);
         app.setUser(user);
         app.setScheme(scheme);
         app.setStatus("SUBMITTED");
         app.setAppliedDate(LocalDateTime.now());
+        app.setSchemeComponent("General");
         
         Application saved = applicationRepository.save(app);
         applicationRepository.flush();

@@ -95,19 +95,19 @@ const SchemeApplication = () => {
             <div className="details-grid">
               <div className="detail-item">
                 <label>Full Name</label>
-                <input type="text" value={beneficiary?.fullName || ''} disabled />
+                <input type="text" value={beneficiary?.fullName || ''} readOnly />
               </div>
               <div className="detail-item">
                 <label>Mobile Number</label>
-                <input type="text" value={beneficiary?.mobileNumber || ''} disabled />
+                <input type="text" value={beneficiary?.mobileNumber || ''} readOnly />
               </div>
               <div className="detail-item">
                 <label>Email</label>
-                <input type="text" value={beneficiary?.email || 'N/A'} disabled />
+                <input type="text" value={beneficiary?.email || 'N/A'} readOnly />
               </div>
               <div className="detail-item">
                 <label>Date of Birth</label>
-                <input type="text" value={beneficiary?.dateOfBirth || 'N/A'} disabled />
+                <input type="text" value={beneficiary?.dateOfBirth || 'N/A'} readOnly />
               </div>
             </div>
           </section>

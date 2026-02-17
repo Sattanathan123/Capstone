@@ -196,7 +196,12 @@ const Register = () => {
                 </div>
                 <div className="form-group">
                   <label>Gender *</label>
-                  <input type="text" name="gender" value={formData.gender} onChange={handleChange} placeholder="Male/Female/Other" />
+                  <select name="gender" value={formData.gender} onChange={handleChange} required>
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
                   {errors.gender && <span className="error">{errors.gender}</span>}
                 </div>
               </div>
@@ -274,7 +279,13 @@ const Register = () => {
               <div className="form-row">
                 <div className="form-group">
                   <label>Caste Category *</label>
-                  <input type="text" name="casteCategory" value={formData.casteCategory} onChange={handleChange} placeholder="SC/ST/OBC/General" />
+                  <select name="casteCategory" value={formData.casteCategory} onChange={handleChange} required>
+                    <option value="">Select Category</option>
+                    <option value="SC">Scheduled Caste (SC)</option>
+                    <option value="ST">Scheduled Tribe (ST)</option>
+                    <option value="OBC">Other Backward Class (OBC)</option>
+                    <option value="General">General</option>
+                  </select>
                   {errors.casteCategory && <span className="error">{errors.casteCategory}</span>}
                 </div>
                 <div className="form-group">
@@ -340,7 +351,14 @@ const Register = () => {
                 </div>
                 <div className="form-group">
                   <label>Income Source</label>
-                  <input type="text" name="incomeSource" value={formData.incomeSource} onChange={handleChange} placeholder="Agriculture/Business/Employment/Daily Wage/Other" />
+                  <select name="incomeSource" value={formData.incomeSource} onChange={handleChange}>
+                    <option value="">Select Income Source</option>
+                    <option value="Agriculture">Agriculture</option>
+                    <option value="Business">Business</option>
+                    <option value="Employment">Employment</option>
+                    <option value="Daily Wage">Daily Wage</option>
+                    <option value="Other">Other</option>
+                  </select>
                 </div>
               </div>
             </div>

@@ -258,6 +258,7 @@
   grid-template-columns: 1fr 1fr;
   gap: 1.5rem;
   width: 100%;
+  overflow: visible;
 }
 
 .form-group {
@@ -267,6 +268,7 @@
   position: relative;
   min-width: 0;
   flex: 1;
+  overflow: visible;
 }
 
 .form-group label {
@@ -279,26 +281,22 @@
 .form-group input,
 .form-group select,
 .form-group textarea {
-  padding: 0.6rem 0.8rem;
+  padding: 0.75rem 1rem;
   border: 2px solid #e9ecef;
   border-radius: 8px;
-  font-size: 0.95rem;
+  font-size: 1rem;
   transition: all 0.3s ease;
   width: 100%;
   box-sizing: border-box;
-  height: 42px;
-  overflow: visible;
+  min-height: 44px;
+  line-height: normal;
 }
 
 .form-group select {
   padding-right: 2.5rem;
-  padding-left: 0.5rem;
-  appearance: auto;
-  -webkit-appearance: menulist;
-  -moz-appearance: menulist;
-  min-width: 100%;
-  font-size: 0.65rem;
-  width: 115%;
+  background-color: white;
+  cursor: pointer;
+  overflow: visible;
 }
 
 .form-group input::placeholder,

@@ -68,7 +68,12 @@ const DeptAdminRegister = () => {
                 </div>
                 <div className="form-group">
                   <label>Gender *</label>
-                  <input type="text" name="gender" value={formData.gender} onChange={handleChange} required />
+                  <select name="gender" value={formData.gender} onChange={handleChange} required>
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
                 </div>
               </div>
               <div className="form-group">

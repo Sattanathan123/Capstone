@@ -17,14 +17,21 @@ const BeneficiaryDashboard = () => {
   const fetchBeneficiaryData = async () => {
     try {
       const token = localStorage.getItem('token');
+      console.log('Token:', token);
+      
       const schemesRes = await fetch('http://localhost:8080/api/beneficiary/eligible-schemes', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
+      console.log('Response status:', schemesRes.status);
+      
       if (schemesRes.ok) {
         const data = await schemesRes.json();
+        console.log('Data received:', data);
         setBeneficiary(data.beneficiary);
         setEligibleSchemes(data.eligibleSchemes);
+      } else {
+        console.error('Failed:', await schemesRes.text());
       }
       
       try {
