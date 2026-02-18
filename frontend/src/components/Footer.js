@@ -1,7 +1,10 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Footer.css';
 
-const Footer = ({ setActiveTab }) => {
+const Footer = () => {
+  const navigate = useNavigate();
+  
   return (
     <footer className="footer">
       <div className="footer-content">
@@ -12,9 +15,9 @@ const Footer = ({ setActiveTab }) => {
         <div className="footer-section">
           <h4>Quick Links</h4>
           <ul>
-            <li><a href="#home" onClick={(e) => { e.preventDefault(); setActiveTab('home'); window.scrollTo(0, 0); }}>Home</a></li>
-            <li><a href="#about" onClick={(e) => { e.preventDefault(); setActiveTab('about'); window.scrollTo(0, 0); }}>About</a></li>
-            <li><a href="#features" onClick={(e) => { e.preventDefault(); setActiveTab('features'); window.scrollTo(0, 0); }}>Features</a></li>
+            <li><a href="#home" onClick={(e) => { e.preventDefault(); navigate('/'); window.scrollTo(0, 0); }}>Home</a></li>
+            <li><a href="#about" onClick={(e) => { e.preventDefault(); navigate('/about'); window.scrollTo(0, 0); }}>About</a></li>
+            <li><a href="#features" onClick={(e) => { e.preventDefault(); navigate('/features'); window.scrollTo(0, 0); }}>Features</a></li>
             <li><a href="#contact">Contact</a></li>
           </ul>
         </div>

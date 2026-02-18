@@ -86,6 +86,29 @@ const Login = () => {
 
   return (
     <div className="login-page">
+      <div className="login-left">
+        <motion.div 
+          className="left-content"
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8 }}
+        >
+          <h1>Digital Beneficiary Identification</h1>
+          <p className="subtitle">Secure • Transparent • Inclusive</p>
+          
+          <div className="features-list">
+            <div className="feature-item">
+              <span>Bank-grade Security</span>
+            </div>
+            <div className="feature-item">
+              <span>Instant Verification</span>
+            </div>
+            <div className="feature-item">
+              <span>Accessible to All</span>
+            </div>
+          </div>
+        </motion.div>
+      </div>
       <div className="login-right">
         <motion.div 
           className="form-container"

@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import './Home.css';
 import AwarenessCards from '../components/AwarenessCards';
 import TrustBadges from '../components/TrustBadges';
 import CallToAction from '../components/CallToAction';
 
-const Home = ({ setActiveTab }) => {
+const Home = () => {
+  const navigate = useNavigate();
   const { scrollYProgress } = useScroll();
   const [scrollY, setScrollY] = useState(0);
   
@@ -60,7 +62,7 @@ const Home = ({ setActiveTab }) => {
               className="btn-primary"
               whileHover={{ scale: 1.05, y: -3 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => { setActiveTab('register'); window.scrollTo(0, 0); }}
+              onClick={() => { navigate('/register'); window.scrollTo(0, 0); }}
             >
               Register Now
             </motion.button>
@@ -68,7 +70,7 @@ const Home = ({ setActiveTab }) => {
               className="btn-secondary"
               whileHover={{ scale: 1.05, y: -3 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => { setActiveTab('features'); window.scrollTo(0, 0); }}
+              onClick={() => { navigate('/features'); window.scrollTo(0, 0); }}
             >
               Learn More
             </motion.button>
@@ -228,7 +230,7 @@ const Home = ({ setActiveTab }) => {
         ))}
       </section>
 
-      <CallToAction setActiveTab={setActiveTab} />
+      <CallToAction />
     </div>
   );
 };

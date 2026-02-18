@@ -1,8 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import './CallToAction.css';
 
-const CallToAction = ({ setActiveTab }) => {
+const CallToAction = () => {
+  const navigate = useNavigate();
+  
   return (
     <motion.section 
       className="cta-section"
@@ -38,7 +41,7 @@ const CallToAction = ({ setActiveTab }) => {
               boxShadow: "0 15px 40px rgba(255, 153, 51, 0.5)"
             }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => { setActiveTab('register'); window.scrollTo(0, 0); }}
+            onClick={() => { navigate('/register'); window.scrollTo(0, 0); }}
           >
             <span className="btn-icon">📝</span>
             <span className="btn-text">
@@ -55,6 +58,7 @@ const CallToAction = ({ setActiveTab }) => {
               boxShadow: "0 15px 40px rgba(0, 61, 130, 0.3)"
             }}
             whileTap={{ scale: 0.95 }}
+            onClick={() => { navigate('/login'); window.scrollTo(0, 0); }}
           >
             <span className="btn-icon">🔑</span>
             <span className="btn-text">

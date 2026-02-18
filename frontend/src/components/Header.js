@@ -1,8 +1,20 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate, useLocation } from 'react-router-dom';
 import './Header.css';
 
-const Header = ({ activeTab, setActiveTab, onLoginClick, onSignupClick }) => {
+const Header = ({ onLoginClick, onSignupClick }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  
+  const getActiveTab = () => {
+    if (location.pathname === '/about') return 'about';
+    if (location.pathname === '/features') return 'features';
+    return 'home';
+  };
+  
+  const activeTab = getActiveTab();
+  
   return (
     <motion.header 
       className="header"
@@ -40,19 +52,19 @@ const Header = ({ activeTab, setActiveTab, onLoginClick, onSignupClick }) => {
       <nav className="nav-tabs">
         <button 
           className={activeTab === 'home' ? 'tab active' : 'tab'}
-          onClick={() => setActiveTab('home')}
+          onClick={() => navigate('/')}
         >
           Home
         </button>
         <button 
           className={activeTab === 'about' ? 'tab active' : 'tab'}
-          onClick={() => setActiveTab('about')}
+          onClick={() => navigate('/about')}
         >
           About
         </button>
         <button 
           className={activeTab === 'features' ? 'tab active' : 'tab'}
-          onClick={() => setActiveTab('features')}
+          onClick={() => navigate('/features')}
         >
           Features
         </button>

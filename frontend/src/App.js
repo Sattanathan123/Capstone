@@ -59,8 +59,6 @@ function ProtectedRoute({ children, role, roles }) {
 }
 
 function MainLayout() {
-  const [activeTab, setActiveTab] = React.useState('home');
-
   const handleLoginClick = () => {
     window.location.href = '/login';
   };
@@ -72,20 +70,18 @@ function MainLayout() {
   return (
     <>
       <Header 
-        activeTab={activeTab} 
-        setActiveTab={setActiveTab}
         onLoginClick={handleLoginClick}
         onSignupClick={handleSignupClick}
       />
       <main className="main-content">
         <Routes>
-          <Route path="/" element={<Home setActiveTab={setActiveTab} />} />
+          <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/features" element={<Features />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
-      <Footer setActiveTab={setActiveTab} />
+      <Footer />
     </>
   );
 }
