@@ -193,3 +193,26 @@
     grid-template-columns: 1fr;
   }
 }
+
+.edit-btn {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.edit-btn:hover {
+  background: #0056b3;
+  transform: translateY(-1px);
+}
+
+.detail-item input:not(:disabled),
+.detail-item textarea:not(:disabled) {
+  background: white;
+  border-color: #007bff;
+}

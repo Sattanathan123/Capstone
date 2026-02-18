@@ -14,6 +14,8 @@ const SchemeApplication = () => {
     occupationProof: null
   });
   const [loading, setLoading] = useState(true);
+  const [editMode, setEditMode] = useState(false);
+  const [editedData, setEditedData] = useState({});
 
   useEffect(() => {
     fetchData();
@@ -33,7 +35,11 @@ const SchemeApplication = () => {
       ]);
 
       if (schemeRes.ok) setScheme(await schemeRes.json());
-      if (profileRes.ok) setBeneficiary(await profileRes.json());
+      if (profileRes.ok) {
+        const data = await profileRes.json();
+        setBeneficiary(data);
+        setEditedData(data);
+      }
     } catch (error) {
       console.error('Error:', error);
     } finally {
@@ -43,6 +49,10 @@ const SchemeApplication = () => {
 
   const handleFileChange = (e, docType) => {
     setDocuments({ ...documents, [docType]: e.target.files[0] });
+  };
+
+  const handleEditChange = (field, value) => {
+    setEditedData({ ...editedData, [field]: value });
   };
 
   const handleSubmit = async (e) => {
@@ -91,23 +101,32 @@ const SchemeApplication = () => {
 
         <form onSubmit={handleSubmit} className="application-form">
           <section className="form-section">
-            <h3>Personal Details</h3>
+            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem'}}>
+              <h3 style={{margin: 0}}>Personal Details</h3>
+              <button type="button" className="edit-btn" onClick={() => setEditMode(!editMode)}>
+                {editMode ? '🔒 Lock' : '✏️ Edit'}
+              </button>
+            </div>
             <div className="details-grid">
               <div className="detail-item">
                 <label>Full Name</label>
-                <input type="text" value={beneficiary?.fullName || ''} readOnly />
+                <input type="text" value={editMode ? (editedData?.fullName || '') : (beneficiary?.fullName || '')} 
+                  onChange={(e) => handleEditChange('fullName', e.target.value)} disabled={!editMode} />
               </div>
               <div className="detail-item">
                 <label>Mobile Number</label>
-                <input type="text" value={beneficiary?.mobileNumber || ''} readOnly />
+                <input type="text" value={editMode ? (editedData?.mobileNumber || '') : (beneficiary?.mobileNumber || '')} 
+                  onChange={(e) => handleEditChange('mobileNumber', e.target.value)} disabled={!editMode} />
               </div>
               <div className="detail-item">
                 <label>Email</label>
-                <input type="text" value={beneficiary?.email || 'N/A'} readOnly />
+                <input type="text" value={editMode ? (editedData?.email || 'N/A') : (beneficiary?.email || 'N/A')} 
+                  onChange={(e) => handleEditChange('email', e.target.value)} disabled={!editMode} />
               </div>
               <div className="detail-item">
                 <label>Date of Birth</label>
-                <input type="text" value={beneficiary?.dateOfBirth || 'N/A'} readOnly />
+                <input type="text" value={editMode ? (editedData?.dateOfBirth || 'N/A') : (beneficiary?.dateOfBirth || 'N/A')} 
+                  onChange={(e) => handleEditChange('dateOfBirth', e.target.value)} disabled={!editMode} />
               </div>
             </div>
           </section>
@@ -117,19 +136,23 @@ const SchemeApplication = () => {
             <div className="details-grid">
               <div className="detail-item full-width">
                 <label>Address</label>
-                <textarea value={beneficiary?.address || ''} disabled rows="2"></textarea>
+                <textarea value={editMode ? (editedData?.address || '') : (beneficiary?.address || '')} 
+                  onChange={(e) => handleEditChange('address', e.target.value)} disabled={!editMode} rows="2"></textarea>
               </div>
               <div className="detail-item">
                 <label>State</label>
-                <input type="text" value={beneficiary?.state || ''} disabled />
+                <input type="text" value={editMode ? (editedData?.state || '') : (beneficiary?.state || '')} 
+                  onChange={(e) => handleEditChange('state', e.target.value)} disabled={!editMode} />
               </div>
               <div className="detail-item">
                 <label>District</label>
-                <input type="text" value={beneficiary?.district || ''} disabled />
+                <input type="text" value={editMode ? (editedData?.district || '') : (beneficiary?.district || '')} 
+                  onChange={(e) => handleEditChange('district', e.target.value)} disabled={!editMode} />
               </div>
               <div className="detail-item">
                 <label>Pincode</label>
-                <input type="text" value={beneficiary?.pincode || ''} disabled />
+                <input type="text" value={editMode ? (editedData?.pincode || '') : (beneficiary?.pincode || '')} 
+                  onChange={(e) => handleEditChange('pincode', e.target.value)} disabled={!editMode} />
               </div>
             </div>
           </section>
