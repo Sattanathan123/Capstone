@@ -16,32 +16,55 @@ const SystemAdminDashboard = () => {
 
   const fetchSystemData = async () => {
     try {
-      // Mock data - replace with actual API calls
-      setUsers([
-        { id: 1, fullName: 'Rajesh Kumar', email: 'rajesh@example.com', role: 'BENEFICIARY', status: 'ACTIVE', registeredDate: '2024-01-10' },
-        { id: 2, fullName: 'Priya Sharma', email: 'priya@example.com', role: 'FIELD_VERIFICATION_OFFICER', status: 'ACTIVE', registeredDate: '2024-01-12' },
-        { id: 3, fullName: 'Amit Singh', email: 'amit@example.com', role: 'DEPT_ADMIN', status: 'ACTIVE', registeredDate: '2024-01-15' },
-        { id: 4, fullName: 'Sunita Devi', email: 'sunita@example.com', role: 'BENEFICIARY', status: 'INACTIVE', registeredDate: '2024-01-08' }
+      const [usersRes, statsRes] = await Promise.all([
+        fetch('http://localhost:8080/api/sysadmin/users'),
+        fetch('http://localhost:8080/api/sysadmin/stats')
       ]);
 
-      setSystemStats({ totalUsers: 1250, activeUsers: 1180, systemUptime: '99.9%' });
+      const usersData = await usersRes.json();
+      const statsData = await statsRes.json();
+
+      setUsers(usersData);
+      setSystemStats(statsData);
     } catch (error) {
       console.error('Error fetching data:', error);
+      alert('Failed to load dashboard data');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleToggleStatus = (userId, currentStatus) => {
-    const newStatus = currentStatus === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
-    console.log(`Toggling user ${userId} to ${newStatus}`);
-    alert(`User ${newStatus === 'ACTIVE' ? 'activated' : 'deactivated'} successfully!`);
-    fetchSystemData();
+  const handleDeleteUser = async (userId, userName) => {
+    if (!window.confirm(`Are you sure you want to delete user: ${userName}?`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:8080/api/sysadmin/users/${userId}`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        alert('User deleted successfully!');
+        fetchSystemData();
+      } else {
+        alert('Failed to delete user');
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      alert('Error deleting user');
+    }
   };
 
-  const handleResetPassword = (userId) => {
-    console.log(`Resetting password for user ${userId}`);
-    alert('Password reset link sent to user email!');
+  const handleViewDetails = async (userId) => {
+    try {
+      const response = await fetch(`http://localhost:8080/api/sysadmin/users/${userId}`);
+      const userData = await response.json();
+      setSelectedUser(userData);
+    } catch (error) {
+      console.error('Error fetching user details:', error);
+      alert('Failed to load user details');
+    }
   };
 
   const getRoleName = (role) => {
@@ -160,22 +183,18 @@ const SystemAdminDashboard = () => {
                     <td>
                       <div className="action-btns">
                         <button 
-                          className={`btn-toggle ${user.status === 'ACTIVE' ? 'deactivate' : 'activate'}`}
-                          onClick={() => handleToggleStatus(user.id, user.status)}
-                        >
-                          {user.status === 'ACTIVE' ? '🚫' : '✅'}
-                        </button>
-                        <button 
-                          className="btn-reset"
-                          onClick={() => handleResetPassword(user.id)}
-                        >
-                          🔑
-                        </button>
-                        <button 
                           className="btn-details"
-                          onClick={() => setSelectedUser(user)}
+                          onClick={() => handleViewDetails(user.id)}
+                          title="View Details"
                         >
                           👁️
+                        </button>
+                        <button 
+                          className="btn-delete"
+                          onClick={() => handleDeleteUser(user.id, user.fullName)}
+                          title="Delete User"
+                        >
+                          🗑️
                         </button>
                       </div>
                     </td>
@@ -218,9 +237,17 @@ const SystemAdminDashboard = () => {
             <div className="modal-body">
               <p><strong>Name:</strong> {selectedUser.fullName}</p>
               <p><strong>Email:</strong> {selectedUser.email}</p>
+              <p><strong>Mobile:</strong> {selectedUser.mobileNumber}</p>
               <p><strong>Role:</strong> {getRoleName(selectedUser.role)}</p>
-              <p><strong>Status:</strong> {selectedUser.status}</p>
-              <p><strong>Registered:</strong> {new Date(selectedUser.registeredDate).toLocaleDateString()}</p>
+              <p><strong>Gender:</strong> {selectedUser.gender}</p>
+              <p><strong>Date of Birth:</strong> {selectedUser.dateOfBirth}</p>
+              <p><strong>Caste Category:</strong> {selectedUser.casteCategory}</p>
+              <p><strong>Address:</strong> {selectedUser.address}</p>
+              <p><strong>State:</strong> {selectedUser.state}</p>
+              <p><strong>District:</strong> {selectedUser.district}</p>
+              <p><strong>Pincode:</strong> {selectedUser.pincode}</p>
+              <p><strong>Annual Income:</strong> ₹{selectedUser.annualIncome?.toLocaleString()}</p>
+              <p><strong>Registered:</strong> {new Date(selectedUser.createdAt).toLocaleString()}</p>
             </div>
           </div>
         </div>

@@ -227,6 +227,15 @@
   transform: scale(1.1);
 }
 
+.btn-delete {
+  background: #fee;
+}
+
+.btn-delete:hover {
+  background: #fcc;
+  transform: scale(1.1);
+}
+
 .btn-details {
   background: #dbeafe;
 }
