@@ -37,10 +37,11 @@ public class BeneficiaryController {
     @PostMapping("/apply/{schemeId}")
     public ResponseEntity<?> applyForScheme(
             @RequestHeader("Authorization") String token,
-            @PathVariable Long schemeId) {
+            @PathVariable Long schemeId,
+            @RequestBody(required = false) java.util.Map<String, String> documents) {
         try {
             Long userId = extractUserIdFromToken(token);
-            beneficiarySchemeService.applyForScheme(userId, schemeId);
+            beneficiarySchemeService.applyForScheme(userId, schemeId, documents);
             return ResponseEntity.ok("{\"message\": \"Application submitted successfully\"}");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)

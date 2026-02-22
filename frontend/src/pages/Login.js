@@ -66,7 +66,13 @@ const Login = () => {
         // Redirect based on role
         if (data.user.role === 'BENEFICIARY') {
           window.location.href = '/beneficiary/dashboard';
-        } else if (['DEPT_ADMIN', 'DISTRICT_ADMIN', 'STATE_ADMIN', 'FIELD_VERIFICATION_OFFICER', 'SYSTEM_ADMIN', 'MONITORING_AUDIT_OFFICER', 'SCHEME_SANCTIONING_AUTHORITY'].includes(data.user.role)) {
+        } else if (data.user.role === 'FIELD_VERIFICATION_OFFICER') {
+          window.location.href = '/officer/dashboard';
+        } else if (data.user.role === 'SCHEME_SANCTIONING_AUTHORITY') {
+          window.location.href = '/sanctioning/dashboard';
+        } else if (data.user.role === 'SYSTEM_ADMIN') {
+          window.location.href = '/sysadmin/dashboard';
+        } else if (['DEPT_ADMIN', 'DISTRICT_ADMIN', 'STATE_ADMIN', 'MONITORING_AUDIT_OFFICER'].includes(data.user.role)) {
           window.location.href = '/admin/dashboard';
         } else {
           window.location.href = '/dashboard';

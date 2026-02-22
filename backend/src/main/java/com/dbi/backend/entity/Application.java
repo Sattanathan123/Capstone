@@ -34,4 +34,40 @@ public class Application {
     
     @Column(columnDefinition = "TEXT")
     private String remarks;
+    
+    @Column(name = "verification_remarks", columnDefinition = "TEXT")
+    private String verificationRemarks;
+    
+    @Column(name = "verification_officer_id")
+    private Long verificationOfficerId;
+    
+    @Column(name = "verified_date")
+    private LocalDateTime verifiedDate;
+    
+    @Column(name = "sanctioning_officer_id")
+    private Long sanctioningOfficerId;
+    
+    @Column(name = "sanctioned_date")
+    private LocalDateTime sanctionedDate;
+    
+    @Column(name = "sanctioning_remarks", columnDefinition = "TEXT")
+    private String sanctioningRemarks;
+    
+    @Column(name = "sanctioned_amount")
+    private Double sanctionedAmount;
+    
+    @Column(name = "priority")
+    private String priority = "Medium";
+    
+    @Column(name = "aadhaar_doc", columnDefinition = "LONGTEXT")
+    private String aadhaarDoc;
+    
+    @Column(name = "income_cert_doc", columnDefinition = "LONGTEXT")
+    private String incomeCertDoc;
+    
+    @Column(name = "community_cert_doc", columnDefinition = "LONGTEXT")
+    private String communityCertDoc;
+    
+    @Column(name = "occupation_proof_doc", columnDefinition = "LONGTEXT")
+    private String occupationProofDoc;
 }

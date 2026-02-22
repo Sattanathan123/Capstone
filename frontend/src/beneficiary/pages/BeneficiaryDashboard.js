@@ -124,24 +124,24 @@ const BeneficiaryDashboard = () => {
                     </span>
                   </div>
                   <div className="journey-map">
-                    <div className={`journey-step ${['SUBMITTED', 'UNDER_REVIEW', 'APPROVED', 'DISBURSED'].includes(app.status) ? 'completed' : ''}`}>
+                    <div className={`journey-step ${['PENDING_VERIFICATION', 'APPROVED', 'SANCTIONED', 'DISBURSED'].includes(app.status) ? 'completed' : ''}`}>
                       <div className="step-icon">📝</div>
                       <div className="step-label">Submitted</div>
                     </div>
-                    <div className={`journey-line ${['UNDER_REVIEW', 'APPROVED', 'DISBURSED'].includes(app.status) ? 'completed' : ''}`}></div>
-                    <div className={`journey-step ${['UNDER_REVIEW', 'APPROVED', 'DISBURSED'].includes(app.status) ? 'completed' : ''}`}>
-                      <div className="step-icon">🔍</div>
-                      <div className="step-label">Under Review</div>
+                    <div className={`journey-line ${['APPROVED', 'SANCTIONED', 'DISBURSED'].includes(app.status) ? 'completed' : ''}`}></div>
+                    <div className={`journey-step ${['APPROVED', 'SANCTIONED', 'DISBURSED'].includes(app.status) ? 'completed' : app.status === 'REJECTED' ? 'rejected' : app.status === 'PENDING_VERIFICATION' ? 'active' : ''}`}>
+                      <div className="step-icon">{app.status === 'REJECTED' ? '❌' : '🔍'}</div>
+                      <div className="step-label">{app.status === 'REJECTED' ? 'Rejected' : 'Field Verification'}</div>
                     </div>
-                    <div className={`journey-line ${['APPROVED', 'DISBURSED'].includes(app.status) ? 'completed' : ''}`}></div>
-                    <div className={`journey-step ${['APPROVED', 'DISBURSED'].includes(app.status) ? 'completed' : app.status === 'REJECTED' ? 'rejected' : ''}`}>
-                      <div className="step-icon">{app.status === 'REJECTED' ? '❌' : '✅'}</div>
-                      <div className="step-label">{app.status === 'REJECTED' ? 'Rejected' : 'Approved'}</div>
+                    <div className={`journey-line ${['SANCTIONED', 'DISBURSED'].includes(app.status) ? 'completed' : ''}`}></div>
+                    <div className={`journey-step ${['SANCTIONED', 'DISBURSED'].includes(app.status) ? 'completed' : app.status === 'APPROVED' ? 'active' : ''}`}>
+                      <div className="step-icon">✅</div>
+                      <div className="step-label">Sanctioning</div>
                     </div>
                     <div className={`journey-line ${app.status === 'DISBURSED' ? 'completed' : ''}`}></div>
-                    <div className={`journey-step ${app.status === 'DISBURSED' ? 'completed' : ''}`}>
+                    <div className={`journey-step ${app.status === 'DISBURSED' ? 'completed' : app.status === 'SANCTIONED' ? 'active' : ''}`}>
                       <div className="step-icon">💰</div>
-                      <div className="step-label">Disbursed</div>
+                      <div className="step-label">{app.status === 'SANCTIONED' ? 'Distribution in Progress' : 'Disbursed'}</div>
                     </div>
                   </div>
                   <div className="app-details">

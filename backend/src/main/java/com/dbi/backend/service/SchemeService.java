@@ -55,6 +55,13 @@ public class SchemeService {
         if (!schemeRepository.existsById(schemeId)) {
             throw new Exception("Scheme not found");
         }
-        schemeRepository.deleteById(schemeId);
+        try {
+            schemeRepository.deleteById(schemeId);
+        } catch (Exception e) {
+            if (e.getMessage().contains("foreign key constraint")) {
+                throw new Exception("Cannot delete scheme - applications exist for this scheme. Please delete applications first.");
+            }
+            throw new Exception("Failed to delete scheme: " + e.getMessage());
+        }
     }
 }

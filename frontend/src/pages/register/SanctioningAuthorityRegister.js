@@ -7,7 +7,7 @@ const SanctioningAuthorityRegister = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     fullName: '', gender: '', dateOfBirth: '', mobileNumber: '', email: '', password: '',
-    aadhaarNumber: '', employeeId: '', sanctioningLevel: '', state: '', district: '', departmentName: '', designation: '', maxSanctionAmount: ''
+    aadhaarNumber: '', employeeId: '', sanctioningLevel: '', assignedState: '', assignedDistrict: '', departmentName: '', designation: '', maxSanctionAmount: ''
   });
   const [showPassword, setShowPassword] = useState(false);
 
@@ -133,14 +133,14 @@ const SanctioningAuthorityRegister = () => {
                   <input type="text" name="sanctioningLevel" value={formData.sanctioningLevel} onChange={handleChange} placeholder="District/State/National" required />
                 </div>
                 <div className="form-group">
-                  <label>State *</label>
-                  <input type="text" name="state" value={formData.state} onChange={handleChange} required />
+                  <label>Assigned State *</label>
+                  <input type="text" name="assignedState" value={formData.assignedState} onChange={handleChange} required />
                 </div>
               </div>
               <div className="form-row">
                 <div className="form-group">
-                  <label>District</label>
-                  <input type="text" name="district" value={formData.district} onChange={handleChange} />
+                  <label>Assigned District *</label>
+                  <input type="text" name="assignedDistrict" value={formData.assignedDistrict} onChange={handleChange} required />
                 </div>
                 <div className="form-group">
                   <label>Department *</label>

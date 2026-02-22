@@ -10,6 +10,7 @@ import com.dbi.backend.repository.ApplicationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.time.LocalDateTime;
 
@@ -69,13 +70,15 @@ public class BeneficiarySchemeService {
     }
     
     @Transactional
-    public void applyForScheme(Long userId, Long schemeId) throws Exception {
+    public void applyForScheme(Long userId, Long schemeId, Map<String, String> documents) throws Exception {
         System.out.println("=== APPLY FOR SCHEME ===");
         System.out.println("User ID: " + userId + ", Scheme ID: " + schemeId);
         
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new Exception("User not found"));
         System.out.println("User found: " + user.getFullName());
+        System.out.println("User District: " + user.getDistrict());
+        System.out.println("User State: " + user.getState());
         
         Scheme scheme = schemeRepository.findById(schemeId)
             .orElseThrow(() -> new Exception("Scheme not found"));
@@ -94,14 +97,30 @@ public class BeneficiarySchemeService {
         app.setApplicationId("APP" + System.currentTimeMillis() + userId);
         app.setUser(user);
         app.setScheme(scheme);
-        app.setStatus("SUBMITTED");
+        app.setStatus("PENDING_VERIFICATION");
         app.setAppliedDate(LocalDateTime.now());
         app.setSchemeComponent("General");
+        app.setPriority("Medium");
+        
+        if (documents != null) {
+            System.out.println("Saving documents - Aadhaar: " + (documents.get("aadhaarDoc") != null ? "YES" : "NO"));
+            System.out.println("Saving documents - Income: " + (documents.get("incomeCertDoc") != null ? "YES" : "NO"));
+            System.out.println("Saving documents - Community: " + (documents.get("communityCertDoc") != null ? "YES" : "NO"));
+            System.out.println("Saving documents - Occupation: " + (documents.get("occupationProofDoc") != null ? "YES" : "NO"));
+            app.setAadhaarDoc(documents.get("aadhaarDoc"));
+            app.setIncomeCertDoc(documents.get("incomeCertDoc"));
+            app.setCommunityCertDoc(documents.get("communityCertDoc"));
+            app.setOccupationProofDoc(documents.get("occupationProofDoc"));
+        } else {
+            System.out.println("No documents provided");
+        }
         
         Application saved = applicationRepository.save(app);
         applicationRepository.flush();
         
         System.out.println("Application SAVED with ID: " + saved.getId());
+        System.out.println("Status: " + saved.getStatus());
+        System.out.println("Beneficiary District: " + saved.getUser().getDistrict());
         System.out.println("========================");
     }
     

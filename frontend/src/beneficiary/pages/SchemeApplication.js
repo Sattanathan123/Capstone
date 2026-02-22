@@ -58,15 +58,46 @@ const SchemeApplication = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    if (!documents.aadhaar || !documents.incomeCertificate || !documents.communityCertificate || !documents.occupationProof) {
+      alert('Please upload all required documents');
+      return;
+    }
+    
     if (!window.confirm('Are you sure you want to submit this application?')) {
       return;
     }
 
     try {
       const token = localStorage.getItem('token');
+      
+      const toBase64 = (file) => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+      });
+      
+      const docs = {
+        aadhaarDoc: await toBase64(documents.aadhaar),
+        incomeCertDoc: await toBase64(documents.incomeCertificate),
+        communityCertDoc: await toBase64(documents.communityCertificate),
+        occupationProofDoc: await toBase64(documents.occupationProof)
+      };
+      
+      console.log('Sending documents:', {
+        aadhaarSize: docs.aadhaarDoc?.length,
+        incomeSize: docs.incomeCertDoc?.length,
+        communitySize: docs.communityCertDoc?.length,
+        occupationSize: docs.occupationProofDoc?.length
+      });
+      
       const response = await fetch(`http://localhost:8080/api/beneficiary/apply/${schemeId}`, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(docs)
       });
 
       if (response.ok) {

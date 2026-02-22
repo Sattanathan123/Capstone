@@ -226,6 +226,11 @@
   text-transform: uppercase;
 }
 
+.status-badge.pending_verification {
+  background: #fff3cd;
+  color: #856404;
+}
+
 .status-badge.submitted {
   background: #cce5ff;
   color: #004085;
@@ -282,6 +287,18 @@
   font-size: 1.5rem;
   border: 3px solid #dee2e6;
   transition: all 0.3s;
+}
+
+.journey-step.active .step-icon {
+  background: #ffc107;
+  border-color: #ffc107;
+  color: white;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
 }
 
 .journey-step.completed .step-icon {
