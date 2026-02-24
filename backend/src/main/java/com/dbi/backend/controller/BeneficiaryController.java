@@ -41,8 +41,9 @@ public class BeneficiaryController {
             @RequestBody(required = false) java.util.Map<String, String> documents) {
         try {
             Long userId = extractUserIdFromToken(token);
-            beneficiarySchemeService.applyForScheme(userId, schemeId, documents);
-            return ResponseEntity.ok("{\"message\": \"Application submitted successfully\"}");
+            com.dbi.backend.service.SmartValidationEngine.ValidationResult result = 
+                beneficiarySchemeService.applyForScheme(userId, schemeId, documents);
+            return ResponseEntity.ok(result);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body("{\"error\": \"" + e.getMessage() + "\"}");

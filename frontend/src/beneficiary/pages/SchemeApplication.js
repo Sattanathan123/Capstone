@@ -101,7 +101,15 @@ const SchemeApplication = () => {
       });
 
       if (response.ok) {
-        alert('Application submitted successfully!');
+        const result = await response.json();
+        
+        // Show validation results
+        let message = result.message + '\n\nValidation Checks:\n';
+        result.checks.forEach(check => {
+          message += `\n${check.passed ? '✅' : '❌'} ${check.checkName}: ${check.details}`;
+        });
+        
+        alert(message);
         window.location.href = '/beneficiary/dashboard';
       } else {
         alert('Application failed: ' + await response.text());
