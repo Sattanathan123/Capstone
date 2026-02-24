@@ -127,6 +127,12 @@ const DepartmentAdminDashboard = () => {
             >
               + Add New Scheme
             </button>
+            <button 
+              className="analytics-btn" 
+              onClick={() => navigate('/admin/analytics')}
+            >
+              📊 View Analytics
+            </button>
           </div>
         )}
 

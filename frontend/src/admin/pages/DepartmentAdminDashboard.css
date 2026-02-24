@@ -1,13 +1,13 @@
 .admin-dashboard {
   min-height: 100vh;
-  background: #f5f7fa;
+  background: var(--bg-dashboard);
 }
 
 .admin-header {
-  background: linear-gradient(135deg, #003d82 0%, #0056b3 100%);
+  background: var(--gradient-primary);
   color: white;
   padding: 2rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: var(--shadow-sm);
 }
 
 .header-content {
@@ -33,18 +33,18 @@
 }
 
 .logout-btn {
-  background: #dc3545;
+  background: var(--gradient-danger);
   color: white;
   border: none;
   padding: 0.7rem 1.5rem;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   cursor: pointer;
   font-weight: 600;
   transition: all 0.3s;
 }
 
 .logout-btn:hover {
-  background: #c82333;
+  background: var(--status-danger-dark);
   transform: translateY(-2px);
 }
 
@@ -56,45 +56,65 @@
 
 .action-bar {
   margin-bottom: 2rem;
+  display: flex;
+  gap: 1rem;
 }
 
 .add-scheme-btn {
-  background: linear-gradient(135deg, #28a745, #20c997);
+  background: var(--gradient-success);
   color: white;
   border: none;
   padding: 1rem 2rem;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
-  box-shadow: 0 4px 12px rgba(40,167,69,0.3);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
 }
 
 .add-scheme-btn:hover {
   transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(40,167,69,0.4);
+  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+}
+
+.analytics-btn {
+  background: var(--gradient-secondary);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: var(--radius-md);
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(255, 153, 51, 0.3);
+}
+
+.analytics-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(255, 153, 51, 0.4);
 }
 
 .schemes-section {
   background: white;
   padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
 }
 
 .schemes-section h2 {
-  color: #003d82;
+  color: var(--text-primary);
   margin-bottom: 1.5rem;
   font-size: 1.5rem;
-  border-bottom: 3px solid #ff9933;
+  border-bottom: 3px solid var(--primary-orange);
   padding-bottom: 0.5rem;
 }
 
 .loading, .no-schemes {
   text-align: center;
   padding: 3rem;
-  color: #6c757d;
+  color: var(--text-muted);
   font-size: 1.1rem;
 }
 
@@ -104,24 +124,24 @@
 }
 
 .schemes-table thead {
-  background: #f8f9fa;
+  background: var(--bg-light);
 }
 
 .schemes-table th {
   padding: 1rem;
   text-align: left;
   font-weight: 600;
-  color: #495057;
-  border-bottom: 2px solid #dee2e6;
+  color: var(--text-secondary);
+  border-bottom: 2px solid var(--border-medium);
 }
 
 .schemes-table td {
   padding: 1rem;
-  border-bottom: 1px solid #dee2e6;
+  border-bottom: 1px solid var(--border-medium);
 }
 
 .schemes-table tbody tr:hover {
-  background: #f8f9fa;
+  background: var(--bg-light);
 }
 
 .component-badge {
@@ -151,11 +171,11 @@
 }
 
 .delete-btn {
-  background: #dc3545;
+  background: var(--status-danger);
   color: white;
   border: none;
   padding: 0.5rem 1.2rem;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   font-weight: 600;
   transition: all 0.3s;
@@ -181,7 +201,7 @@
 
 .modal-content {
   background: white;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   max-width: 800px;
   width: 90%;
   max-height: 90vh;

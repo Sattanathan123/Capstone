@@ -1,6 +1,6 @@
 .beneficiary-dashboard {
   min-height: 100vh;
-  background: #f5f7fa;
+  background: var(--bg-dashboard);
 }
 
 .loading-screen {
@@ -9,14 +9,14 @@
   justify-content: center;
   height: 100vh;
   font-size: 1.5rem;
-  color: #003d82;
+  color: var(--text-primary);
 }
 
 .beneficiary-header {
-  background: linear-gradient(135deg, #003d82 0%, #0056b3 100%);
+  background: var(--gradient-primary);
   color: white;
   padding: 2rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: var(--shadow-sm);
 }
 
 .header-content {
@@ -42,18 +42,18 @@
 }
 
 .logout-btn {
-  background: #dc3545;
+  background: var(--gradient-danger);
   color: white;
   border: none;
   padding: 0.7rem 1.5rem;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   cursor: pointer;
   font-weight: 600;
   transition: all 0.3s;
 }
 
 .logout-btn:hover {
-  background: #c82333;
+  background: var(--status-danger-dark);
   transform: translateY(-2px);
 }
 
@@ -66,16 +66,16 @@
 .profile-summary {
   background: white;
   padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
   margin-bottom: 2rem;
 }
 
 .profile-summary h2 {
-  color: #003d82;
+  color: var(--text-primary);
   margin-bottom: 1.5rem;
   font-size: 1.5rem;
-  border-bottom: 3px solid #ff9933;
+  border-bottom: 3px solid var(--primary-orange);
   padding-bottom: 0.5rem;
 }
 
@@ -92,19 +92,19 @@
 }
 
 .profile-item .label {
-  color: #6c757d;
+  color: var(--text-muted);
   font-size: 0.9rem;
   font-weight: 500;
 }
 
 .profile-item .value {
-  color: #003d82;
+  color: var(--text-primary);
   font-size: 1.1rem;
   font-weight: 600;
 }
 
 .profile-item .value.verified {
-  color: #28a745;
+  color: var(--status-success);
   display: flex;
   align-items: center;
   gap: 0.3rem;
@@ -113,15 +113,15 @@
 .schemes-section {
   background: white;
   padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
 }
 
 .schemes-section h2 {
-  color: #003d82;
+  color: var(--text-primary);
   margin-bottom: 1.5rem;
   font-size: 1.5rem;
-  border-bottom: 3px solid #ff9933;
+  border-bottom: 3px solid var(--primary-orange);
   padding-bottom: 0.5rem;
 }
 
@@ -134,7 +134,7 @@
 .no-schemes {
   text-align: center;
   padding: 4rem 2rem;
-  color: #6c757d;
+  color: var(--text-muted);
 }
 
 .no-schemes-icon {
@@ -143,46 +143,29 @@
 }
 
 .no-schemes h3 {
-  color: #495057;
+  color: var(--text-secondary);
   margin-bottom: 0.5rem;
   font-size: 1.3rem;
 }
 
 .no-schemes p {
-  color: #6c757d;
+  color: var(--text-muted);
   font-size: 1rem;
 }
 
-@media (max-width: 768px) {
-  .header-content {
-    flex-direction: column;
-    gap: 1rem;
-    text-align: center;
-  }
-  
-  .profile-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .schemes-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Application Tracking Section */
 .tracking-section {
   background: white;
   padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
   margin-bottom: 2rem;
 }
 
 .tracking-section h2 {
-  color: #003d82;
+  color: var(--text-primary);
   margin-bottom: 1.5rem;
   font-size: 1.5rem;
-  border-bottom: 3px solid #ff9933;
+  border-bottom: 3px solid var(--primary-orange);
   padding-bottom: 0.5rem;
 }
 
@@ -193,15 +176,15 @@
 }
 
 .application-card {
-  background: #f8f9fa;
-  border: 2px solid #e9ecef;
-  border-radius: 12px;
+  background: var(--bg-light);
+  border: 2px solid var(--border-light);
+  border-radius: var(--radius-lg);
   padding: 1.5rem;
   transition: all 0.3s;
 }
 
 .application-card:hover {
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: var(--shadow-md);
   transform: translateY(-2px);
 }
 
@@ -213,7 +196,7 @@
 }
 
 .app-header h3 {
-  color: #003d82;
+  color: var(--text-primary);
   margin: 0;
   font-size: 1.2rem;
 }
@@ -256,7 +239,6 @@
   color: #0c5460;
 }
 
-/* Journey Map */
 .journey-map {
   display: flex;
   align-items: center;
@@ -264,7 +246,7 @@
   margin: 2rem 0;
   padding: 1rem;
   background: white;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
 }
 
 .journey-step {
@@ -280,18 +262,18 @@
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  background: #e9ecef;
+  background: var(--border-light);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.5rem;
-  border: 3px solid #dee2e6;
+  border: 3px solid var(--border-medium);
   transition: all 0.3s;
 }
 
 .journey-step.active .step-icon {
-  background: #ffc107;
-  border-color: #ffc107;
+  background: var(--status-warning);
+  border-color: var(--status-warning);
   color: white;
   animation: pulse 2s infinite;
 }
@@ -302,44 +284,44 @@
 }
 
 .journey-step.completed .step-icon {
-  background: #28a745;
-  border-color: #28a745;
+  background: var(--status-success);
+  border-color: var(--status-success);
   color: white;
 }
 
 .journey-step.rejected .step-icon {
-  background: #dc3545;
-  border-color: #dc3545;
+  background: var(--status-danger);
+  border-color: var(--status-danger);
   color: white;
 }
 
 .step-label {
   font-size: 0.85rem;
-  color: #6c757d;
+  color: var(--text-muted);
   font-weight: 600;
   text-align: center;
   white-space: nowrap;
 }
 
 .journey-step.completed .step-label {
-  color: #28a745;
+  color: var(--status-success);
 }
 
 .journey-step.rejected .step-label {
-  color: #dc3545;
+  color: var(--status-danger);
 }
 
 .journey-line {
   flex: 1;
   height: 3px;
-  background: #dee2e6;
+  background: var(--border-medium);
   margin: 0 0.5rem;
   position: relative;
   top: -15px;
 }
 
 .journey-line.completed {
-  background: #28a745;
+  background: var(--status-success);
 }
 
 .app-details {
@@ -347,18 +329,32 @@
   flex-direction: column;
   gap: 0.5rem;
   padding-top: 1rem;
-  border-top: 1px solid #dee2e6;
-  color: #6c757d;
+  border-top: 1px solid var(--border-medium);
+  color: var(--text-muted);
   font-size: 0.9rem;
 }
 
 .app-details .remarks {
-  color: #495057;
+  color: var(--text-secondary);
   font-style: italic;
   margin: 0;
 }
 
 @media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .schemes-grid {
+    grid-template-columns: 1fr;
+  }
+
   .journey-map {
     flex-direction: column;
     gap: 1rem;

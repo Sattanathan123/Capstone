@@ -1,7 +1,9 @@
 package com.dbi.backend.controller;
 
 import com.dbi.backend.entity.User;
+import com.dbi.backend.entity.UserRole;
 import com.dbi.backend.repository.UserRepository;
+import com.dbi.backend.repository.ApplicationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +17,9 @@ public class SystemAdminController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private ApplicationRepository applicationRepository;
 
     @GetMapping("/stats")
     public ResponseEntity<Map<String, Object>> getSystemStats() {
@@ -89,5 +94,27 @@ public class SystemAdminController {
         Map<String, String> response = new HashMap<>();
         response.put("message", "User deleted successfully");
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/analytics")
+    public ResponseEntity<Map<String, Object>> getAnalytics(@RequestParam(defaultValue = "month") String range) {
+        Map<String, Object> analytics = new HashMap<>();
+        
+        long totalApplications = applicationRepository.count();
+        long approvedApplications = applicationRepository.countByStatus("APPROVED");
+        long rejectedApplications = applicationRepository.countByStatus("REJECTED");
+        long pendingApplications = applicationRepository.countByStatus("PENDING_VERIFICATION");
+        long totalBeneficiaries = userRepository.countByRole(UserRole.BENEFICIARY);
+        
+        analytics.put("totalApplications", totalApplications);
+        analytics.put("approvedApplications", approvedApplications);
+        analytics.put("rejectedApplications", rejectedApplications);
+        analytics.put("pendingApplications", pendingApplications);
+        analytics.put("totalSchemes", 0);
+        analytics.put("totalBeneficiaries", totalBeneficiaries);
+        analytics.put("schemeWiseData", new ArrayList<>());
+        analytics.put("departmentWiseData", new ArrayList<>());
+        
+        return ResponseEntity.ok(analytics);
     }
 }

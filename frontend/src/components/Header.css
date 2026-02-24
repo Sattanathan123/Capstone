@@ -1,7 +1,7 @@
 .header {
-  background: linear-gradient(135deg, #003d82 0%, #0056b3 100%);
+  background: var(--gradient-primary);
   color: white;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-md);
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -12,7 +12,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem 3rem;
-  border-bottom: 3px solid #ff9933;
+  border-bottom: 3px solid var(--primary-orange);
 }
 
 .logo-section {
@@ -48,7 +48,7 @@
 .btn-login, .btn-signup {
   padding: 0.7rem 2rem;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
@@ -77,20 +77,20 @@
 
 .btn-login {
   background: white;
-  color: #003d82;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
   position: relative;
   z-index: 1;
 }
 
 .btn-login:hover {
-  background: #f0f0f0;
+  background: var(--bg-lighter);
   transform: translateY(-2px);
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
 }
 
 .btn-signup {
-  background: linear-gradient(135deg, #ff9933, #e68a2e);
+  background: var(--gradient-secondary);
   color: white;
   box-shadow: 0 2px 8px rgba(255, 153, 51, 0.3);
   position: relative;
@@ -128,7 +128,7 @@
   left: 50%;
   width: 0;
   height: 3px;
-  background: #ff9933;
+  background: var(--primary-orange);
   transform: translateX(-50%);
   transition: width 0.3s ease;
 }

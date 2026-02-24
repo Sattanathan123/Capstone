@@ -2,13 +2,16 @@ package com.dbi.backend.controller;
 
 import com.dbi.backend.dto.SchemeDTO;
 import com.dbi.backend.entity.Scheme;
+import com.dbi.backend.entity.UserRole;
 import com.dbi.backend.service.SchemeService;
+import com.dbi.backend.repository.ApplicationRepository;
+import com.dbi.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -17,6 +20,12 @@ public class AdminController {
     
     @Autowired
     private SchemeService schemeService;
+    
+    @Autowired
+    private ApplicationRepository applicationRepository;
+    
+    @Autowired
+    private UserRepository userRepository;
     
     @GetMapping("/schemes")
     public ResponseEntity<?> getAllSchemes(@RequestHeader("Authorization") String token) {
@@ -53,5 +62,29 @@ public class AdminController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body("{\"error\": \"" + e.getMessage() + "\"}");
         }
+    }
+    
+    @GetMapping("/analytics")
+    public ResponseEntity<Map<String, Object>> getAnalytics(
+            @RequestHeader("Authorization") String token,
+            @RequestParam(defaultValue = "month") String range) {
+        Map<String, Object> analytics = new HashMap<>();
+        
+        long totalApplications = applicationRepository.count();
+        long approvedApplications = applicationRepository.countByStatus("APPROVED");
+        long rejectedApplications = applicationRepository.countByStatus("REJECTED");
+        long pendingApplications = applicationRepository.countByStatus("PENDING_VERIFICATION");
+        long totalBeneficiaries = userRepository.countByRole(UserRole.BENEFICIARY);
+        long totalSchemes = schemeService.getAllSchemes().size();
+        
+        analytics.put("totalApplications", totalApplications);
+        analytics.put("approvedApplications", approvedApplications);
+        analytics.put("rejectedApplications", rejectedApplications);
+        analytics.put("pendingApplications", pendingApplications);
+        analytics.put("mySchemes", totalSchemes);
+        analytics.put("activeSchemes", totalSchemes);
+        analytics.put("schemeWiseData", new ArrayList<>());
+        
+        return ResponseEntity.ok(analytics);
     }
 }

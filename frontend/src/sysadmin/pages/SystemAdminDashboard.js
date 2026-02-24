@@ -128,11 +128,11 @@ const SystemAdminDashboard = () => {
               <p>System Uptime</p>
             </div>
           </div>
-          <div className="stat-card">
-            <div className="stat-icon">🔒</div>
+          <div className="stat-card" onClick={() => navigate('/sysadmin/analytics')} style={{ cursor: 'pointer' }}>
+            <div className="stat-icon">📊</div>
             <div className="stat-info">
-              <h3>Secure</h3>
-              <p>Security Status</p>
+              <h3>Analytics</h3>
+              <p>View Reports →</p>
             </div>
           </div>
         </section>
