@@ -9,6 +9,7 @@ import Features from './pages/Features';
 import Register from './pages/Register';
 import Login from './pages/Login';
 import RoleSelection from './pages/RoleSelection';
+import TrackApplication from './pages/TrackApplication';
 import FieldOfficerRegister from './pages/register/FieldOfficerRegister';
 import DeptAdminRegister from './pages/register/DeptAdminRegister';
 import SystemAdminRegister from './pages/register/SystemAdminRegister';
@@ -34,6 +35,7 @@ function App() {
         <Route path="/register/district-admin" element={<DeptAdminRegister />} />
         <Route path="/register/system-admin" element={<SystemAdminRegister />} />
         <Route path="/register/sanctioning-authority" element={<SanctioningAuthorityRegister />} />
+        <Route path="/track" element={<TrackApplication />} />
         <Route path="/beneficiary/dashboard" element={<ProtectedRoute role="BENEFICIARY"><BeneficiaryDashboard /></ProtectedRoute>} />
         <Route path="/beneficiary/apply/:schemeId" element={<ProtectedRoute role="BENEFICIARY"><SchemeApplication /></ProtectedRoute>} />
         <Route path="/officer/dashboard" element={<ProtectedRoute role="FIELD_VERIFICATION_OFFICER"><FieldOfficerDashboard /></ProtectedRoute>} />

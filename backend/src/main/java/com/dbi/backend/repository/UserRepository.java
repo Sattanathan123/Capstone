@@ -14,4 +14,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByMobileNumber(String mobileNumber);
     boolean existsByAadhaarNumberHash(String aadhaarNumberHash);
     long countByRole(UserRole role);
+    java.util.List<User> findByRole(UserRole role);
 }

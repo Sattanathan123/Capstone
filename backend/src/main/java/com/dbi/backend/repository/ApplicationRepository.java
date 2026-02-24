@@ -12,6 +12,8 @@ import java.util.List;
 public interface ApplicationRepository extends JpaRepository<Application, Long> {
     List<Application> findByUserId(Long userId);
     
+    java.util.Optional<Application> findByApplicationId(String applicationId);
+    
     @Query(value = "SELECT a.id, s.scheme_name, a.status, a.applied_date, a.remarks " +
            "FROM applications a JOIN schemes s ON a.scheme_id = s.id " +
            "WHERE a.user_id = :userId", nativeQuery = true)

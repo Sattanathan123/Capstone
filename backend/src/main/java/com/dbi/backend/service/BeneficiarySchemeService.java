@@ -31,6 +31,9 @@ public class BeneficiarySchemeService {
     @Autowired
     private SmartValidationEngine validationEngine;
     
+    @Autowired
+    private ApplicationIdGenerator applicationIdGenerator;
+    
     public ApplicationRepository getApplicationRepository() {
         return applicationRepository;
     }
@@ -46,10 +49,11 @@ public class BeneficiarySchemeService {
         
         List<Application> userApplications = applicationRepository.findByUserId(userId);
         List<Long> appliedSchemeIds = userApplications.stream()
+            .filter(app -> !app.getStatus().equals("REJECTED"))
             .map(app -> app.getScheme().getId())
             .collect(Collectors.toList());
         
-        System.out.println("Total schemes: " + allSchemes.size() + ", Applied: " + appliedSchemeIds);
+        System.out.println("Total schemes: " + allSchemes.size() + ", Applied (non-rejected): " + appliedSchemeIds);
         
         List<Scheme> eligibleSchemes = allSchemes.stream()
             .filter(scheme -> isEligible(user, scheme) && !appliedSchemeIds.contains(scheme.getId()))
@@ -77,17 +81,34 @@ public class BeneficiarySchemeService {
         User user = userRepository.findById(userId).orElseThrow(() -> new Exception("User not found"));
         Scheme scheme = schemeRepository.findById(schemeId).orElseThrow(() -> new Exception("Scheme not found"));
         
+        // Check for duplicate BEFORE saving
+        List<Application> existingApps = applicationRepository.findByUserId(userId);
+        boolean hasDuplicate = existingApps.stream()
+            .anyMatch(app -> app.getScheme().getId().equals(schemeId) && 
+                           !app.getStatus().equals("REJECTED"));
+        
+        if (hasDuplicate) {
+            throw new Exception("You have already applied for this scheme. Duplicate applications are not allowed.");
+        }
+        
+        Long maxId = applicationRepository.findAll().stream()
+            .map(Application::getId)
+            .max(Long::compareTo)
+            .orElse(0L) + 1;
+        
+        String generatedAppId = applicationIdGenerator.generateApplicationId(user.getState(), maxId);
+        
         Application app = new Application();
+        app.setApplicationId(generatedAppId);
         app.setUser(user);
         app.setScheme(scheme);
         app.setStatus("SUBMITTED");
         app.setAppliedDate(LocalDateTime.now());
         Application saved = applicationRepository.save(app);
         
-        // Run Smart Validation Engine
         SmartValidationEngine.ValidationResult result = validationEngine.validateApplication(user, scheme, saved.getId());
+        result.setGeneratedApplicationId(generatedAppId);
         
-        // Update status based on validation
         saved.setStatus(result.getNextStatus());
         saved.setRemarks(result.getMessage());
         applicationRepository.save(saved);
@@ -107,6 +128,7 @@ public class BeneficiarySchemeService {
                         String schemeName = app.getScheme() != null ? app.getScheme().getSchemeName() : "Unknown";
                         return new ApplicationDTO(
                             app.getId(),
+                            app.getApplicationId(),
                             schemeName,
                             app.getStatus(),
                             app.getAppliedDate(),
@@ -128,13 +150,15 @@ public class BeneficiarySchemeService {
     
     public static class ApplicationDTO {
         public Long id;
+        public String applicationId;
         public String schemeName;
         public String status;
         public LocalDateTime appliedDate;
         public String remarks;
         
-        public ApplicationDTO(Long id, String schemeName, String status, LocalDateTime appliedDate, String remarks) {
+        public ApplicationDTO(Long id, String applicationId, String schemeName, String status, LocalDateTime appliedDate, String remarks) {
             this.id = id;
+            this.applicationId = applicationId;
             this.schemeName = schemeName;
             this.status = status;
             this.appliedDate = appliedDate;

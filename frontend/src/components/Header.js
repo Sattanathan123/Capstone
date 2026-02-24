@@ -10,6 +10,7 @@ const Header = ({ onLoginClick, onSignupClick }) => {
   const getActiveTab = () => {
     if (location.pathname === '/about') return 'about';
     if (location.pathname === '/features') return 'features';
+    if (location.pathname === '/track') return 'track';
     return 'home';
   };
   
@@ -67,6 +68,12 @@ const Header = ({ onLoginClick, onSignupClick }) => {
           onClick={() => navigate('/features')}
         >
           Features
+        </button>
+        <button 
+          className={activeTab === 'track' ? 'tab active' : 'tab'}
+          onClick={() => navigate('/track')}
+        >
+          Track Application
         </button>
       </nav>
     </motion.header>

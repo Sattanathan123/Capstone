@@ -70,6 +70,14 @@ const Home = () => {
               className="btn-secondary"
               whileHover={{ scale: 1.05, y: -3 }}
               whileTap={{ scale: 0.98 }}
+              onClick={() => { navigate('/track'); window.scrollTo(0, 0); }}
+            >
+              Track Application
+            </motion.button>
+            <motion.button 
+              className="btn-secondary"
+              whileHover={{ scale: 1.05, y: -3 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => { navigate('/features'); window.scrollTo(0, 0); }}
             >
               Learn More

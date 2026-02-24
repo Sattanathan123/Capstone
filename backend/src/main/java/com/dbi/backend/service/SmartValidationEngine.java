@@ -1,13 +1,15 @@
 package com.dbi.backend.service;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.dbi.backend.entity.Application;
 import com.dbi.backend.entity.Scheme;
 import com.dbi.backend.entity.User;
 import com.dbi.backend.repository.ApplicationRepository;
 import com.dbi.backend.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import java.util.List;
 
 @Service
 public class SmartValidationEngine {
@@ -18,33 +20,33 @@ public class SmartValidationEngine {
     @Autowired
     private UserRepository userRepository;
     
+    @Autowired
+    private NotificationService notificationService;
+    
     public ValidationResult validateApplication(User user, Scheme scheme, Long applicationId) {
         ValidationResult result = new ValidationResult();
         result.setApplicationId(applicationId);
-        
-        // 1. Eligibility Check
         boolean eligibilityPassed = checkEligibility(user, scheme, result);
-        
-        // 2. Income Threshold Verification
         boolean incomePassed = verifyIncomeThreshold(user, scheme, result);
-        
-        // 3. Duplicate Detection
-        boolean noDuplicate = checkDuplicateApplication(user, scheme, result);
-        
-        // 4. Aadhaar Verification
         boolean aadhaarVerified = verifyAadhaar(user, result);
+        result.setOverallStatus(eligibilityPassed && incomePassed && aadhaarVerified);
         
-        // Final Decision
-        result.setOverallStatus(eligibilityPassed && incomePassed && noDuplicate && aadhaarVerified);
+        Application app = applicationRepository.findById(applicationId).orElse(null);
+        String appId = app != null && app.getApplicationId() != null ? app.getApplicationId() : String.valueOf(applicationId);
         
         if (result.isOverallStatus()) {
             result.setMessage("✅ ELIGIBLE - Application passed all validation checks. Forwarding to Field Verification Officer.");
             result.setNextStatus("UNDER_REVIEW");
+            notificationService.createNotification(user.getId(), 
+                "Your application " + appId + " for " + scheme.getSchemeName() + " has been approved and is under review.", 
+                "SUCCESS", applicationId);
         } else {
             result.setMessage("❌ NOT ELIGIBLE - Application failed validation checks. Please review the details below.");
             result.setNextStatus("REJECTED");
+            notificationService.createNotification(user.getId(), 
+                "Your application " + appId + " for " + scheme.getSchemeName() + " has been rejected. Please check the details.", 
+                "REJECTED", applicationId);
         }
-        
         return result;
     }
     
@@ -59,8 +61,8 @@ public class SmartValidationEngine {
         
         boolean eligible = communityMatch && occupationMatch;
         
-        result.addCheck("Eligibility Check", eligible, 
-            eligible ? "Community and occupation criteria met" : 
+        result.addCheck("Eligibility Check", eligible,
+            eligible ? "Community and occupation criteria met" :
                       "Community or occupation does not match scheme requirements");
         
         return eligible;
@@ -84,20 +86,6 @@ public class SmartValidationEngine {
         return withinRange;
     }
     
-    private boolean checkDuplicateApplication(User user, Scheme scheme, ValidationResult result) {
-        List<Application> existingApps = applicationRepository.findByUserId(user.getId());
-        
-        boolean hasDuplicate = existingApps.stream()
-            .anyMatch(app -> app.getScheme().getId().equals(scheme.getId()) && 
-                           !app.getStatus().equals("REJECTED"));
-        
-        result.addCheck("Duplicate Detection", !hasDuplicate,
-            hasDuplicate ? "Duplicate application found for this scheme" : 
-                          "No duplicate applications detected");
-        
-        return !hasDuplicate;
-    }
-    
     private boolean verifyAadhaar(User user, ValidationResult result) {
         boolean hasAadhaar = user.getAadhaarNumberHash() != null && 
                             !user.getAadhaarNumberHash().isEmpty();
@@ -110,6 +98,7 @@ public class SmartValidationEngine {
     
     public static class ValidationResult {
         private Long applicationId;
+        private String generatedApplicationId;
         private boolean overallStatus;
         private String message;
         private String nextStatus;
@@ -121,6 +110,8 @@ public class SmartValidationEngine {
         
         public Long getApplicationId() { return applicationId; }
         public void setApplicationId(Long applicationId) { this.applicationId = applicationId; }
+        public String getGeneratedApplicationId() { return generatedApplicationId; }
+        public void setGeneratedApplicationId(String generatedApplicationId) { this.generatedApplicationId = generatedApplicationId; }
         public boolean isOverallStatus() { return overallStatus; }
         public void setOverallStatus(boolean overallStatus) { this.overallStatus = overallStatus; }
         public String getMessage() { return message; }
@@ -134,13 +125,11 @@ public class SmartValidationEngine {
         private String checkName;
         private boolean passed;
         private String details;
-        
         public ValidationCheck(String checkName, boolean passed, String details) {
             this.checkName = checkName;
             this.passed = passed;
             this.details = details;
         }
-        
         public String getCheckName() { return checkName; }
         public boolean isPassed() { return passed; }
         public String getDetails() { return details; }

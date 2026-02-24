@@ -4,6 +4,7 @@ import com.dbi.backend.entity.Application;
 import com.dbi.backend.entity.User;
 import com.dbi.backend.repository.ApplicationRepository;
 import com.dbi.backend.repository.UserRepository;
+import com.dbi.backend.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +24,9 @@ public class FieldOfficerController {
 
     @Autowired
     private UserRepository userRepository;
+    
+    @Autowired
+    private NotificationService notificationService;
 
     @GetMapping("/pending-verifications")
     public ResponseEntity<?> getPendingVerifications(@RequestHeader("Authorization") String token) {
@@ -201,6 +205,11 @@ public class FieldOfficerController {
             application.setVerifiedDate(LocalDateTime.now());
 
             applicationRepository.save(application);
+            
+            String message = "APPROVED".equals(status) 
+                ? "Your application " + application.getApplicationId() + " for " + application.getScheme().getSchemeName() + " has been verified and forwarded to sanctioning authority."
+                : "Your application " + application.getApplicationId() + " for " + application.getScheme().getSchemeName() + " has been rejected by field officer. Reason: " + remarks;
+            notificationService.createNotification(application.getUser().getId(), message, status, applicationId);
 
             return ResponseEntity.ok("Application " + status + " successfully");
         } catch (Exception e) {

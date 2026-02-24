@@ -54,42 +54,20 @@ public class BeneficiaryController {
     public ResponseEntity<?> getApplications(@RequestHeader("Authorization") String token) {
         try {
             Long userId = extractUserIdFromToken(token);
-            List<java.util.Map<String, Object>> result = new java.util.ArrayList<>();
+            List<Application> applications = beneficiarySchemeService.getApplicationRepository().findByUserId(userId);
             
-            try (java.sql.Connection conn = dataSource.getConnection()) {
-                // First get applications
-                java.sql.PreparedStatement stmt1 = conn.prepareStatement(
-                    "SELECT id, scheme_id, status, applied_date, remarks FROM applications WHERE user_id = ?");
-                stmt1.setLong(1, userId);
-                java.sql.ResultSet rs1 = stmt1.executeQuery();
-                
-                while (rs1.next()) {
-                    Long schemeId = rs1.getLong("scheme_id");
-                    
-                    // Get scheme name
-                    java.sql.PreparedStatement stmt2 = conn.prepareStatement(
-                        "SELECT scheme_name FROM schemes WHERE id = ?");
-                    stmt2.setLong(1, schemeId);
-                    java.sql.ResultSet rs2 = stmt2.executeQuery();
-                    
-                    String schemeName = "Unknown Scheme";
-                    if (rs2.next()) {
-                        schemeName = rs2.getString("scheme_name");
-                    }
-                    rs2.close();
-                    stmt2.close();
-                    
+            List<java.util.Map<String, Object>> result = applications.stream()
+                .map(app -> {
                     java.util.Map<String, Object> dto = new java.util.HashMap<>();
-                    dto.put("id", rs1.getLong("id"));
-                    dto.put("schemeName", schemeName);
-                    dto.put("status", rs1.getString("status"));
-                    dto.put("appliedDate", rs1.getTimestamp("applied_date"));
-                    dto.put("remarks", rs1.getString("remarks"));
-                    result.add(dto);
-                }
-                rs1.close();
-                stmt1.close();
-            }
+                    dto.put("id", app.getId());
+                    dto.put("applicationId", app.getApplicationId());
+                    dto.put("schemeName", app.getScheme().getSchemeName());
+                    dto.put("status", app.getStatus());
+                    dto.put("appliedDate", app.getAppliedDate());
+                    dto.put("remarks", app.getRemarks());
+                    return dto;
+                })
+                .collect(java.util.stream.Collectors.toList());
             
             return ResponseEntity.ok(result);
         } catch (Exception e) {

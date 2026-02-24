@@ -119,9 +119,30 @@ const BeneficiaryDashboard = () => {
                 <div key={app.id} className="application-card">
                   <div className="app-header">
                     <h3>{app.schemeName}</h3>
-                    <span className={`status-badge ${app.status.toLowerCase()}`}>
-                      {app.status}
-                    </span>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                      {app.applicationId && (
+                        <span style={{ fontSize: '14px', color: '#666' }}>ID: {app.applicationId}</span>
+                      )}
+                      <span className={`status-badge ${app.status.toLowerCase()}`}>
+                        {app.status}
+                      </span>
+                      {app.applicationId && (
+                        <button 
+                          onClick={() => navigate(`/track?id=${app.applicationId}`)}
+                          style={{
+                            padding: '8px 16px',
+                            background: '#3498db',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '5px',
+                            cursor: 'pointer',
+                            fontSize: '14px'
+                          }}
+                        >
+                          Track
+                        </button>
+                      )}
+                    </div>
                   </div>
                   <div className="journey-map">
                     <div className={`journey-step ${['PENDING_VERIFICATION', 'APPROVED', 'SANCTIONED', 'DISBURSED'].includes(app.status) ? 'completed' : ''}`}>

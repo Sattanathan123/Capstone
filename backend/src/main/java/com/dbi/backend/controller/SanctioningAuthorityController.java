@@ -4,6 +4,7 @@ import com.dbi.backend.entity.Application;
 import com.dbi.backend.entity.User;
 import com.dbi.backend.repository.ApplicationRepository;
 import com.dbi.backend.repository.UserRepository;
+import com.dbi.backend.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +24,9 @@ public class SanctioningAuthorityController {
 
     @Autowired
     private UserRepository userRepository;
+    
+    @Autowired
+    private NotificationService notificationService;
 
     @GetMapping("/pending-sanctions")
     public ResponseEntity<?> getPendingSanctions(@RequestHeader("Authorization") String token) {
@@ -121,6 +125,11 @@ public class SanctioningAuthorityController {
             }
 
             applicationRepository.save(application);
+            
+            String message = "SANCTIONED".equals(status)
+                ? "Congratulations! Your application " + application.getApplicationId() + " for " + application.getScheme().getSchemeName() + " has been sanctioned with amount ₹" + amount + "."
+                : "Your application " + application.getApplicationId() + " for " + application.getScheme().getSchemeName() + " has been rejected by sanctioning authority. Reason: " + remarks;
+            notificationService.createNotification(application.getUser().getId(), message, status, applicationId);
 
             return ResponseEntity.ok("Application " + status + " successfully");
         } catch (Exception e) {

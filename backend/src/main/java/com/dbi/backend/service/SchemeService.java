@@ -14,6 +14,9 @@ public class SchemeService {
     @Autowired
     private SchemeRepository schemeRepository;
     
+    @Autowired
+    private SchemeMatchingService schemeMatchingService;
+    
     public List<Scheme> getAllSchemes() {
         return schemeRepository.findAll();
     }
@@ -48,7 +51,9 @@ public class SchemeService {
         scheme.setRequiresCommunityCertificate(dto.getRequiresCommunityCertificate());
         scheme.setRequiresOccupationProof(dto.getRequiresOccupationProof());
         
-        return schemeRepository.save(scheme);
+        Scheme savedScheme = schemeRepository.save(scheme);
+        schemeMatchingService.notifyEligibleBeneficiaries(savedScheme);
+        return savedScheme;
     }
     
     public void deleteScheme(Long schemeId) throws Exception {
