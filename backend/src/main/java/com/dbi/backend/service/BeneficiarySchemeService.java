@@ -94,6 +94,24 @@ public class BeneficiarySchemeService {
             throw new Exception("You have already applied for this scheme. Duplicate applications are not allowed.");
         }
         
+        // Update parent details if provided
+        if (documents != null && documents.containsKey("parentDetails")) {
+            try {
+                com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                @SuppressWarnings("unchecked")
+                Map<String, Object> parentDetails = mapper.readValue(documents.get("parentDetails"), Map.class);
+                
+                if (parentDetails.containsKey("parentName")) user.setParentName((String) parentDetails.get("parentName"));
+                if (parentDetails.containsKey("parentOccupation")) user.setParentOccupation((String) parentDetails.get("parentOccupation"));
+                if (parentDetails.containsKey("parentIncome")) user.setParentIncome(Double.valueOf(parentDetails.get("parentIncome").toString()));
+                if (parentDetails.containsKey("parentMobileNumber")) user.setParentMobileNumber((String) parentDetails.get("parentMobileNumber"));
+                
+                userRepository.save(user);
+            } catch (Exception e) {
+                System.err.println("Error parsing parent details: " + e.getMessage());
+            }
+        }
+        
         Long maxId = applicationRepository.findAll().stream()
             .map(Application::getId)
             .max(Long::compareTo)

@@ -76,9 +76,14 @@ const BeneficiaryDashboard = () => {
             <h1>Beneficiary Dashboard</h1>
             <p className="role-badge">Role: Beneficiary</p>
           </div>
-          <button className="logout-btn" onClick={handleLogout}>
-            Logout
-          </button>
+          <div className="header-actions">
+            <button className="track-nav-btn" onClick={() => navigate('/track')}>
+              📍 Track Application
+            </button>
+            <button className="logout-btn" onClick={handleLogout}>
+              Logout
+            </button>
+          </div>
         </div>
       </header>
 
@@ -113,7 +118,7 @@ const BeneficiaryDashboard = () => {
         {/* Application Tracking Section */}
         {applications.length > 0 && (
           <section className="tracking-section">
-            <h2>📍 Track Your Applications</h2>
+            <h2>📍 Your Applications</h2>
             <div className="applications-list">
               {applications.map((app) => (
                 <div key={app.id} className="application-card">
@@ -126,43 +131,6 @@ const BeneficiaryDashboard = () => {
                       <span className={`status-badge ${app.status.toLowerCase()}`}>
                         {app.status}
                       </span>
-                      {app.applicationId && (
-                        <button 
-                          onClick={() => navigate(`/track?id=${app.applicationId}`)}
-                          style={{
-                            padding: '8px 16px',
-                            background: '#3498db',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '5px',
-                            cursor: 'pointer',
-                            fontSize: '14px'
-                          }}
-                        >
-                          Track
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                  <div className="journey-map">
-                    <div className={`journey-step ${['PENDING_VERIFICATION', 'APPROVED', 'SANCTIONED', 'DISBURSED'].includes(app.status) ? 'completed' : ''}`}>
-                      <div className="step-icon">📝</div>
-                      <div className="step-label">Submitted</div>
-                    </div>
-                    <div className={`journey-line ${['APPROVED', 'SANCTIONED', 'DISBURSED'].includes(app.status) ? 'completed' : ''}`}></div>
-                    <div className={`journey-step ${['APPROVED', 'SANCTIONED', 'DISBURSED'].includes(app.status) ? 'completed' : app.status === 'REJECTED' ? 'rejected' : app.status === 'PENDING_VERIFICATION' ? 'active' : ''}`}>
-                      <div className="step-icon">{app.status === 'REJECTED' ? '❌' : '🔍'}</div>
-                      <div className="step-label">{app.status === 'REJECTED' ? 'Rejected' : 'Field Verification'}</div>
-                    </div>
-                    <div className={`journey-line ${['SANCTIONED', 'DISBURSED'].includes(app.status) ? 'completed' : ''}`}></div>
-                    <div className={`journey-step ${['SANCTIONED', 'DISBURSED'].includes(app.status) ? 'completed' : app.status === 'APPROVED' ? 'active' : ''}`}>
-                      <div className="step-icon">✅</div>
-                      <div className="step-label">Sanctioning</div>
-                    </div>
-                    <div className={`journey-line ${app.status === 'DISBURSED' ? 'completed' : ''}`}></div>
-                    <div className={`journey-step ${app.status === 'DISBURSED' ? 'completed' : app.status === 'SANCTIONED' ? 'active' : ''}`}>
-                      <div className="step-icon">💰</div>
-                      <div className="step-label">{app.status === 'SANCTIONED' ? 'Distribution in Progress' : 'Disbursed'}</div>
                     </div>
                   </div>
                   <div className="app-details">

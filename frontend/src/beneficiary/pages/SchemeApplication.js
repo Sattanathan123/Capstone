@@ -16,6 +16,12 @@ const SchemeApplication = () => {
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
   const [editedData, setEditedData] = useState({});
+  const [parentDetails, setParentDetails] = useState({
+    parentName: '',
+    parentOccupation: '',
+    parentIncome: '',
+    parentMobileNumber: ''
+  });
 
   useEffect(() => {
     fetchData();
@@ -39,6 +45,12 @@ const SchemeApplication = () => {
         const data = await profileRes.json();
         setBeneficiary(data);
         setEditedData(data);
+        setParentDetails({
+          parentName: data.parentName || '',
+          parentOccupation: data.parentOccupation || '',
+          parentIncome: data.parentIncome || '',
+          parentMobileNumber: data.parentMobileNumber || ''
+        });
       }
     } catch (error) {
       console.error('Error:', error);
@@ -63,6 +75,16 @@ const SchemeApplication = () => {
       return;
     }
     
+    const isEducationScheme = beneficiary?.incomeSource?.toLowerCase() === 'student' || 
+                              scheme?.schemeComponent?.toLowerCase().includes('education') ||
+                              scheme?.schemeName?.toLowerCase().includes('education');
+    
+    if (isEducationScheme && (!parentDetails.parentName || !parentDetails.parentOccupation || 
+        !parentDetails.parentIncome || !parentDetails.parentMobileNumber)) {
+      alert('Please fill all parent details for education scheme');
+      return;
+    }
+    
     if (!window.confirm('Are you sure you want to submit this application?')) {
       return;
     }
@@ -81,7 +103,8 @@ const SchemeApplication = () => {
         aadhaarDoc: await toBase64(documents.aadhaar),
         incomeCertDoc: await toBase64(documents.incomeCertificate),
         communityCertDoc: await toBase64(documents.communityCertificate),
-        occupationProofDoc: await toBase64(documents.occupationProof)
+        occupationProofDoc: await toBase64(documents.occupationProof),
+        ...(isEducationScheme && { parentDetails: JSON.stringify(parentDetails) })
       };
       
       console.log('Sending documents:', {
@@ -213,6 +236,36 @@ const SchemeApplication = () => {
               </div>
             </div>
           </section>
+
+          {(beneficiary?.incomeSource?.toLowerCase() === 'student' || 
+            scheme?.schemeComponent?.toLowerCase().includes('education') ||
+            scheme?.schemeName?.toLowerCase().includes('education')) && (
+            <section className="form-section">
+              <h3>Parent Details (Required for Students/Education Schemes)</h3>
+              <div className="details-grid">
+                <div className="detail-item">
+                  <label>Parent Name *</label>
+                  <input type="text" value={parentDetails.parentName} 
+                    onChange={(e) => setParentDetails({...parentDetails, parentName: e.target.value})} required />
+                </div>
+                <div className="detail-item">
+                  <label>Parent Occupation *</label>
+                  <input type="text" value={parentDetails.parentOccupation} 
+                    onChange={(e) => setParentDetails({...parentDetails, parentOccupation: e.target.value})} required />
+                </div>
+                <div className="detail-item">
+                  <label>Parent Annual Income *</label>
+                  <input type="number" value={parentDetails.parentIncome} 
+                    onChange={(e) => setParentDetails({...parentDetails, parentIncome: e.target.value})} required />
+                </div>
+                <div className="detail-item">
+                  <label>Parent Mobile Number *</label>
+                  <input type="tel" value={parentDetails.parentMobileNumber} maxLength="10"
+                    onChange={(e) => setParentDetails({...parentDetails, parentMobileNumber: e.target.value})} required />
+                </div>
+              </div>
+            </section>
+          )}
 
           <section className="form-section">
             <h3>Required Documents</h3>

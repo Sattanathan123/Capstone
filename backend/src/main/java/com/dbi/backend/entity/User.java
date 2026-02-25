@@ -67,6 +67,12 @@ public class User {
     
     private String incomeSource;
     
+    // Parent details for students
+    private String parentName;
+    private String parentOccupation;
+    private Double parentIncome;
+    private String parentMobileNumber;
+    
     // Role-specific fields
     private String employeeId;
     private String idCardNumber;
