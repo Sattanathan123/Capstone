@@ -16,6 +16,9 @@ public class Notification {
     private Long userId;
     
     @Column(nullable = false)
+    private String title = "Notification";
+    
+    @Column(nullable = false)
     private String message;
     
     @Column(nullable = false)

@@ -37,7 +37,7 @@ public class SanctioningAuthorityController {
 
             System.out.println("=== SANCTIONING AUTHORITY ===");
             System.out.println("Authority: " + authority.getFullName());
-            System.out.println("Assigned District: " + authority.getAssignedDistrict());
+            System.out.println("Assigned District: '" + authority.getAssignedDistrict() + "'");
 
             if (authority.getAssignedDistrict() == null || authority.getAssignedDistrict().isEmpty()) {
                 System.out.println("No district assigned - returning empty list");
@@ -47,11 +47,13 @@ public class SanctioningAuthorityController {
             List<Application> applications = applicationRepository
                 .findByStatusAndUserAssignedDistrict("APPROVED", authority.getAssignedDistrict());
 
+            System.out.println("Query: Status=APPROVED, District='" + authority.getAssignedDistrict() + "'");
             System.out.println("Total approved applications in district: " + applications.size());
             for (Application app : applications) {
                 System.out.println("  - App ID: " + app.getId() + 
                     ", Beneficiary: " + app.getUser().getFullName() + 
-                    ", District: " + app.getUser().getDistrict() +
+                    ", District: '" + app.getUser().getDistrict() + "'" +
+                    ", Status: " + app.getStatus() +
                     ", Scheme: " + app.getScheme().getSchemeName());
             }
             System.out.println("============================");
@@ -127,8 +129,8 @@ public class SanctioningAuthorityController {
             applicationRepository.save(application);
             
             String message = "SANCTIONED".equals(status)
-                ? "Congratulations! Your application " + application.getApplicationId() + " for " + application.getScheme().getSchemeName() + " has been sanctioned with amount ₹" + amount + "."
-                : "Your application " + application.getApplicationId() + " for " + application.getScheme().getSchemeName() + " has been rejected by sanctioning authority. Reason: " + remarks;
+                ? "Congratulations! Your application " + application.getApplicationId() + " for " + application.getScheme().getSchemeName() + " has been sanctioned. Approved amount: ₹" + amount + ". The benefits will be disbursed to your account shortly."
+                : "Your application " + application.getApplicationId() + " for " + application.getScheme().getSchemeName() + " has been rejected by the sanctioning authority. Reason: " + remarks;
             notificationService.createNotification(application.getUser().getId(), message, status, applicationId);
 
             return ResponseEntity.ok("Application " + status + " successfully");

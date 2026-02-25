@@ -1,0 +1,26 @@
+# Sensitive Configuration Files
+backend/src/main/resources/application.properties
+
+# Environment files
+.env
+.env.local
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Node modules
+node_modules/
+
+# Build outputs
+target/
+build/
+dist/

@@ -1,5 +1,6 @@
 package com.dbi.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -34,6 +35,7 @@ public class User {
     private String email;
     
     @Column(nullable = false)
+    @JsonIgnore
     private String passwordHash;
     
     @Column(nullable = false)
@@ -42,6 +44,7 @@ public class User {
     private String casteCertificateNumber;
     
     @Column(nullable = false, unique = true)
+    @JsonIgnore
     private String aadhaarNumberHash;
     
     @Column(nullable = false, length = 500)

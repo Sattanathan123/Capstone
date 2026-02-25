@@ -30,7 +30,7 @@ public class Application {
     private LocalDateTime appliedDate;
     
     @Column(name = "scheme_component")
-    private String schemeComponent;
+    private String schemeComponent = "General";
     
     @Column(columnDefinition = "TEXT")
     private String remarks;

@@ -1,6 +1,7 @@
 package com.dbi.backend.controller;
 
 import com.dbi.backend.dto.BeneficiaryEligibleSchemesDTO;
+import com.dbi.backend.entity.Application;
 import com.dbi.backend.service.BeneficiarySchemeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

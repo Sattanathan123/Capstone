@@ -199,6 +199,13 @@ public class FieldOfficerController {
             String status = request.get("status");
             String remarks = request.get("remarks");
 
+            System.out.println("=== FIELD OFFICER VERIFICATION ===");
+            System.out.println("Application ID: " + applicationId);
+            System.out.println("Current Status: " + application.getStatus());
+            System.out.println("New Status: " + status);
+            System.out.println("Beneficiary District: '" + application.getUser().getDistrict() + "'");
+            System.out.println("===================================");
+
             application.setStatus(status);
             application.setRemarks(remarks);
             application.setVerificationOfficerId(officer.getId());
@@ -207,8 +214,8 @@ public class FieldOfficerController {
             applicationRepository.save(application);
             
             String message = "APPROVED".equals(status) 
-                ? "Your application " + application.getApplicationId() + " for " + application.getScheme().getSchemeName() + " has been verified and forwarded to sanctioning authority."
-                : "Your application " + application.getApplicationId() + " for " + application.getScheme().getSchemeName() + " has been rejected by field officer. Reason: " + remarks;
+                ? "Good news! Your application " + application.getApplicationId() + " for " + application.getScheme().getSchemeName() + " has been verified by the field officer and forwarded to the sanctioning authority for final approval."
+                : "Your application " + application.getApplicationId() + " for " + application.getScheme().getSchemeName() + " has been rejected by the field officer. Reason: " + remarks;
             notificationService.createNotification(application.getUser().getId(), message, status, applicationId);
 
             return ResponseEntity.ok("Application " + status + " successfully");

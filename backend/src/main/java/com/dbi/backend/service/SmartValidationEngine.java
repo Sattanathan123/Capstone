@@ -36,7 +36,7 @@ public class SmartValidationEngine {
         
         if (result.isOverallStatus()) {
             result.setMessage("✅ ELIGIBLE - Application passed all validation checks. Forwarding to Field Verification Officer.");
-            result.setNextStatus("UNDER_REVIEW");
+            result.setNextStatus("PENDING_VERIFICATION");
             notificationService.createNotification(user.getId(), 
                 "Your application " + appId + " for " + scheme.getSchemeName() + " has been approved and is under review.", 
                 "SUCCESS", applicationId);

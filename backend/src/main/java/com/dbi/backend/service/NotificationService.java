@@ -17,9 +17,13 @@ public class NotificationService {
     @Autowired
     private UserRepository userRepository;
     
+    @Autowired
+    private EmailService emailService;
+    
     public void createNotification(Long userId, String message, String type, Long applicationId) {
         Notification notification = new Notification();
         notification.setUserId(userId);
+        notification.setTitle(getNotificationTitle(type));
         notification.setMessage(message);
         notification.setType(type);
         notification.setApplicationId(applicationId);
@@ -28,9 +32,29 @@ public class NotificationService {
         userRepository.findById(userId).ifPresent(user -> {
             sendSMS(user.getMobileNumber(), message);
             if (user.getEmail() != null && !user.getEmail().isEmpty()) {
-                sendEmail(user.getEmail(), "Application Update", message);
+                sendEmail(user.getEmail(), getEmailSubject(type), message);
             }
         });
+    }
+    
+    private String getNotificationTitle(String type) {
+        switch (type) {
+            case "APPLICATION_SUBMITTED": return "Application Submitted";
+            case "APPROVED": return "Application Verified";
+            case "SANCTIONED": return "Application Sanctioned";
+            case "REJECTED": return "Application Rejected";
+            default: return "Application Update";
+        }
+    }
+    
+    private String getEmailSubject(String type) {
+        switch (type) {
+            case "APPLICATION_SUBMITTED": return "Application Submitted Successfully";
+            case "APPROVED": return "Application Verified - Forwarded for Approval";
+            case "SANCTIONED": return "Congratulations! Application Sanctioned";
+            case "REJECTED": return "Application Status Update";
+            default: return "Application Update";
+        }
     }
     
     public List<Notification> getUserNotifications(Long userId) {
@@ -63,6 +87,6 @@ public class NotificationService {
     }
     
     private void sendEmail(String email, String subject, String body) {
-        System.out.println("[EMAIL] To: " + email + " | Subject: " + subject + " | Body: " + body);
+        emailService.sendEmail(email, subject, body);
     }
 }

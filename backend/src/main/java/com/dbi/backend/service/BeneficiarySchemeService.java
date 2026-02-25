@@ -34,6 +34,9 @@ public class BeneficiarySchemeService {
     @Autowired
     private ApplicationIdGenerator applicationIdGenerator;
     
+    @Autowired
+    private NotificationService notificationService;
+    
     public ApplicationRepository getApplicationRepository() {
         return applicationRepository;
     }
@@ -104,6 +107,23 @@ public class BeneficiarySchemeService {
         app.setScheme(scheme);
         app.setStatus("SUBMITTED");
         app.setAppliedDate(LocalDateTime.now());
+        
+        // Save documents if provided
+        if (documents != null) {
+            if (documents.containsKey("aadhaarDoc")) {
+                app.setAadhaarDoc(documents.get("aadhaarDoc"));
+            }
+            if (documents.containsKey("incomeCertDoc")) {
+                app.setIncomeCertDoc(documents.get("incomeCertDoc"));
+            }
+            if (documents.containsKey("communityCertDoc")) {
+                app.setCommunityCertDoc(documents.get("communityCertDoc"));
+            }
+            if (documents.containsKey("occupationProofDoc")) {
+                app.setOccupationProofDoc(documents.get("occupationProofDoc"));
+            }
+        }
+        
         Application saved = applicationRepository.save(app);
         
         SmartValidationEngine.ValidationResult result = validationEngine.validateApplication(user, scheme, saved.getId());
@@ -112,6 +132,14 @@ public class BeneficiarySchemeService {
         saved.setStatus(result.getNextStatus());
         saved.setRemarks(result.getMessage());
         applicationRepository.save(saved);
+        
+        // Send email notification
+        notificationService.createNotification(
+            userId,
+            "Your application for " + scheme.getSchemeName() + " has been submitted successfully. Application ID: " + generatedAppId + ". Your application will be reviewed by the field verification officer of " + user.getDistrict() + " district.",
+            "APPLICATION_SUBMITTED",
+            saved.getId()
+        );
         
         return result;
     }
