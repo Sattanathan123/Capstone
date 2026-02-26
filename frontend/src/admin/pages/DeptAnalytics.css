@@ -280,6 +280,72 @@
   color: var(--primary-blue);
 }
 
+/* Simple Bar Chart Styles */
+.simple-bar-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1rem;
+}
+
+.bar-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.bar-info {
+  min-width: 200px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bar-label {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.bar-value {
+  font-weight: 700;
+  color: var(--primary-orange);
+}
+
+.bar-container {
+  flex: 1;
+  height: 25px;
+  background: var(--bg-light);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 12px;
+  transition: width 0.8s ease;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 8px;
+  color: white;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.bar-percent {
+  min-width: 50px;
+  text-align: right;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.no-data {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+}
+
 @media (max-width: 768px) {
   .header-content {
     flex-direction: column;
@@ -298,5 +364,19 @@
   .status-distribution {
     height: 300px;
     padding: 1rem;
+  }
+  
+  .pie-chart-wrapper {
+    flex-direction: column;
+    gap: 2rem;
+  }
+  
+  .pie-chart {
+    width: 200px;
+    height: 200px;
+  }
+  
+  .pie-legend {
+    max-width: 100%;
   }
 }

@@ -77,14 +77,33 @@ public class AdminController {
         long totalBeneficiaries = userRepository.countByRole(UserRole.BENEFICIARY);
         long totalSchemes = schemeService.getAllSchemes().size();
         
+        // Get scheme-wise application data
+        List<Map<String, Object>> schemeWiseData = getSchemeWiseApplicationData();
+        
         analytics.put("totalApplications", totalApplications);
         analytics.put("approvedApplications", approvedApplications);
         analytics.put("rejectedApplications", rejectedApplications);
         analytics.put("pendingApplications", pendingApplications);
         analytics.put("mySchemes", totalSchemes);
         analytics.put("activeSchemes", totalSchemes);
-        analytics.put("schemeWiseData", new ArrayList<>());
+        analytics.put("schemeWiseData", schemeWiseData);
         
         return ResponseEntity.ok(analytics);
+    }
+    
+    private List<Map<String, Object>> getSchemeWiseApplicationData() {
+        List<Map<String, Object>> schemeWiseData = new ArrayList<>();
+        List<Scheme> schemes = schemeService.getAllSchemes();
+        
+        for (Scheme scheme : schemes) {
+            Map<String, Object> schemeData = new HashMap<>();
+            long applicationCount = applicationRepository.countBySchemeId(scheme.getId());
+            
+            schemeData.put("schemeName", scheme.getSchemeName());
+            schemeData.put("applicationCount", applicationCount);
+            schemeWiseData.add(schemeData);
+        }
+        
+        return schemeWiseData;
     }
 }

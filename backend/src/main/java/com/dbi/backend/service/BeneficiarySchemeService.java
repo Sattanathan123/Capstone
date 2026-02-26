@@ -1,20 +1,23 @@
 package com.dbi.backend.service;
 
-import com.dbi.backend.dto.BeneficiaryEligibleSchemesDTO;
-import com.dbi.backend.entity.Scheme;
-import com.dbi.backend.entity.User;
-import com.dbi.backend.entity.Application;
-import com.dbi.backend.repository.SchemeRepository;
-import com.dbi.backend.repository.UserRepository;
-import com.dbi.backend.repository.ApplicationRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.time.LocalDateTime;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.dbi.backend.dto.BeneficiaryEligibleSchemesDTO;
+import com.dbi.backend.entity.Application;
+import com.dbi.backend.entity.Scheme;
+import com.dbi.backend.entity.User;
+import com.dbi.backend.repository.ApplicationRepository;
+import com.dbi.backend.repository.SchemeRepository;
+import com.dbi.backend.repository.UserRepository;
+
+import tools.jackson.databind.ObjectMapper;
 
 @Service
 public class BeneficiarySchemeService {
@@ -97,7 +100,7 @@ public class BeneficiarySchemeService {
         // Update parent details if provided
         if (documents != null && documents.containsKey("parentDetails")) {
             try {
-                com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                ObjectMapper mapper = new ObjectMapper();
                 @SuppressWarnings("unchecked")
                 Map<String, Object> parentDetails = mapper.readValue(documents.get("parentDetails"), Map.class);
                 
@@ -210,28 +213,5 @@ public class BeneficiarySchemeService {
             this.appliedDate = appliedDate;
             this.remarks = remarks;
         }
-    }
-    
-    public String debugEligibility(Long userId) throws Exception {
-        User user = userRepository.findById(userId).orElseThrow(() -> new Exception("User not found"));
-        List<Scheme> allSchemes = schemeRepository.findAll();
-        
-        StringBuilder debug = new StringBuilder();
-        debug.append("User: ").append(user.getFullName()).append("\n");
-        debug.append("Income: ").append(user.getAnnualIncome()).append("\n");
-        debug.append("Community: ").append(user.getCasteCategory()).append("\n");
-        debug.append("Occupation: ").append(user.getIncomeSource()).append("\n\n");
-        debug.append("Total schemes in DB: ").append(allSchemes.size()).append("\n\n");
-        
-        for (Scheme scheme : allSchemes) {
-            debug.append("Scheme: ").append(scheme.getSchemeName()).append("\n");
-            debug.append("  Status: ").append(scheme.getStatus()).append("\n");
-            debug.append("  Income: ").append(scheme.getMinIncome()).append("-").append(scheme.getMaxIncome()).append("\n");
-            debug.append("  Community: ").append(scheme.getCommunity()).append("\n");
-            debug.append("  Occupation: ").append(scheme.getOccupation()).append("\n");
-            debug.append("  Eligible: ").append(isEligible(user, scheme)).append("\n\n");
-        }
-        
-        return debug.toString();
     }
 }

@@ -23,13 +23,19 @@ const DeptAnalytics = () => {
   const fetchAnalytics = async () => {
     try {
       const token = localStorage.getItem('token');
+      console.log('Fetching analytics with token:', token);
       const response = await fetch(`http://localhost:8080/api/admin/analytics?range=${timeRange}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       
+      console.log('Analytics response status:', response.status);
+      
       if (response.ok) {
         const data = await response.json();
+        console.log('Analytics data received:', data);
         setAnalytics(data);
+      } else {
+        console.error('Failed to fetch analytics:', response.statusText);
       }
     } catch (error) {
       console.error('Error fetching analytics:', error);
@@ -72,14 +78,14 @@ const DeptAnalytics = () => {
           <div className="metric-card primary">
             <div className="metric-icon">📊</div>
             <div className="metric-info">
-              <h3>{analytics.totalApplications}</h3>
+              <h3>{analytics.totalApplications || 0}</h3>
               <p>Total Applications</p>
             </div>
           </div>
           <div className="metric-card success">
             <div className="metric-icon">✅</div>
             <div className="metric-info">
-              <h3>{analytics.approvedApplications}</h3>
+              <h3>{analytics.approvedApplications || 0}</h3>
               <p>Approved</p>
               <span className="metric-percent">{calculatePercentage(analytics.approvedApplications, analytics.totalApplications)}%</span>
             </div>
@@ -87,7 +93,7 @@ const DeptAnalytics = () => {
           <div className="metric-card warning">
             <div className="metric-icon">⏳</div>
             <div className="metric-info">
-              <h3>{analytics.pendingApplications}</h3>
+              <h3>{analytics.pendingApplications || 0}</h3>
               <p>Pending</p>
               <span className="metric-percent">{calculatePercentage(analytics.pendingApplications, analytics.totalApplications)}%</span>
             </div>
@@ -95,7 +101,7 @@ const DeptAnalytics = () => {
           <div className="metric-card danger">
             <div className="metric-icon">❌</div>
             <div className="metric-info">
-              <h3>{analytics.rejectedApplications}</h3>
+              <h3>{analytics.rejectedApplications || 0}</h3>
               <p>Rejected</p>
               <span className="metric-percent">{calculatePercentage(analytics.rejectedApplications, analytics.totalApplications)}%</span>
             </div>
@@ -106,12 +112,12 @@ const DeptAnalytics = () => {
         <section className="overview-section">
           <div className="overview-card">
             <h3>My Schemes</h3>
-            <div className="overview-value">{analytics.mySchemes}</div>
+            <div className="overview-value">{analytics.mySchemes || 0}</div>
             <p>Total schemes managed</p>
           </div>
           <div className="overview-card">
             <h3>Active Schemes</h3>
-            <div className="overview-value">{analytics.activeSchemes}</div>
+            <div className="overview-value">{analytics.activeSchemes || 0}</div>
             <p>Currently running</p>
           </div>
           <div className="overview-card">
@@ -123,26 +129,38 @@ const DeptAnalytics = () => {
 
         {/* Scheme-wise Performance */}
         <section className="chart-section">
-          <h2>Scheme-wise Performance</h2>
-          <div className="scheme-list">
+          <h2>Scheme-wise Application Distribution</h2>
+          <div className="chart-container">
             {analytics.schemeWiseData && analytics.schemeWiseData.length > 0 ? (
-              analytics.schemeWiseData.map((scheme, index) => (
-                <div key={index} className="scheme-bar">
-                  <div className="scheme-info">
-                    <span className="scheme-name">{scheme.schemeName}</span>
-                    <span className="scheme-count">{scheme.applicationCount} applications</span>
-                  </div>
-                  <div className="progress-bar">
-                    <div 
-                      className="progress-fill" 
-                      style={{ width: `${calculatePercentage(scheme.applicationCount, analytics.totalApplications)}%` }}
-                    ></div>
-                  </div>
-                </div>
-              ))
+              <div className="simple-bar-chart">
+                {analytics.schemeWiseData.map((scheme, index) => {
+                  const colors = ['#4CAF50', '#2196F3', '#FF9800', '#9C27B0', '#F44336'];
+                  const percentage = calculatePercentage(scheme.applicationCount, analytics.totalApplications);
+                  return (
+                    <div key={index} className="bar-item">
+                      <div className="bar-info">
+                        <span className="bar-label">{scheme.schemeName}</span>
+                        <span className="bar-value">{scheme.applicationCount}</span>
+                      </div>
+                      <div className="bar-container">
+                        <div 
+                          className="bar-fill" 
+                          style={{ 
+                            width: `${percentage}%`,
+                            backgroundColor: colors[index % colors.length]
+                          }}
+                        ></div>
+                      </div>
+                      <span className="bar-percent">{percentage}%</span>
+                    </div>
+                  );
+                })}
+              </div>
             ) : (
-              <p style={{ textAlign: 'center', color: 'var(--text-muted)' }}>No scheme data available</p>
-            )}
+              <div className="no-data">
+                <p>📊 No scheme data available</p>
+              </div>
+            )}}
           </div>
         </section>
 

@@ -179,6 +179,62 @@ const FieldOfficerDashboard = () => {
           </div>
         </section>
 
+        {/* Performance Analytics Widget */}
+        <section className="performance-analytics">
+          <div className="analytics-card">
+            <h3>📊 Performance Overview</h3>
+            <div className="performance-chart">
+              <div className="progress-rings">
+                <div className="ring-container">
+                  <svg className="progress-ring" width="120" height="120">
+                    <circle
+                      className="progress-ring-bg"
+                      stroke="#e6e6e6"
+                      strokeWidth="8"
+                      fill="transparent"
+                      r="52"
+                      cx="60"
+                      cy="60"
+                    />
+                    <circle
+                      className="progress-ring-fill"
+                      stroke="#4CAF50"
+                      strokeWidth="8"
+                      fill="transparent"
+                      r="52"
+                      cx="60"
+                      cy="60"
+                      strokeDasharray={`${2 * Math.PI * 52}`}
+                      strokeDashoffset={`${2 * Math.PI * 52 * (1 - (stats.approved / (stats.approved + stats.rejected + stats.pending) || 0))}`}
+                      transform="rotate(-90 60 60)"
+                    />
+                  </svg>
+                  <div className="ring-label">
+                    <span className="ring-value">{Math.round((stats.approved / (stats.approved + stats.rejected + stats.pending) || 0) * 100)}%</span>
+                    <span className="ring-text">Approval Rate</span>
+                  </div>
+                </div>
+                <div className="performance-stats">
+                  <div className="perf-stat">
+                    <span className="perf-label">Efficiency</span>
+                    <div className="perf-bar">
+                      <div className="perf-fill" style={{ width: `${Math.min((stats.today / 10) * 100, 100)}%` }}></div>
+                    </div>
+                    <span className="perf-value">{stats.today}/10 daily target</span>
+                  </div>
+                  <div className="perf-stat">
+                    <span className="perf-label">Workload</span>
+                    <div className="perf-bar">
+                      <div className="perf-fill workload" style={{ width: `${Math.min((stats.pending / 50) * 100, 100)}%` }}></div>
+                    </div>
+                    <span className="perf-value">{stats.pending} pending</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section className="verifications-section">
           <div className="tabs-header">
             <button className={`tab ${activeTab === 'PENDING' ? 'active' : ''}`} onClick={() => setActiveTab('PENDING')}>⏳ Pending ({applications.filter(app => app.status === 'PENDING').length})</button>

@@ -91,7 +91,8 @@ public class BeneficiaryController {
     public ResponseEntity<?> debugEligibility(@RequestHeader("Authorization") String token) {
         try {
             Long userId = extractUserIdFromToken(token);
-            return ResponseEntity.ok(beneficiarySchemeService.debugEligibility(userId));
+            BeneficiaryEligibleSchemesDTO data = beneficiarySchemeService.getEligibleSchemes(userId);
+            return ResponseEntity.ok(data);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }

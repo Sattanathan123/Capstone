@@ -107,9 +107,14 @@ const Analytics = () => {
         {/* Overview Cards */}
         <section className="overview-section">
           <div className="overview-card">
-            <h3>Active Schemes</h3>
-            <div className="overview-value">{analytics.totalSchemes}</div>
-            <p>Schemes currently running</p>
+            <h3>Total Officers</h3>
+            <div className="overview-value">{analytics.totalOfficers}</div>
+            <p>Field & Sanctioning Officers</p>
+          </div>
+          <div className="overview-card">
+            <h3>Total Admins</h3>
+            <div className="overview-value">{analytics.totalAdmins}</div>
+            <p>Department Administrators</p>
           </div>
           <div className="overview-card">
             <h3>Total Beneficiaries</h3>
@@ -123,50 +128,103 @@ const Analytics = () => {
           </div>
         </section>
 
-        {/* Scheme-wise Performance */}
+        {/* Role-wise User Distribution */}
         <section className="chart-section">
-          <h2>Scheme-wise Performance</h2>
-          <div className="scheme-list">
-            {analytics.schemeWiseData && analytics.schemeWiseData.map((scheme, index) => (
-              <div key={index} className="scheme-bar">
-                <div className="scheme-info">
-                  <span className="scheme-name">{scheme.schemeName}</span>
-                  <span className="scheme-count">{scheme.applicationCount} applications</span>
+          <h2>User Role Distribution</h2>
+          <div className="chart-container">
+            {analytics.roleWiseData && analytics.roleWiseData.length > 0 ? (
+              <div className="donut-chart-wrapper">
+                <div className="donut-chart">
+                  <svg viewBox="0 0 200 200" className="donut-svg">
+                    {(() => {
+                      let cumulativePercentage = 0;
+                      const colors = ['#4CAF50', '#2196F3', '#FF9800', '#9C27B0'];
+                      const totalUsers = analytics.roleWiseData.reduce((sum, role) => sum + role.count, 0);
+                      return analytics.roleWiseData.map((role, index) => {
+                        const percentage = (role.count / totalUsers) * 100;
+                        const strokeDasharray = `${percentage} ${100 - percentage}`;
+                        const strokeDashoffset = -cumulativePercentage;
+                        cumulativePercentage += percentage;
+                        return (
+                          <circle
+                            key={index}
+                            cx="100"
+                            cy="100"
+                            r="31.83"
+                            fill="transparent"
+                            stroke={colors[index % colors.length]}
+                            strokeWidth="25"
+                            strokeDasharray={strokeDasharray}
+                            strokeDashoffset={strokeDashoffset}
+                            transform="rotate(-90 100 100)"
+                          />
+                        );
+                      });
+                    })()
+                    }
+                  </svg>
+                  <div className="donut-center">
+                    <span className="total-users">{analytics.roleWiseData.reduce((sum, role) => sum + role.count, 0)}</span>
+                    <span className="total-label">Total Users</span>
+                  </div>
                 </div>
-                <div className="progress-bar">
-                  <div 
-                    className="progress-fill" 
-                    style={{ width: `${calculatePercentage(scheme.applicationCount, analytics.totalApplications)}%` }}
-                  ></div>
+                <div className="donut-legend">
+                  {analytics.roleWiseData.map((role, index) => {
+                    const colors = ['#4CAF50', '#2196F3', '#FF9800', '#9C27B0'];
+                    const totalUsers = analytics.roleWiseData.reduce((sum, r) => sum + r.count, 0);
+                    return (
+                      <div key={index} className="legend-item">
+                        <div className="legend-color" style={{ backgroundColor: colors[index % colors.length] }}></div>
+                        <div className="legend-text">
+                          <span className="legend-name">{role.role}</span>
+                          <span className="legend-count">{role.count} ({((role.count / totalUsers) * 100).toFixed(1)}%)</span>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
-            ))}
+            ) : (
+              <p style={{ textAlign: 'center', color: 'var(--text-muted)' }}>No user data available</p>
+            )}
           </div>
         </section>
 
-        {/* Department-wise Statistics */}
+        {/* Application Status Trend */}
         <section className="chart-section">
-          <h2>Department-wise Statistics</h2>
-          <div className="department-grid">
-            {analytics.departmentWiseData && analytics.departmentWiseData.map((dept, index) => (
-              <div key={index} className="department-card">
-                <h4>{dept.departmentName}</h4>
-                <div className="dept-stats">
-                  <div className="dept-stat">
-                    <span className="stat-label">Applications</span>
-                    <span className="stat-value">{dept.totalApplications}</span>
-                  </div>
-                  <div className="dept-stat">
-                    <span className="stat-label">Approved</span>
-                    <span className="stat-value success">{dept.approved}</span>
-                  </div>
-                  <div className="dept-stat">
-                    <span className="stat-label">Pending</span>
-                    <span className="stat-value warning">{dept.pending}</span>
-                  </div>
-                </div>
+          <h2>Application Status Trend</h2>
+          <div className="trend-chart">
+            {analytics.statusTrendData && analytics.statusTrendData.length > 0 ? (
+              <div className="trend-bars">
+                {analytics.statusTrendData.map((status, index) => {
+                  const colors = ['#4CAF50', '#FF9800', '#F44336'];
+                  const maxCount = Math.max(...analytics.statusTrendData.map(s => s.count));
+                  const barHeight = maxCount > 0 ? (status.count / maxCount) * 100 : 0;
+                  return (
+                    <div key={index} className="trend-bar-container">
+                      <div className="trend-bar-wrapper">
+                        <div 
+                          className="trend-bar" 
+                          style={{ 
+                            height: `${Math.max(barHeight, 10)}%`,
+                            backgroundColor: colors[index],
+                            background: `linear-gradient(135deg, ${colors[index]}, ${colors[index]}dd)`
+                          }}
+                        >
+                          <div className="bar-value">{status.count}</div>
+                        </div>
+                      </div>
+                      <div className="trend-label">
+                        <span className="status-name">{status.status}</span>
+                        <span className="status-percent">{status.percentage}%</span>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            ))}
+            ) : (
+              <p style={{ textAlign: 'center', color: 'var(--text-muted)' }}>No trend data available</p>
+            )}
           </div>
         </section>
 

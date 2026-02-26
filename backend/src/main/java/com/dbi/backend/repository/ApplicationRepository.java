@@ -37,4 +37,6 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
     long countBySanctioningOfficerIdAndStatus(Long officerId, String status);
     
     long countByStatus(String status);
+    
+    long countBySchemeId(Long schemeId);
 }

@@ -356,6 +356,117 @@
   color: var(--primary-blue);
 }
 
+/* Performance Analytics Widget */
+.performance-analytics {
+  margin-bottom: 2rem;
+}
+
+.analytics-card {
+  background: white;
+  padding: 2rem;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.analytics-card h3 {
+  margin: 0 0 1.5rem 0;
+  color: var(--text-primary);
+  font-size: 1.3rem;
+}
+
+.performance-chart {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.progress-rings {
+  display: flex;
+  align-items: center;
+  gap: 3rem;
+}
+
+.ring-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.progress-ring {
+  transform: rotate(-90deg);
+}
+
+.progress-ring-bg {
+  opacity: 0.3;
+}
+
+.progress-ring-fill {
+  transition: stroke-dashoffset 0.5s ease;
+  stroke-linecap: round;
+}
+
+.ring-label {
+  position: absolute;
+  text-align: center;
+}
+
+.ring-value {
+  display: block;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--status-success);
+}
+
+.ring-text {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+}
+
+.performance-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.perf-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 200px;
+}
+
+.perf-label {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+
+.perf-bar {
+  height: 8px;
+  background: var(--bg-light);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.perf-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-blue), var(--primary-orange));
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+.perf-fill.workload {
+  background: linear-gradient(90deg, var(--status-warning), var(--status-danger));
+}
+
+.perf-value {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
 .documents-list {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -463,5 +574,20 @@
 
   .action-buttons {
     flex-direction: column;
+  }
+  
+  .progress-rings {
+    flex-direction: column;
+    gap: 2rem;
+  }
+  
+  .ring-container {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .progress-ring {
+    width: 100px;
+    height: 100px;
   }
 }

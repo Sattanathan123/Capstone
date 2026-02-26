@@ -1,14 +1,25 @@
 package com.dbi.backend.controller;
 
-import com.dbi.backend.entity.User;
-import com.dbi.backend.entity.UserRole;
-import com.dbi.backend.repository.UserRepository;
-import com.dbi.backend.repository.ApplicationRepository;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.*;
+import com.dbi.backend.entity.User;
+import com.dbi.backend.entity.UserRole;
+import com.dbi.backend.repository.ApplicationRepository;
+import com.dbi.backend.repository.UserRepository;
 
 @RestController
 @RequestMapping("/api/sysadmin")
@@ -24,7 +35,7 @@ public class SystemAdminController {
     @GetMapping("/stats")
     public ResponseEntity<Map<String, Object>> getSystemStats() {
         long totalUsers = userRepository.count();
-        long activeUsers = totalUsers; // Can add status field later
+        long activeUsers = totalUsers;
         
         Map<String, Object> stats = new HashMap<>();
         stats.put("totalUsers", totalUsers);
@@ -100,21 +111,113 @@ public class SystemAdminController {
     public ResponseEntity<Map<String, Object>> getAnalytics(@RequestParam(defaultValue = "month") String range) {
         Map<String, Object> analytics = new HashMap<>();
         
-        long totalApplications = applicationRepository.count();
-        long approvedApplications = applicationRepository.countByStatus("APPROVED");
-        long rejectedApplications = applicationRepository.countByStatus("REJECTED");
-        long pendingApplications = applicationRepository.countByStatus("PENDING_VERIFICATION");
-        long totalBeneficiaries = userRepository.countByRole(UserRole.BENEFICIARY);
-        
-        analytics.put("totalApplications", totalApplications);
-        analytics.put("approvedApplications", approvedApplications);
-        analytics.put("rejectedApplications", rejectedApplications);
-        analytics.put("pendingApplications", pendingApplications);
-        analytics.put("totalSchemes", 0);
-        analytics.put("totalBeneficiaries", totalBeneficiaries);
-        analytics.put("schemeWiseData", new ArrayList<>());
-        analytics.put("departmentWiseData", new ArrayList<>());
+        try {
+            // Basic counts with fallbacks
+            long totalApplications = 0;
+            long approvedApplications = 0;
+            long rejectedApplications = 0;
+            long pendingApplications = 0;
+            long totalBeneficiaries = 0;
+            long totalOfficers = 0;
+            long totalAdmins = 0;
+            
+            try {
+                totalApplications = applicationRepository.count();
+            } catch (Exception e) { /* ignore */ }
+            
+            try {
+                approvedApplications = applicationRepository.countByStatus("APPROVED");
+            } catch (Exception e) { /* ignore */ }
+            
+            try {
+                rejectedApplications = applicationRepository.countByStatus("REJECTED");
+            } catch (Exception e) { /* ignore */ }
+            
+            try {
+                pendingApplications = applicationRepository.countByStatus("PENDING_VERIFICATION");
+            } catch (Exception e) { /* ignore */ }
+            
+            try {
+                totalBeneficiaries = userRepository.countByRole(UserRole.BENEFICIARY);
+            } catch (Exception e) { /* ignore */ }
+            
+            try {
+                totalOfficers = userRepository.countByRole(UserRole.FIELD_VERIFICATION_OFFICER) + 
+                               userRepository.countByRole(UserRole.SCHEME_SANCTIONING_AUTHORITY);
+            } catch (Exception e) { /* ignore */ }
+            
+            try {
+                totalAdmins = userRepository.countByRole(UserRole.DEPT_ADMIN);
+            } catch (Exception e) { /* ignore */ }
+            
+            analytics.put("totalApplications", totalApplications);
+            analytics.put("approvedApplications", approvedApplications);
+            analytics.put("rejectedApplications", rejectedApplications);
+            analytics.put("pendingApplications", pendingApplications);
+            analytics.put("totalBeneficiaries", totalBeneficiaries);
+            analytics.put("totalOfficers", totalOfficers);
+            analytics.put("totalAdmins", totalAdmins);
+            analytics.put("roleWiseData", getSimpleRoleData(totalBeneficiaries, totalOfficers, totalAdmins));
+            analytics.put("statusTrendData", getSimpleStatusData(approvedApplications, pendingApplications, rejectedApplications, totalApplications));
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            analytics.put("totalApplications", 0);
+            analytics.put("approvedApplications", 0);
+            analytics.put("rejectedApplications", 0);
+            analytics.put("pendingApplications", 0);
+            analytics.put("totalBeneficiaries", 0);
+            analytics.put("totalOfficers", 0);
+            analytics.put("totalAdmins", 0);
+            analytics.put("roleWiseData", new ArrayList<>());
+            analytics.put("statusTrendData", new ArrayList<>());
+        }
         
         return ResponseEntity.ok(analytics);
+    }
+    
+    private List<Map<String, Object>> getSimpleRoleData(long beneficiaries, long officers, long admins) {
+        List<Map<String, Object>> roleData = new ArrayList<>();
+        
+        Map<String, Object> beneficiaryData = new HashMap<>();
+        beneficiaryData.put("role", "Beneficiaries");
+        beneficiaryData.put("count", beneficiaries);
+        roleData.add(beneficiaryData);
+        
+        Map<String, Object> officerData = new HashMap<>();
+        officerData.put("role", "Officers");
+        officerData.put("count", officers);
+        roleData.add(officerData);
+        
+        Map<String, Object> adminData = new HashMap<>();
+        adminData.put("role", "Admins");
+        adminData.put("count", admins);
+        roleData.add(adminData);
+        
+        return roleData;
+    }
+    
+    private List<Map<String, Object>> getSimpleStatusData(long approved, long pending, long rejected, long total) {
+        List<Map<String, Object>> statusData = new ArrayList<>();
+        
+        Map<String, Object> approvedData = new HashMap<>();
+        approvedData.put("status", "Approved");
+        approvedData.put("count", approved);
+        approvedData.put("percentage", total > 0 ? Math.round((double) approved / total * 100 * 10.0) / 10.0 : 0.0);
+        statusData.add(approvedData);
+        
+        Map<String, Object> pendingData = new HashMap<>();
+        pendingData.put("status", "Pending");
+        pendingData.put("count", pending);
+        pendingData.put("percentage", total > 0 ? Math.round((double) pending / total * 100 * 10.0) / 10.0 : 0.0);
+        statusData.add(pendingData);
+        
+        Map<String, Object> rejectedData = new HashMap<>();
+        rejectedData.put("status", "Rejected");
+        rejectedData.put("count", rejected);
+        rejectedData.put("percentage", total > 0 ? Math.round((double) rejected / total * 100 * 10.0) / 10.0 : 0.0);
+        statusData.add(rejectedData);
+        
+        return statusData;
     }
 }
