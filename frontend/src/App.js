@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import Chatbot from './components/Chatbot';
 import Home from './pages/Home';
 import About from './pages/About';
 import Features from './pages/Features';
@@ -29,6 +30,7 @@ import FundTransferDashboard from './sanctioning/pages/FundTransferDashboard';
 function App() {
   return (
     <div className="App">
+      <Chatbot />
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<RoleSelection />} />
