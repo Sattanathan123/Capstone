@@ -17,12 +17,14 @@ import MonitoringOfficerRegister from './pages/register/MonitoringOfficerRegiste
 import SanctioningAuthorityRegister from './pages/register/SanctioningAuthorityRegister';
 import BeneficiaryDashboard from './beneficiary/pages/BeneficiaryDashboard';
 import SchemeApplication from './beneficiary/pages/SchemeApplication';
+import BankDetails from './beneficiary/pages/BankDetails';
 import DepartmentAdminDashboard from './admin/pages/DepartmentAdminDashboard';
 import DeptAnalytics from './admin/pages/DeptAnalytics';
 import FieldOfficerDashboard from './officer/pages/FieldOfficerDashboard';
 import SystemAdminDashboard from './sysadmin/pages/SystemAdminDashboard';
 import Analytics from './sysadmin/pages/Analytics';
 import SanctioningDashboard from './sanctioning/pages/SanctioningDashboard';
+import FundTransferDashboard from './sanctioning/pages/FundTransferDashboard';
 
 function App() {
   return (
@@ -38,8 +40,10 @@ function App() {
         <Route path="/track" element={<TrackApplication />} />
         <Route path="/beneficiary/dashboard" element={<ProtectedRoute role="BENEFICIARY"><BeneficiaryDashboard /></ProtectedRoute>} />
         <Route path="/beneficiary/apply/:schemeId" element={<ProtectedRoute role="BENEFICIARY"><SchemeApplication /></ProtectedRoute>} />
+        <Route path="/beneficiary/bank-details" element={<ProtectedRoute role="BENEFICIARY"><BankDetails /></ProtectedRoute>} />
         <Route path="/officer/dashboard" element={<ProtectedRoute role="FIELD_VERIFICATION_OFFICER"><FieldOfficerDashboard /></ProtectedRoute>} />
         <Route path="/sanctioning/dashboard" element={<ProtectedRoute role="SCHEME_SANCTIONING_AUTHORITY"><SanctioningDashboard /></ProtectedRoute>} />
+        <Route path="/sanctioning/fund-transfer" element={<ProtectedRoute role="SCHEME_SANCTIONING_AUTHORITY"><FundTransferDashboard /></ProtectedRoute>} />
         <Route path="/sysadmin/dashboard" element={<ProtectedRoute role="SYSTEM_ADMIN"><SystemAdminDashboard /></ProtectedRoute>} />
         <Route path="/sysadmin/analytics" element={<ProtectedRoute role="SYSTEM_ADMIN"><Analytics /></ProtectedRoute>} />
         <Route path="/admin/dashboard" element={<ProtectedRoute roles={["DEPT_ADMIN", "DISTRICT_ADMIN", "STATE_ADMIN", "MONITORING_AUDIT_OFFICER"]}><DepartmentAdminDashboard /></ProtectedRoute>} />

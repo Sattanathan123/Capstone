@@ -1,0 +1,143 @@
+.bank-details-page {
+  min-height: 100vh;
+  background: var(--bg-dashboard);
+}
+
+.bank-header {
+  background: var(--gradient-primary);
+  color: white;
+  padding: 2rem;
+  box-shadow: var(--shadow-md);
+  text-align: center;
+}
+
+.bank-header h1 {
+  margin: 0 0 0.5rem 0;
+  font-size: 2rem;
+}
+
+.bank-header p {
+  margin: 0;
+  opacity: 0.9;
+}
+
+.bank-content {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.bank-form {
+  background: white;
+  padding: 2rem;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.8rem;
+  border: 2px solid var(--border-light);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  transition: all 0.3s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--primary-orange);
+  box-shadow: 0 0 0 3px rgba(255, 153, 51, 0.1);
+}
+
+.info-box {
+  background: var(--bg-light);
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  border-left: 4px solid var(--primary-orange);
+  margin: 1.5rem 0;
+}
+
+.info-box p {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-primary);
+}
+
+.info-box ul {
+  margin: 0.5rem 0 0 1.5rem;
+  color: var(--text-secondary);
+}
+
+.info-box li {
+  margin-bottom: 0.3rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.cancel-btn, .save-btn {
+  flex: 1;
+  padding: 0.8rem;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.cancel-btn {
+  background: var(--border-light);
+  color: var(--text-primary);
+}
+
+.cancel-btn:hover {
+  background: var(--border-medium);
+}
+
+.save-btn {
+  background: var(--gradient-success);
+  color: white;
+}
+
+.save-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+}
+
+.save-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.loading-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-size: 1.5rem;
+  color: var(--primary-blue);
+}
+
+@media (max-width: 768px) {
+  .bank-form {
+    padding: 1.5rem;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+}
