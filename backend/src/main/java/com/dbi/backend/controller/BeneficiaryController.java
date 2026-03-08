@@ -23,6 +23,9 @@ public class BeneficiaryController {
     @Autowired
     private com.dbi.backend.repository.SchemeRepository schemeRepository;
     
+    @Autowired
+    private com.dbi.backend.repository.UserRepository userRepository;
+    
     @GetMapping("/eligible-schemes")
     public ResponseEntity<?> getEligibleSchemes(@RequestHeader("Authorization") String token) {
         try {
@@ -95,6 +98,47 @@ public class BeneficiaryController {
             return ResponseEntity.ok(data);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+    
+    @GetMapping("/bank-details")
+    public ResponseEntity<?> getBankDetails(@RequestHeader("Authorization") String token) {
+        try {
+            Long userId = extractUserIdFromToken(token);
+            com.dbi.backend.entity.User user = userRepository.findById(userId)
+                .orElseThrow(() -> new Exception("User not found"));
+            
+            java.util.Map<String, String> bankDetails = new java.util.HashMap<>();
+            bankDetails.put("bankAccountNumber", user.getBankAccountNumber());
+            bankDetails.put("bankIfscCode", user.getBankIfscCode());
+            bankDetails.put("bankName", user.getBankName());
+            bankDetails.put("accountHolderName", user.getAccountHolderName());
+            
+            return ResponseEntity.ok(bankDetails);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"error\": \"" + e.getMessage() + "\"}");
+        }
+    }
+    
+    @PostMapping("/bank-details")
+    public ResponseEntity<?> saveBankDetails(
+            @RequestHeader("Authorization") String token,
+            @RequestBody java.util.Map<String, String> bankDetails) {
+        try {
+            Long userId = extractUserIdFromToken(token);
+            com.dbi.backend.entity.User user = userRepository.findById(userId)
+                .orElseThrow(() -> new Exception("User not found"));
+            
+            user.setBankAccountNumber(bankDetails.get("bankAccountNumber"));
+            user.setBankIfscCode(bankDetails.get("bankIfscCode"));
+            user.setBankName(bankDetails.get("bankName"));
+            user.setAccountHolderName(bankDetails.get("accountHolderName"));
+            
+            userRepository.save(user);
+            
+            return ResponseEntity.ok("{\"message\": \"Bank details saved successfully\"}");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"error\": \"" + e.getMessage() + "\"}");
         }
     }
     

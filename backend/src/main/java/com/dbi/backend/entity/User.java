@@ -91,6 +91,12 @@ public class User {
     private String sanctioningLevel;
     private Double maxSanctionAmount;
     
+    // Bank details for beneficiaries
+    private String bankAccountNumber;
+    private String bankIfscCode;
+    private String bankName;
+    private String accountHolderName;
+    
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
     private UserRole role;
