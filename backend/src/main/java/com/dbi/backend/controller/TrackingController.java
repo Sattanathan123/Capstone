@@ -37,8 +37,8 @@ public class TrackingController {
             
             Map<String, Object> timeline = new HashMap<>();
             timeline.put("submitted", app.getAppliedDate() != null);
-            timeline.put("underReview", "UNDER_REVIEW".equals(app.getStatus()) || "PENDING_VERIFICATION".equals(app.getStatus()));
-            timeline.put("verified", app.getVerifiedDate() != null);
+            timeline.put("underReview", "PENDING_VERIFICATION".equals(app.getStatus()));
+            timeline.put("verified", "APPROVED".equals(app.getStatus()) || app.getVerifiedDate() != null);
             timeline.put("sanctioned", "SANCTIONED".equals(app.getStatus()));
             timeline.put("rejected", "REJECTED".equals(app.getStatus()));
             tracking.put("timeline", timeline);

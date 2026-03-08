@@ -17,7 +17,7 @@ import com.dbi.backend.repository.ApplicationRepository;
 import com.dbi.backend.repository.SchemeRepository;
 import com.dbi.backend.repository.UserRepository;
 
-import tools.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class BeneficiarySchemeService {

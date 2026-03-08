@@ -14,6 +14,7 @@ public class EmailService {
     public void sendEmail(String to, String subject, String body) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom("beninect@gmail.com");
             message.setTo(to);
             message.setSubject(subject);
             message.setText(body);
@@ -21,6 +22,7 @@ public class EmailService {
             System.out.println("[EMAIL SENT] To: " + to);
         } catch (Exception e) {
             System.err.println("[EMAIL FAILED] To: " + to + " | Error: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }
