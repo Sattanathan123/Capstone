@@ -77,6 +77,9 @@ const BeneficiaryDashboard = () => {
             <p className="role-badge">Role: Beneficiary</p>
           </div>
           <div className="header-actions">
+            <button className="bank-btn" onClick={() => navigate('/beneficiary/bank-details')}>
+              🏦 Bank Details
+            </button>
             <button className="track-nav-btn" onClick={() => navigate('/track')}>
               📍 Track Application
             </button>

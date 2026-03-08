@@ -207,7 +207,9 @@ public class FieldOfficerController {
             System.out.println("===================================");
 
             application.setStatus(status);
-            application.setRemarks(remarks);
+            application.setRemarks("APPROVED".equals(status) 
+                ? "Field Verification Officer approved. Waiting for Sanctioning Officer approval."
+                : remarks);
             application.setVerificationOfficerId(officer.getId());
             application.setVerifiedDate(LocalDateTime.now());
 

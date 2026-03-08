@@ -130,7 +130,7 @@ const TrackApplication = () => {
               <div className="step-marker">3</div>
               <div className="step-content">
                 <h4>Verified by Field Officer</h4>
-                <p>{tracking.verificationRemarks || 'Pending'}</p>
+                <p>{tracking.timeline.verified && tracking.verifiedDate ? tracking.remarks || 'Verified' : 'Pending'}</p>
                 {tracking.verifiedDate && (
                   <small>{new Date(tracking.verifiedDate).toLocaleString()}</small>
                 )}

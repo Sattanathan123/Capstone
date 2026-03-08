@@ -87,7 +87,12 @@ const SanctioningDashboard = () => {
             <h1>Scheme Sanctioning Authority Dashboard</h1>
             <p className="role-badge">👤 {authority?.fullName} | 📍 {authority?.assignedDistrict}, {authority?.assignedState}</p>
           </div>
-          <button className="logout-btn" onClick={handleLogout}>Logout</button>
+          <div className="header-actions">
+            <button className="fund-transfer-btn" onClick={() => navigate('/sanctioning/fund-transfer')}>
+              💰 Fund Transfers
+            </button>
+            <button className="logout-btn" onClick={handleLogout}>Logout</button>
+          </div>
         </div>
       </header>
 

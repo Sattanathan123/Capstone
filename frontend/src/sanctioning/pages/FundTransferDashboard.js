@@ -122,9 +122,9 @@ const FundTransferDashboard = () => {
                   {dashboard.recentTransfers.map((transfer) => (
                     <tr key={transfer.id}>
                       <td>{transfer.transferId}</td>
-                      <td>{transfer.applicationId}</td>
+                      <td>{transfer.application?.applicationId || 'N/A'}</td>
                       <td>₹{transfer.amount?.toLocaleString()}</td>
-                      <td>{transfer.accountNumber}</td>
+                      <td>{transfer.beneficiaryAccount}</td>
                       <td>
                         <span className={`status-badge ${transfer.status.toLowerCase()}`}>
                           {transfer.status}

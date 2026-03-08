@@ -34,6 +34,25 @@
   gap: 1rem;
 }
 
+.bank-btn {
+  background: var(--gradient-success);
+  color: white;
+  border: none;
+  padding: 0.7rem 1.5rem;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.bank-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+}
+
 .track-nav-btn {
   background: rgba(255,255,255,0.2);
   color: white;

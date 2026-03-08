@@ -28,6 +28,9 @@ public class SanctioningAuthorityController {
     @Autowired
     private NotificationService notificationService;
 
+    @Autowired
+    private com.dbi.backend.service.FundTransferService fundTransferService;
+
     @GetMapping("/pending-sanctions")
     public ResponseEntity<?> getPendingSanctions(@RequestHeader("Authorization") String token) {
         try {
@@ -118,6 +121,9 @@ public class SanctioningAuthorityController {
                 Double.parseDouble(request.get("amount").toString()) : null;
 
             application.setStatus(status);
+            application.setRemarks("SANCTIONED".equals(status) 
+                ? "Application sanctioned. Amount: ₹" + amount
+                : remarks);
             application.setSanctioningRemarks(remarks);
             application.setSanctioningOfficerId(authority.getId());
             application.setSanctionedDate(LocalDateTime.now());
@@ -127,6 +133,34 @@ public class SanctioningAuthorityController {
             }
 
             applicationRepository.save(application);
+            
+            // Auto-initiate fund transfer if sanctioned
+            if ("SANCTIONED".equals(status) && amount != null) {
+                User beneficiary = application.getUser();
+                System.out.println("=== FUND TRANSFER CHECK ===");
+                System.out.println("Beneficiary: " + beneficiary.getFullName());
+                System.out.println("Bank Account: " + beneficiary.getBankAccountNumber());
+                System.out.println("IFSC: " + beneficiary.getBankIfscCode());
+                System.out.println("Amount: " + amount);
+                
+                if (beneficiary.getBankAccountNumber() != null && !beneficiary.getBankAccountNumber().isEmpty()) {
+                    try {
+                        fundTransferService.initiateFundTransfer(
+                            applicationId,
+                            beneficiary.getBankAccountNumber(),
+                            beneficiary.getBankIfscCode(),
+                            amount
+                        );
+                        System.out.println("✓ Fund transfer initiated successfully");
+                    } catch (Exception e) {
+                        System.err.println("✗ Fund transfer error: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                } else {
+                    System.out.println("✗ Bank details not available");
+                }
+                System.out.println("===========================");
+            }
             
             String message = "SANCTIONED".equals(status)
                 ? "Congratulations! Your application " + application.getApplicationId() + " for " + application.getScheme().getSchemeName() + " has been sanctioned. Approved amount: ₹" + amount + ". The benefits will be disbursed to your account shortly."
