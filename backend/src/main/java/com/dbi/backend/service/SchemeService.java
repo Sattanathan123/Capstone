@@ -16,6 +16,9 @@ public class SchemeService {
     
     @Autowired
     private SchemeMatchingService schemeMatchingService;
+
+    @Autowired
+    private com.dbi.backend.repository.ApplicationRepository applicationRepository;
     
     public List<Scheme> getAllSchemes() {
         return schemeRepository.findAll();
