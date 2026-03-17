@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Chatbot.css';
 
 const Chatbot = () => {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     { type: 'bot', text: 'Hello! 👋 How can I help you today?', timestamp: new Date() }
@@ -35,8 +37,6 @@ const Chatbot = () => {
         sessionId
       };
       
-      console.log('Sending request:', requestBody);
-      
       const response = await fetch('http://localhost:8080/api/chatbot/message', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -44,13 +44,14 @@ const Chatbot = () => {
       });
 
       const data = await response.json();
-      console.log('Received response:', data);
       
       setTimeout(() => {
         const botMessage = {
           type: 'bot',
           text: data.response || 'Sorry, I could not process that.',
           suggestions: data.suggestions || [],
+          action: data.action || null,
+          actionLabel: data.actionLabel || null,
           timestamp: new Date()
         };
         setMessages(prev => [...prev, botMessage]);
@@ -67,6 +68,22 @@ const Chatbot = () => {
     }
   };
 
+  const handleAction = (action) => {
+    if (action === 'SHOW_ELIGIBLE_SCHEMES') {
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      if (user.role === 'BENEFICIARY') {
+        setIsOpen(false);
+        navigate('/beneficiary/dashboard', { state: { scrollTo: 'eligible-schemes' } });
+      } else {
+        setMessages(prev => [...prev, {
+          type: 'bot',
+          text: 'Please login as a Beneficiary to view eligible schemes.',
+          timestamp: new Date()
+        }]);
+      }
+    }
+  };
+
   const handleSuggestionClick = (suggestion) => {
     sendMessage(suggestion);
   };
@@ -79,7 +96,7 @@ const Chatbot = () => {
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Toggle chat"
       >
-        {isOpen ? '✕' : '💬'}
+        {isOpen ? '✕' : <img src="/logo.png" alt="BeniNect" style={{ width: '36px', height: '36px', objectFit: 'contain', borderRadius: '50%' }} />}
       </button>
 
       {/* Chat Window */}
@@ -87,9 +104,9 @@ const Chatbot = () => {
         <div className="chatbot-container">
           <div className="chat-header">
             <div className="header-info">
-              <div className="bot-avatar">🤖</div>
+            <img src="/logo.png" alt="" className="chatbot-logo" onError={(e) => e.target.style.display='none'} />
               <div>
-                <h3>Beneflow Assistant</h3>
+                <h3>BeniNect Assistant</h3>
                 <span className="status">Online</span>
               </div>
             </div>
@@ -102,6 +119,14 @@ const Chatbot = () => {
                 {msg.type === 'bot' && <div className="message-avatar">🤖</div>}
                 <div className="message-content">
                   <div className="message-text">{msg.text}</div>
+                  {msg.action && (
+                    <button
+                      className="action-btn"
+                      onClick={() => handleAction(msg.action)}
+                    >
+                      📊 {msg.actionLabel || 'View in Dashboard'}
+                    </button>
+                  )}
                   {msg.suggestions && msg.suggestions.length > 0 && (
                     <div className="suggestions">
                       {msg.suggestions.map((suggestion, i) => (

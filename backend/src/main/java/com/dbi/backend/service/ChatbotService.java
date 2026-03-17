@@ -33,6 +33,12 @@ public class ChatbotService {
             result.put("intent", intent);
             result.put("suggestions", getSuggestions(intent));
             
+            // Add action for eligibility intent when user is logged in
+            if ("CHECK_ELIGIBILITY".equals(intent) && userId != null) {
+                result.put("action", "SHOW_ELIGIBLE_SCHEMES");
+                result.put("actionLabel", "View Eligible Schemes in Dashboard");
+            }
+            
             return result;
         } catch (Exception e) {
             e.printStackTrace();
@@ -45,9 +51,27 @@ public class ChatbotService {
     }
     
     private String detectIntent(String message) {
-        String msg = message.toLowerCase();
+        String msg = message.toLowerCase().trim();
         
-        if (msg.contains("scheme") || msg.contains("program") || msg.contains("yojana")) {
+        if (msg.contains("hello") || msg.contains("hi") || msg.contains("hey") || msg.equals("start"))
+            return "GREETING";
+        
+        if (msg.contains("eligible") || msg.contains("eligibility") || msg.contains("qualify") || msg.contains("check my"))
+            return "CHECK_ELIGIBILITY";
+        
+        if (msg.contains("status") || msg.contains("track") || msg.contains("my application"))
+            return "CHECK_STATUS";
+        
+        if (msg.contains("apply") || msg.contains("how to"))
+            return "HOW_TO_APPLY";
+        
+        if (msg.contains("document") || msg.contains("required") || msg.contains("what do i need"))
+            return "REQUIRED_DOCUMENTS";
+        
+        if (msg.contains("contact") || msg.contains("support") || msg.contains("helpline"))
+            return "CONTACT_INFO";
+        
+        if (msg.contains("scheme") || msg.contains("program") || msg.contains("yojana") || msg.contains("show") || msg.contains("list") || msg.contains("available")) {
             if (msg.contains("education") || msg.contains("scholarship") || msg.contains("student"))
                 return "EDUCATION_SCHEMES";
             if (msg.contains("health") || msg.contains("medical"))
@@ -57,23 +81,8 @@ public class ChatbotService {
             return "LIST_SCHEMES";
         }
         
-        if (msg.contains("eligible") || msg.contains("eligibility") || msg.contains("qualify"))
-            return "CHECK_ELIGIBILITY";
-        
-        if (msg.contains("apply") || msg.contains("application") || msg.contains("how to"))
-            return "HOW_TO_APPLY";
-        
-        if (msg.contains("status") || msg.contains("track") || msg.contains("check application"))
-            return "CHECK_STATUS";
-        
-        if (msg.contains("document") || msg.contains("required") || msg.contains("need"))
-            return "REQUIRED_DOCUMENTS";
-        
-        if (msg.contains("contact") || msg.contains("help") || msg.contains("support"))
+        if (msg.contains("help"))
             return "CONTACT_INFO";
-        
-        if (msg.contains("hello") || msg.contains("hi") || msg.contains("hey"))
-            return "GREETING";
         
         return "UNKNOWN";
     }
@@ -81,7 +90,7 @@ public class ChatbotService {
     private String generateResponse(String intent, String message, Long userId) {
         switch (intent) {
             case "GREETING":
-                return "Hello! 👋 I'm your Beneflow assistant. I can help you with:\n" +
+                return "Hello! 👋 I'm your BeniNect assistant. I can help you with:\n" +
                        "• Finding government schemes\n" +
                        "• Checking eligibility\n" +
                        "• Application guidance\n" +
@@ -129,7 +138,7 @@ public class ChatbotService {
             case "CONTACT_INFO":
                 return "📞 Contact & Support:\n\n" +
                        "• Helpline: 1800-XXX-XXXX\n" +
-                       "• Email: support@beneflow.gov.in\n" +
+                       "• Email: support@beninect.gov.in\n" +
                        "• Office Hours: 9 AM - 6 PM (Mon-Fri)\n\n" +
                        "For technical issues, contact your District Admin.";
             
@@ -152,23 +161,30 @@ public class ChatbotService {
                 return "Currently, no schemes are available. Please check back later.";
             }
             
-            StringBuilder response = new StringBuilder("📋 Available Government Schemes:\n\n");
+            StringBuilder response = new StringBuilder("📋 Available Government Schemes (" + schemes.size() + " total):\n\n");
             int count = 0;
             for (Scheme scheme : schemes) {
-                if (count >= 5) break;
+                if (count >= 8) break;
+                String component = (scheme.getSchemeComponent() != null && !scheme.getSchemeComponent().isEmpty())
+                    ? " - " + scheme.getSchemeComponent() : "";
+                String benefit = scheme.getMaxBenefitAmount() != null
+                    ? " | ₹" + scheme.getMaxBenefitAmount().longValue() : "";
                 response.append("• ").append(scheme.getSchemeName())
-                       .append(" (").append(scheme.getSchemeComponent()).append(")\n");
+                       .append(component)
+                       .append(benefit)
+                       .append("\n");
                 count++;
             }
             
-            if (schemes.size() > 5) {
-                response.append("\n...and ").append(schemes.size() - 5).append(" more schemes.");
+            if (schemes.size() > 8) {
+                response.append("\n...and ").append(schemes.size() - 8).append(" more schemes.");
             }
             
-            response.append("\n\nLogin to see schemes you're eligible for!");
+            response.append("\n\nAsk me about Education, Health or Agriculture schemes for more details!");
             return response.toString();
         } catch (Exception e) {
-            return "Unable to fetch schemes at the moment. Please try again later.";
+            e.printStackTrace();
+            return "Unable to fetch schemes at the moment. Error: " + e.getMessage();
         }
     }
     
@@ -181,24 +197,30 @@ public class ChatbotService {
             List<Scheme> schemes = new ArrayList<>();
             
             for (Scheme s : allSchemes) {
-                if (s.getSchemeComponent() != null && 
-                    s.getSchemeComponent().toLowerCase().contains(category.toLowerCase())) {
+                String comp = s.getSchemeComponent() != null ? s.getSchemeComponent().toLowerCase() : "";
+                String name = s.getSchemeName() != null ? s.getSchemeName().toLowerCase() : "";
+                String desc = s.getSchemeDescription() != null ? s.getSchemeDescription().toLowerCase() : "";
+                if (comp.contains(category.toLowerCase()) || name.contains(category.toLowerCase()) || desc.contains(category.toLowerCase())) {
                     schemes.add(s);
                 }
             }
             
             if (schemes.isEmpty()) {
-                return "No " + category + " schemes found at the moment. Try asking for 'available schemes'.";
+                // Show all schemes if no category match
+                return "No specific " + category + " schemes found.\n\nHere are all available schemes:\n" + getSchemesList();
             }
             
-            StringBuilder response = new StringBuilder("📚 " + category + " Schemes:\n\n");
+            StringBuilder response = new StringBuilder("📚 " + category + " Schemes (" + schemes.size() + " found):\n\n");
             for (Scheme scheme : schemes) {
-                response.append("• ").append(scheme.getSchemeName()).append("\n");
+                String benefit = scheme.getMaxBenefitAmount() != null
+                    ? " | Benefit: ₹" + scheme.getMaxBenefitAmount().longValue() : "";
+                response.append("• ").append(scheme.getSchemeName()).append(benefit).append("\n");
             }
             
             return response.toString();
         } catch (Exception e) {
-            return "Unable to fetch " + category + " schemes. Please try again.";
+            e.printStackTrace();
+            return "Unable to fetch " + category + " schemes. Error: " + e.getMessage();
         }
     }
     
@@ -218,11 +240,24 @@ public class ChatbotService {
             String income = user.getAnnualIncome() != null ? 
                 "₹" + user.getAnnualIncome().toString() : "Not provided";
             
+            // Get eligible schemes count
+            List<Scheme> allSchemes = schemeRepository != null ? schemeRepository.findAll() : new ArrayList<>();
+            List<Application> userApps = applicationRepository != null ? applicationRepository.findByUserId(userId) : new ArrayList<>();
+            List<Long> appliedIds = new ArrayList<>();
+            for (Application app : userApps) {
+                if (!"REJECTED".equals(app.getStatus())) {
+                    appliedIds.add(app.getScheme().getId());
+                }
+            }
+            long eligibleCount = allSchemes.stream().filter(s -> !appliedIds.contains(s.getId())).count();
+            
             return "✅ Based on your profile:\n\n" +
+                   "• Name: " + user.getFullName() + "\n" +
                    "• Age: " + age + " years\n" +
                    "• Category: " + user.getCasteCategory() + "\n" +
-                   "• Income: " + income + "\n\n" +
-                   "Visit your dashboard to see schemes you're eligible for!";
+                   "• Income: " + income + "\n" +
+                   "• Eligible Schemes: " + eligibleCount + "\n\n" +
+                   "👉 Click below to view your eligible schemes in the dashboard!";
         } catch (Exception e) {
             return "Unable to fetch eligibility information. Please try again.";
         }

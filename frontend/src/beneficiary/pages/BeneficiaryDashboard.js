@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import SchemeCard from '../components/SchemeCard';
 import './BeneficiaryDashboard.css';
 
 const BeneficiaryDashboard = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const schemesRef = useRef(null);
   const [beneficiary, setBeneficiary] = useState(null);
   const [eligibleSchemes, setEligibleSchemes] = useState([]);
   const [applications, setApplications] = useState([]);
@@ -13,6 +15,16 @@ const BeneficiaryDashboard = () => {
   useEffect(() => {
     fetchBeneficiaryData();
   }, []);
+
+  useEffect(() => {
+    if (location.state?.scrollTo === 'eligible-schemes' && schemesRef.current) {
+      setTimeout(() => {
+        schemesRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        schemesRef.current.classList.add('highlight-section');
+        setTimeout(() => schemesRef.current?.classList.remove('highlight-section'), 2000);
+      }, 500);
+    }
+  }, [location.state, eligibleSchemes]);
 
   const fetchBeneficiaryData = async () => {
     try {
@@ -147,7 +159,7 @@ const BeneficiaryDashboard = () => {
         )}
 
         {/* Eligible Schemes Section */}
-        <section className="schemes-section">
+        <section className="schemes-section" ref={schemesRef}>
           <h2>Eligible Schemes for You</h2>
           
           {eligibleSchemes.length === 0 ? (

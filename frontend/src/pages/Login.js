@@ -99,7 +99,10 @@ const Login = () => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <h1>Digital Beneficiary Identification</h1>
+          <div className="login-logo">
+            <img src="/logo.png" alt="" className="login-logo-img" onError={(e) => e.target.style.display='none'} />
+            <h1>BeniNect</h1>
+          </div>
           <p className="subtitle">Secure • Transparent • Inclusive</p>
           
           <div className="features-list">
@@ -123,7 +126,8 @@ const Login = () => {
           transition={{ delay: 0.3, duration: 0.8 }}
         >
           <div className="form-header">
-            <h2>🔐 Login to Your DBI Account</h2>
+            <img src="/logo.png" alt="" className="form-logo" onError={(e) => e.target.style.display='none'} />
+            <h2>🔐 Login to Your BeniNect Account</h2>
             <p className="form-subtitle">Access your verified beneficiary profile securely</p>
           </div>
 

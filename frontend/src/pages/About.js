@@ -16,7 +16,7 @@ const About = () => {
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.6 }}
         >
-          About Digital Beneficiary Identification
+          About BeniNect
         </motion.h2>
         <motion.p 
           className="lead"
@@ -38,7 +38,7 @@ const About = () => {
         >
           <h3>Our Mission</h3>
           <p>
-            The Digital Beneficiary Identification (DBI) system aims to revolutionize how government welfare schemes 
+            The BeniNect system aims to revolutionize how government welfare schemes 
             reach citizens. By leveraging cutting-edge technology, we ensure that benefits reach the right people 
             at the right time, eliminating inefficiencies and promoting inclusive growth.
           </p>
@@ -84,7 +84,7 @@ const About = () => {
         >
           <h3>Our Solution</h3>
           <p>
-            DBI provides a unified, digital platform that integrates with existing government databases, 
+            BeniNect provides a unified, digital platform that integrates with existing government databases, 
             uses AI-powered verification, and ensures end-to-end transparency in beneficiary identification 
             and benefit delivery. The system is designed to be accessible, secure, and scalable across all 
             states and union territories.

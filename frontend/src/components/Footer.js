@@ -9,7 +9,10 @@ const Footer = () => {
     <footer className="footer">
       <div className="footer-content">
         <div className="footer-section">
-          <h4>Digital Beneficiary Identification</h4>
+          <div className="footer-logo">
+            <img src="/logo.png" alt="" className="footer-logo-img" onError={(e) => e.target.style.display='none'} />
+            <h4>BeniNect</h4>
+          </div>
           <p>Empowering citizens through transparent and efficient welfare delivery</p>
         </div>
         <div className="footer-section">
@@ -32,12 +35,12 @@ const Footer = () => {
         </div>
         <div className="footer-section">
           <h4>Contact</h4>
-          <p>📧 support@dbi.gov.in</p>
+          <p>📧 support@beninect.gov.in</p>
           <p>📞 1800-XXX-XXXX (Toll Free)</p>
         </div>
       </div>
       <div className="footer-bottom">
-        <p>&copy; 2024 Digital Beneficiary Identification System. All rights reserved.</p>
+        <p>&copy; 2024 BeniNect. All rights reserved.</p>
       </div>
     </footer>
   );

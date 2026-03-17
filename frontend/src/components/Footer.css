@@ -19,6 +19,28 @@
   color: #ff9933;
 }
 
+.footer-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+}
+
+.footer-logo-img {
+  width: 45px;
+  height: 45px;
+  object-fit: contain;
+  border-radius: 8px;
+  background: white;
+  padding: 4px;
+}
+
+.footer-logo h4 {
+  margin: 0;
+  font-size: 1.4rem;
+  color: #ff9933;
+}
+
 .footer-section p {
   opacity: 0.9;
   line-height: 1.6;

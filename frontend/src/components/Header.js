@@ -25,9 +25,9 @@ const Header = ({ onLoginClick, onSignupClick }) => {
     >
       <div className="header-top">
         <div className="logo-section">
-          <div className="emblem">🇮🇳</div>
+          <img src="/logo.png" alt="" className="app-logo" onError={(e) => e.target.style.display='none'} />
           <div className="title-section">
-            <h1>Digital Beneficiary Identification (DBI)</h1>
+            <h1>BeniNect</h1>
             <p className="subtitle">Secure, Transparent & Inclusive Welfare Delivery</p>
           </div>
         </div>
