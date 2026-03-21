@@ -75,6 +75,14 @@ const SchemeApplication = () => {
       return;
     }
     
+    // Validate income against scheme before submitting
+    if (scheme && beneficiary?.annualIncome !== undefined) {
+      if (beneficiary.annualIncome < scheme.minIncome || beneficiary.annualIncome > scheme.maxIncome) {
+        alert(`❌ Not Eligible!\n\nYour annual income ₹${beneficiary.annualIncome?.toLocaleString()} does not fall within the scheme's income range:\nMinimum: ₹${scheme.minIncome?.toLocaleString()}\nMaximum: ₹${scheme.maxIncome?.toLocaleString()}\n\nYou cannot apply for this scheme.`);
+        return;
+      }
+    }
+    
     const isEducationScheme = beneficiary?.incomeSource?.toLowerCase() === 'student' || 
                               scheme?.schemeComponent?.toLowerCase().includes('education') ||
                               scheme?.schemeName?.toLowerCase().includes('education');
@@ -224,7 +232,29 @@ const SchemeApplication = () => {
             <div className="details-grid">
               <div className="detail-item">
                 <label>Annual Income</label>
-                <input type="text" value={`₹${beneficiary?.annualIncome?.toLocaleString() || 'N/A'}`} disabled />
+                <div style={{display:'flex', gap:'0.5rem', alignItems:'center'}}>
+                  <input type="text" value={`₹${beneficiary?.annualIncome?.toLocaleString() || 'N/A'}`} disabled style={{flex:1}} />
+                  <button type="button" className="edit-btn" onClick={() => {
+                    const newIncome = prompt('Enter your updated annual income (₹):');
+                    if (newIncome && !isNaN(newIncome)) {
+                      const token = localStorage.getItem('token');
+                      fetch('http://localhost:8080/api/users/update-income', {
+                        method: 'PUT',
+                        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ annualIncome: parseFloat(newIncome) })
+                      }).then(res => res.json()).then(data => {
+                        if (data.annualIncome) {
+                          setBeneficiary({...beneficiary, annualIncome: data.annualIncome});
+                          alert('✅ Income updated successfully! Please upload a new income certificate. Redirecting to dashboard to see updated eligible schemes.');
+                          navigate('/beneficiary/dashboard', { state: { scrollTo: 'eligible-schemes', refreshSchemes: true } });
+                        } else {
+                          alert('Failed to update income');
+                        }
+                      });
+                    }
+                  }}>Update</button>
+                </div>
+                <small style={{color:'#888'}}>Income certificate valid for 1 year. Update if changed.</small>
               </div>
               <div className="detail-item">
                 <label>Community</label>
@@ -233,6 +263,11 @@ const SchemeApplication = () => {
               <div className="detail-item">
                 <label>Occupation</label>
                 <input type="text" value={beneficiary?.incomeSource || ''} disabled />
+              </div>
+              <div className="detail-item">
+                <label>Scheme Income Range</label>
+                <input type="text" value={`₹${scheme?.minIncome?.toLocaleString()} - ₹${scheme?.maxIncome?.toLocaleString()}`} disabled
+                  style={{color: beneficiary?.annualIncome >= scheme?.minIncome && beneficiary?.annualIncome <= scheme?.maxIncome ? 'green' : 'red', fontWeight: 'bold'}} />
               </div>
             </div>
           </section>

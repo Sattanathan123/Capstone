@@ -130,6 +130,10 @@ public class UserService {
         return userRepository.findById(userId)
             .orElseThrow(() -> new Exception("User not found"));
     }
+
+    public User saveUser(User user) {
+        return userRepository.save(user);
+    }
     
     private String hashPassword(String password) throws Exception {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");

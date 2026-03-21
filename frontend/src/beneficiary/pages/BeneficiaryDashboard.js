@@ -11,10 +11,20 @@ const BeneficiaryDashboard = () => {
   const [eligibleSchemes, setEligibleSchemes] = useState([]);
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [feedbackModal, setFeedbackModal] = useState(null);
+  const [feedbackData, setFeedbackData] = useState({ rating: 5, comments: '', amountSpentOn: '', benefitReceived: '', wouldRecommend: true, suggestions: '' });
+  const [submittedFeedbacks, setSubmittedFeedbacks] = useState([]);
 
   useEffect(() => {
     fetchBeneficiaryData();
   }, []);
+
+  useEffect(() => {
+    // Refresh data when navigating back after income update
+    if (location.state?.refreshSchemes) {
+      fetchBeneficiaryData();
+    }
+  }, [location.state]);
 
   useEffect(() => {
     if (location.state?.scrollTo === 'eligible-schemes' && schemesRef.current) {
@@ -68,6 +78,32 @@ const BeneficiaryDashboard = () => {
 
   const handleApply = (schemeId) => {
     navigate(`/beneficiary/apply/${schemeId}`);
+  };
+
+  const handleFeedbackSubmit = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const payload = { applicationId: feedbackModal.id, ...feedbackData };
+      console.log('Submitting feedback:', payload);
+      const response = await fetch('http://localhost:8080/api/feedback/submit', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const result = await response.json();
+      console.log('Feedback response:', result);
+      if (response.ok) {
+        alert('Thank you for your feedback!');
+        setSubmittedFeedbacks([...submittedFeedbacks, feedbackModal.id]);
+        setFeedbackModal(null);
+        setFeedbackData({ rating: 5, comments: '', amountSpentOn: '', benefitReceived: '', wouldRecommend: true, suggestions: '' });
+      } else {
+        alert(result.error || 'Failed to submit feedback');
+      }
+    } catch (e) {
+      console.error('Feedback error:', e);
+      alert('Error submitting feedback');
+    }
   };
 
   const handleLogout = () => {
@@ -151,6 +187,14 @@ const BeneficiaryDashboard = () => {
                   <div className="app-details">
                     <span>Applied: {new Date(app.appliedDate).toLocaleDateString()}</span>
                     {app.remarks && <p className="remarks">Remarks: {app.remarks}</p>}
+                    {app.status === 'SANCTIONED' && !submittedFeedbacks.includes(app.id) && (
+                      <button className="feedback-btn" onClick={() => setFeedbackModal(app)}>
+                        ⭐ Give Feedback
+                      </button>
+                    )}
+                    {submittedFeedbacks.includes(app.id) && (
+                      <span className="feedback-done">✅ Feedback Submitted</span>
+                    )}
                   </div>
                 </div>
               ))}
@@ -181,6 +225,77 @@ const BeneficiaryDashboard = () => {
           )}
         </section>
       </div>
+
+      {/* Feedback Modal */}
+      {feedbackModal && (
+        <div className="modal-overlay" onClick={() => setFeedbackModal(null)}>
+          <div className="feedback-modal" onClick={e => e.stopPropagation()}>
+            <h2>⭐ Rate Your Experience</h2>
+            <p>Scheme: <strong>{feedbackModal.schemeName}</strong></p>
+
+            <div className="rating-section">
+              <label>Overall Rating:</label>
+              <div className="stars">
+                {[1,2,3,4,5].map(star => (
+                  <span key={star} className={`star ${feedbackData.rating >= star ? 'active' : ''}`}
+                    onClick={() => setFeedbackData({...feedbackData, rating: star})}>★</span>
+                ))}
+              </div>
+            </div>
+
+            <div className="comments-section">
+              <label>How did you spend the sanctioned amount?</label>
+              <select value={feedbackData.amountSpentOn}
+                onChange={e => setFeedbackData({...feedbackData, amountSpentOn: e.target.value})}>
+                <option value="">Select...</option>
+                <option value="Education">Education (fees, books, etc.)</option>
+                <option value="Agriculture">Agriculture (seeds, equipment, etc.)</option>
+                <option value="Healthcare">Healthcare (treatment, medicines)</option>
+                <option value="Housing">Housing (construction, repair)</option>
+                <option value="Business">Business/Self-employment</option>
+                <option value="Food">Food & Daily needs</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <div className="comments-section">
+              <label>What benefit did you receive?</label>
+              <textarea rows="2" placeholder="Describe the benefit you received..."
+                value={feedbackData.benefitReceived}
+                onChange={e => setFeedbackData({...feedbackData, benefitReceived: e.target.value})} />
+            </div>
+
+            <div className="comments-section">
+              <label>Would you recommend this scheme to others?</label>
+              <div className="radio-group">
+                <label><input type="radio" checked={feedbackData.wouldRecommend === true}
+                  onChange={() => setFeedbackData({...feedbackData, wouldRecommend: true})} /> Yes</label>
+                <label><input type="radio" checked={feedbackData.wouldRecommend === false}
+                  onChange={() => setFeedbackData({...feedbackData, wouldRecommend: false})} /> No</label>
+              </div>
+            </div>
+
+            <div className="comments-section">
+              <label>Any suggestions for improvement?</label>
+              <textarea rows="2" placeholder="Your suggestions..."
+                value={feedbackData.suggestions}
+                onChange={e => setFeedbackData({...feedbackData, suggestions: e.target.value})} />
+            </div>
+
+            <div className="comments-section">
+              <label>Additional Comments:</label>
+              <textarea rows="2" placeholder="Any other comments..."
+                value={feedbackData.comments}
+                onChange={e => setFeedbackData({...feedbackData, comments: e.target.value})} />
+            </div>
+
+            <div className="modal-actions">
+              <button className="submit-feedback-btn" onClick={handleFeedbackSubmit}>Submit Feedback</button>
+              <button className="cancel-btn" onClick={() => setFeedbackModal(null)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -44,7 +44,7 @@ SMTP settings are configured in `application.properties`:
 - Host: smtp.gmail.com
 - Port: 587 (TLS)
 - Authentication: Required
-- Email: sample@gmail.com
+- Email: your_email@gmail.com
 
 ### Database
 All notifications are stored in the `notifications` table with:

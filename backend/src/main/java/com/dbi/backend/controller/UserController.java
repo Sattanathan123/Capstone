@@ -50,4 +50,24 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"error\": \"Invalid token\"}");
         }
     }
+
+    @PutMapping("/update-income")
+    public ResponseEntity<?> updateIncome(
+            @RequestHeader("Authorization") String token,
+            @RequestBody java.util.Map<String, Object> request) {
+        try {
+            String cleanToken = token.replace("Bearer ", "");
+            String decoded = new String(java.util.Base64.getDecoder().decode(cleanToken));
+            Long userId = Long.parseLong(decoded.split(":")[0]);
+            User user = userService.getUserById(userId);
+            
+            Double newIncome = Double.valueOf(request.get("annualIncome").toString());
+            user.setAnnualIncome(newIncome);
+            userService.saveUser(user);
+            
+            return ResponseEntity.ok(java.util.Map.of("message", "Income updated successfully", "annualIncome", newIncome));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"error\": \"" + e.getMessage() + "\"}");
+        }
+    }
 }

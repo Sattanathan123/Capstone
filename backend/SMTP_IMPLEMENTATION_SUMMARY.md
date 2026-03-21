@@ -12,7 +12,7 @@
 - **Settings**:
   - Host: smtp.gmail.com
   - Port: 587
-  - Email: sample@gmail.com
+  - Email: your_email@gmail.com
   - Password: xxxx xxxx xxxx xxxx (App Password)
   - TLS enabled
 
