@@ -5,6 +5,7 @@ import com.dbi.backend.entity.User;
 import com.dbi.backend.repository.ApplicationRepository;
 import com.dbi.backend.repository.UserRepository;
 import com.dbi.backend.service.NotificationService;
+import com.dbi.backend.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +28,9 @@ public class SanctioningAuthorityController {
     
     @Autowired
     private NotificationService notificationService;
+
+    @Autowired
+    private EmailService emailService;
 
     @Autowired
     private com.dbi.backend.service.FundTransferService fundTransferService;
@@ -162,10 +166,20 @@ public class SanctioningAuthorityController {
                 System.out.println("===========================");
             }
             
-            String message = "SANCTIONED".equals(status)
+            String notifMsg = "SANCTIONED".equals(status)
                 ? "Congratulations! Your application " + application.getApplicationId() + " for " + application.getScheme().getSchemeName() + " has been sanctioned. Approved amount: ₹" + amount + ". The benefits will be disbursed to your account shortly."
                 : "Your application " + application.getApplicationId() + " for " + application.getScheme().getSchemeName() + " has been rejected by the sanctioning authority. Reason: " + remarks;
-            notificationService.createNotification(application.getUser().getId(), message, status, applicationId);
+            notificationService.createNotification(application.getUser().getId(), notifMsg, status, applicationId);
+
+            // Stage 3 — rich outcome email to beneficiary
+            User beneficiary = application.getUser();
+            if (beneficiary.getEmail() != null && !beneficiary.getEmail().isBlank()) {
+                emailService.sendSanctionOutcomeEmail(
+                    beneficiary.getEmail(), beneficiary.getFullName(),
+                    application.getApplicationId(), application.getScheme().getSchemeName(),
+                    "SANCTIONED".equals(status), amount, remarks
+                );
+            }
 
             return ResponseEntity.ok("Application " + status + " successfully");
         } catch (Exception e) {

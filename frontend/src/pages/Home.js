@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import './Home.css';
 import AwarenessCards from '../components/AwarenessCards';
 import TrustBadges from '../components/TrustBadges';
@@ -8,6 +9,7 @@ import CallToAction from '../components/CallToAction';
 
 const Home = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { scrollYProgress } = useScroll();
   const [scrollY, setScrollY] = useState(0);
   
@@ -43,14 +45,14 @@ const Home = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.8 }}
           >
-            Empowering Citizens Through Digital Identity
+            {t('home.hero_title')}
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.8 }}
           >
-            A unified platform for accurate beneficiary identification and seamless welfare delivery across all government schemes
+            {t('home.hero_desc')}
           </motion.p>
           <motion.div 
             className="cta-buttons"
@@ -64,23 +66,23 @@ const Home = () => {
               whileTap={{ scale: 0.98 }}
               onClick={() => { navigate('/register'); window.scrollTo(0, 0); }}
             >
-              Register Now
+              {t('home.register_now')}
             </motion.button>
-            <motion.button 
+            <motion.button
               className="btn-secondary"
               whileHover={{ scale: 1.05, y: -3 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => { navigate('/track'); window.scrollTo(0, 0); }}
             >
-              Track Application
+              {t('home.track_application')}
             </motion.button>
-            <motion.button 
+            <motion.button
               className="btn-secondary"
               whileHover={{ scale: 1.05, y: -3 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => { navigate('/features'); window.scrollTo(0, 0); }}
             >
-              Learn More
+              {t('home.learn_more')}
             </motion.button>
           </motion.div>
         </motion.div>
@@ -122,9 +124,9 @@ const Home = () => {
 
       <section className="info-cards">
         {[
-          { icon: '🎯', title: 'Accurate Beneficiary Identification', desc: 'AI-powered verification ensures only eligible beneficiaries receive welfare benefits', delay: 0.1 },
-          { icon: '🛡️', title: 'Reduced Duplication & Leakage', desc: 'Blockchain-backed system eliminates duplicate entries and prevents benefit leakage', delay: 0.2 },
-          { icon: '💰', title: 'Direct Benefit Transfer', desc: 'Instant transfer of benefits directly to verified beneficiary bank accounts', delay: 0.3 }
+          { icon: '🎯', title: t('home.card1_title'), desc: t('home.card1_desc'), delay: 0.1 },
+          { icon: '🛡️', title: t('home.card2_title'), desc: t('home.card2_desc'), delay: 0.2 },
+          { icon: '💰', title: t('home.card3_title'), desc: t('home.card3_desc'), delay: 0.3 }
         ].map((card, index) => (
           <motion.div 
             key={index}
@@ -155,14 +157,14 @@ const Home = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          How It Works
+          {t('home.how_it_works')}
         </motion.h2>
         <div className="steps">
           {[
-            { num: 1, icon: '📝', title: 'Register', desc: 'Create your profile with basic details', delay: 0.1 },
-            { num: 2, icon: '✅', title: 'Verify Identity', desc: 'Complete Aadhaar-based verification', delay: 0.3 },
-            { num: 3, icon: '👍', title: 'Get Approved', desc: 'Automated eligibility assessment', delay: 0.5 },
-            { num: 4, icon: '🎁', title: 'Receive Benefits', desc: 'Direct transfer to your account', delay: 0.7 }
+            { num: 1, icon: '📝', title: t('home.step1_title'), desc: t('home.step1_desc'), delay: 0.1 },
+            { num: 2, icon: '✅', title: t('home.step2_title'), desc: t('home.step2_desc'), delay: 0.3 },
+            { num: 3, icon: '👍', title: t('home.step3_title'), desc: t('home.step3_desc'), delay: 0.5 },
+            { num: 4, icon: '🎁', title: t('home.step4_title'), desc: t('home.step4_desc'), delay: 0.7 }
           ].map((step, index) => (
             <React.Fragment key={index}>
               <motion.div 
@@ -211,10 +213,10 @@ const Home = () => {
 
       <section className="stats">
         {[
-          { value: '10M+', label: 'Registered Beneficiaries', delay: 0.1 },
-          { value: '99.8%', label: 'Accuracy Rate', delay: 0.2 },
-          { value: '₹5000Cr+', label: 'Benefits Disbursed', delay: 0.3 },
-          { value: '28', label: 'States/UTs Connected', delay: 0.4 }
+          { value: '10M+', label: t('home.stat1_label'), delay: 0.1 },
+          { value: '99.8%', label: t('home.stat2_label'), delay: 0.2 },
+          { value: '₹5000Cr+', label: t('home.stat3_label'), delay: 0.3 },
+          { value: '28', label: t('home.stat4_label'), delay: 0.4 }
         ].map((stat, index) => (
           <motion.div 
             key={index}

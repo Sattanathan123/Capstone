@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import './SanctioningDashboard.css';
 
 const SanctioningDashboard = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [authority, setAuthority] = useState(null);
   const [applications, setApplications] = useState([]);
   const [stats, setStats] = useState({ today: 0, pending: 0, sanctioned: 0, rejected: 0 });
@@ -76,7 +78,7 @@ const SanctioningDashboard = () => {
   };
 
   if (loading) {
-    return <div className="loading-screen">Loading dashboard...</div>;
+    return <div className="loading-screen">{t('dashboard.loading')}</div>;
   }
 
   return (
@@ -91,7 +93,7 @@ const SanctioningDashboard = () => {
             <button className="fund-transfer-btn" onClick={() => navigate('/sanctioning/fund-transfer')}>
               💰 Fund Transfers
             </button>
-            <button className="logout-btn" onClick={handleLogout}>Logout</button>
+            <button className="logout-btn" onClick={handleLogout}>{t('dashboard.logout')}</button>
           </div>
         </div>
       </header>
@@ -102,28 +104,73 @@ const SanctioningDashboard = () => {
             <div className="stat-icon">📅</div>
             <div className="stat-info">
               <h3>{stats.today}</h3>
-              <p>Sanctioned Today</p>
+              <p>{t('dashboard.sanctioned_today')}</p>
             </div>
           </div>
           <div className="stat-card">
             <div className="stat-icon">⏳</div>
             <div className="stat-info">
               <h3>{stats.pending}</h3>
-              <p>Pending Sanctions</p>
+              <p>{t('dashboard.pending_sanctions')}</p>
             </div>
           </div>
           <div className="stat-card">
             <div className="stat-icon">✅</div>
             <div className="stat-info">
               <h3>{stats.sanctioned}</h3>
-              <p>Total Sanctioned</p>
+              <p>{t('dashboard.total_sanctioned')}</p>
             </div>
           </div>
           <div className="stat-card">
             <div className="stat-icon">❌</div>
             <div className="stat-info">
               <h3>{stats.rejected}</h3>
-              <p>Total Rejected</p>
+              <p>{t('dashboard.total_rejected')}</p>
+            </div>
+          </div>
+        </section>
+
+        {/* Visual Analytics */}
+        <section className="analytics-section">
+          <div className="analytics-card">
+            <h3>📊 Sanctioning Overview</h3>
+            <div className="performance-chart">
+              <div className="progress-rings">
+                <div className="ring-container">
+                  {(() => {
+                    const total = stats.pending + stats.sanctioned + stats.rejected;
+                    const rate = total ? stats.sanctioned / total : 0;
+                    const r = 52, circ = 2 * Math.PI * r;
+                    return (
+                      <>
+                        <svg className="progress-ring" width="120" height="120">
+                          <circle stroke="#e6e6e6" strokeWidth="8" fill="transparent" r={r} cx="60" cy="60" />
+                          <circle stroke="#27ae60" strokeWidth="8" fill="transparent" r={r} cx="60" cy="60"
+                            strokeDasharray={circ} strokeDashoffset={circ * (1 - rate)} transform="rotate(-90 60 60)" strokeLinecap="round" />
+                        </svg>
+                        <div className="ring-label">
+                          <span className="ring-value" style={{color:'#27ae60'}}>{Math.round(rate * 100)}%</span>
+                          <span className="ring-text">Sanction Rate</span>
+                        </div>
+                      </>
+                    );
+                  })()}
+                </div>
+                <div className="performance-stats">
+                  {[{label:'Sanctioned Today', val:stats.today, max:10, color:'#27ae60'},
+                    {label:'Pending', val:stats.pending, max:50, color:'#ed8936'},
+                    {label:'Total Sanctioned', val:stats.sanctioned, max:Math.max(stats.sanctioned+stats.rejected,1), color:'#4299e1'}]
+                    .map(({label,val,max,color}) => (
+                    <div className="perf-stat" key={label}>
+                      <span className="perf-label">{label}</span>
+                      <div className="perf-bar">
+                        <div className="perf-fill" style={{width:`${Math.min((val/max)*100,100)}%`, background:color}}></div>
+                      </div>
+                      <span className="perf-value">{val}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -161,9 +208,7 @@ const SanctioningDashboard = () => {
                     </div>
                   </div>
                   <div className="card-actions">
-                    <button className="btn-view" onClick={() => setSelectedApp(app)}>
-                      Review & Sanction
-                    </button>
+                    <button className="btn-view" onClick={() => setSelectedApp(app)}>{t('dashboard.view_details')}</button>
                   </div>
                 </div>
               ))}
@@ -209,36 +254,13 @@ const SanctioningDashboard = () => {
               </div>
 
               <div className="action-buttons">
-                <button 
-                  className="btn-sanction"
-                  onClick={() => {
-                    const amount = document.getElementById('amount').value;
-                    const remarks = document.getElementById('remarks').value;
-                    if (!amount) {
-                      alert('Please enter sanction amount');
-                      return;
-                    }
-                    handleSanction(selectedApp.id, 'SANCTIONED', remarks, amount);
-                  }}
-                >
-                  ✅ Sanction
-                </button>
-                <button 
-                  className="btn-reject"
-                  onClick={() => {
-                    const remarks = document.getElementById('remarks').value;
-                    if (!remarks) {
-                      alert('Please provide remarks for rejection');
-                      return;
-                    }
-                    handleSanction(selectedApp.id, 'REJECTED', remarks, null);
-                  }}
-                >
-                  ❌ Reject
-                </button>
-                <button className="btn-cancel" onClick={() => setSelectedApp(null)}>
-                  Cancel
-                </button>
+                <button className="btn-sanction" onClick={() => { const amount = document.getElementById('amount').value; const remarks = document.getElementById('remarks').value; if (!amount) { alert('Please enter sanction amount'); return; } handleSanction(selectedApp.id, 'SANCTIONED', remarks, amount); }}>
+                      ✅ {t('common.sanction')}
+                    </button>
+                    <button className="btn-reject" onClick={() => { const remarks = document.getElementById('remarks').value; if (!remarks) { alert('Please provide remarks for rejection'); return; } handleSanction(selectedApp.id, 'REJECTED', remarks, null); }}>
+                      ❌ {t('common.reject')}
+                    </button>
+                    <button className="btn-cancel" onClick={() => setSelectedApp(null)}>{t('common.cancel')}</button>
               </div>
             </div>
           </div>

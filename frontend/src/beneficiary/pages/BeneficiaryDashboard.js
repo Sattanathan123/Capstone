@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import SchemeCard from '../components/SchemeCard';
 import './BeneficiaryDashboard.css';
 
 const BeneficiaryDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
   const schemesRef = useRef(null);
   const [beneficiary, setBeneficiary] = useState(null);
   const [eligibleSchemes, setEligibleSchemes] = useState([]);
@@ -113,7 +115,7 @@ const BeneficiaryDashboard = () => {
   };
 
   if (loading) {
-    return <div className="loading-screen">Loading dashboard...</div>;
+    return <div className="loading-screen">{t('dashboard.loading')}</div>;
   }
 
   return (
@@ -121,19 +123,13 @@ const BeneficiaryDashboard = () => {
       <header className="beneficiary-header">
         <div className="header-content">
           <div>
-            <h1>Beneficiary Dashboard</h1>
-            <p className="role-badge">Role: Beneficiary</p>
+            <h1>{t('beneficiary.dashboard_title')}</h1>
+            <p className="role-badge">{t('beneficiary.role')}</p>
           </div>
           <div className="header-actions">
-            <button className="bank-btn" onClick={() => navigate('/beneficiary/bank-details')}>
-              🏦 Bank Details
-            </button>
-            <button className="track-nav-btn" onClick={() => navigate('/track')}>
-              📍 Track Application
-            </button>
-            <button className="logout-btn" onClick={handleLogout}>
-              Logout
-            </button>
+            <button className="bank-btn" onClick={() => navigate('/beneficiary/bank-details')}>{t('beneficiary.bank_details')}</button>
+            <button className="track-nav-btn" onClick={() => navigate('/track')}>{t('beneficiary.track_app')}</button>
+            <button className="logout-btn" onClick={handleLogout}>{t('dashboard.logout')}</button>
           </div>
         </div>
       </header>
@@ -141,27 +137,27 @@ const BeneficiaryDashboard = () => {
       <div className="dashboard-content">
         {/* Beneficiary Profile Summary */}
         <section className="profile-summary">
-          <h2>Profile Summary</h2>
+          <h2>{t('beneficiary.profile_summary')}</h2>
           <div className="profile-grid">
             <div className="profile-item">
-              <span className="label">Name:</span>
+              <span className="label">{t('beneficiary.name')}:</span>
               <span className="value">{beneficiary?.fullName}</span>
             </div>
             <div className="profile-item">
-              <span className="label">Annual Income:</span>
+              <span className="label">{t('beneficiary.annual_income')}:</span>
               <span className="value">₹{beneficiary?.annualIncome?.toLocaleString()}</span>
             </div>
             <div className="profile-item">
-              <span className="label">Community:</span>
+              <span className="label">{t('beneficiary.community')}:</span>
               <span className="value">{beneficiary?.casteCategory}</span>
             </div>
             <div className="profile-item">
-              <span className="label">Occupation:</span>
+              <span className="label">{t('beneficiary.occupation')}:</span>
               <span className="value">{beneficiary?.incomeSource}</span>
             </div>
             <div className="profile-item">
-              <span className="label">Eligibility Status:</span>
-              <span className="value verified">✓ Verified</span>
+              <span className="label">{t('beneficiary.eligibility')}:</span>
+              <span className="value verified">{t('beneficiary.verified')}</span>
             </div>
           </div>
         </section>
@@ -169,7 +165,7 @@ const BeneficiaryDashboard = () => {
         {/* Application Tracking Section */}
         {applications.length > 0 && (
           <section className="tracking-section">
-            <h2>📍 Your Applications</h2>
+            <h2>{t('beneficiary.your_applications')}</h2>
             <div className="applications-list">
               {applications.map((app) => (
                 <div key={app.id} className="application-card">
@@ -186,14 +182,12 @@ const BeneficiaryDashboard = () => {
                   </div>
                   <div className="app-details">
                     <span>Applied: {new Date(app.appliedDate).toLocaleDateString()}</span>
-                    {app.remarks && <p className="remarks">Remarks: {app.remarks}</p>}
+                    {app.remarks && <p className="remarks">{t('beneficiary.remarks')}: {app.remarks}</p>}
                     {app.status === 'SANCTIONED' && !submittedFeedbacks.includes(app.id) && (
-                      <button className="feedback-btn" onClick={() => setFeedbackModal(app)}>
-                        ⭐ Give Feedback
-                      </button>
+                      <button className="feedback-btn" onClick={() => setFeedbackModal(app)}>{t('beneficiary.give_feedback')}</button>
                     )}
                     {submittedFeedbacks.includes(app.id) && (
-                      <span className="feedback-done">✅ Feedback Submitted</span>
+                      <span className="feedback-done">{t('beneficiary.feedback_done')}</span>
                     )}
                   </div>
                 </div>
@@ -204,13 +198,13 @@ const BeneficiaryDashboard = () => {
 
         {/* Eligible Schemes Section */}
         <section className="schemes-section" ref={schemesRef}>
-          <h2>Eligible Schemes for You</h2>
+          <h2>{t('beneficiary.eligible_schemes')}</h2>
           
           {eligibleSchemes.length === 0 ? (
             <div className="no-schemes">
               <div className="no-schemes-icon">📋</div>
-              <h3>No schemes available based on your eligibility criteria.</h3>
-              <p>Please check back later or contact support for assistance.</p>
+              <h3>{t('beneficiary.no_schemes')}</h3>
+              <p>{t('beneficiary.no_schemes_sub')}</p>
             </div>
           ) : (
             <div className="schemes-grid">
@@ -230,11 +224,10 @@ const BeneficiaryDashboard = () => {
       {feedbackModal && (
         <div className="modal-overlay" onClick={() => setFeedbackModal(null)}>
           <div className="feedback-modal" onClick={e => e.stopPropagation()}>
-            <h2>⭐ Rate Your Experience</h2>
-            <p>Scheme: <strong>{feedbackModal.schemeName}</strong></p>
-
+            <h2>{t('beneficiary.feedback_title')}</h2>
+            <p>{t('beneficiary.feedback_scheme')}: <strong>{feedbackModal.schemeName}</strong></p>
             <div className="rating-section">
-              <label>Overall Rating:</label>
+              <label>{t('beneficiary.rating')}:</label>
               <div className="stars">
                 {[1,2,3,4,5].map(star => (
                   <span key={star} className={`star ${feedbackData.rating >= star ? 'active' : ''}`}
@@ -244,54 +237,45 @@ const BeneficiaryDashboard = () => {
             </div>
 
             <div className="comments-section">
-              <label>How did you spend the sanctioned amount?</label>
-              <select value={feedbackData.amountSpentOn}
-                onChange={e => setFeedbackData({...feedbackData, amountSpentOn: e.target.value})}>
-                <option value="">Select...</option>
-                <option value="Education">Education (fees, books, etc.)</option>
-                <option value="Agriculture">Agriculture (seeds, equipment, etc.)</option>
-                <option value="Healthcare">Healthcare (treatment, medicines)</option>
-                <option value="Housing">Housing (construction, repair)</option>
-                <option value="Business">Business/Self-employment</option>
-                <option value="Food">Food & Daily needs</option>
-                <option value="Other">Other</option>
+              <label>{t('beneficiary.spent_on')}</label>
+              <select value={feedbackData.amountSpentOn} onChange={e => setFeedbackData({...feedbackData, amountSpentOn: e.target.value})}>
+                <option value="">{t('beneficiary.select')}</option>
+                <option value="Education">{t('beneficiary.edu_education')}</option>
+                <option value="Agriculture">{t('beneficiary.edu_agriculture')}</option>
+                <option value="Healthcare">{t('beneficiary.edu_healthcare')}</option>
+                <option value="Housing">{t('beneficiary.edu_housing')}</option>
+                <option value="Business">{t('beneficiary.edu_business')}</option>
+                <option value="Food">{t('beneficiary.edu_food')}</option>
+                <option value="Other">{t('beneficiary.edu_other')}</option>
               </select>
             </div>
 
             <div className="comments-section">
-              <label>What benefit did you receive?</label>
-              <textarea rows="2" placeholder="Describe the benefit you received..."
-                value={feedbackData.benefitReceived}
-                onChange={e => setFeedbackData({...feedbackData, benefitReceived: e.target.value})} />
+              <label>{t('beneficiary.benefit_received')}</label>
+              <textarea rows="2" placeholder={t('beneficiary.benefit_placeholder')} value={feedbackData.benefitReceived} onChange={e => setFeedbackData({...feedbackData, benefitReceived: e.target.value})} />
             </div>
 
             <div className="comments-section">
-              <label>Would you recommend this scheme to others?</label>
+              <label>{t('beneficiary.recommend')}</label>
               <div className="radio-group">
-                <label><input type="radio" checked={feedbackData.wouldRecommend === true}
-                  onChange={() => setFeedbackData({...feedbackData, wouldRecommend: true})} /> Yes</label>
-                <label><input type="radio" checked={feedbackData.wouldRecommend === false}
-                  onChange={() => setFeedbackData({...feedbackData, wouldRecommend: false})} /> No</label>
+                <label><input type="radio" checked={feedbackData.wouldRecommend === true} onChange={() => setFeedbackData({...feedbackData, wouldRecommend: true})} /> {t('beneficiary.yes')}</label>
+                <label><input type="radio" checked={feedbackData.wouldRecommend === false} onChange={() => setFeedbackData({...feedbackData, wouldRecommend: false})} /> {t('beneficiary.no')}</label>
               </div>
             </div>
 
             <div className="comments-section">
-              <label>Any suggestions for improvement?</label>
-              <textarea rows="2" placeholder="Your suggestions..."
-                value={feedbackData.suggestions}
-                onChange={e => setFeedbackData({...feedbackData, suggestions: e.target.value})} />
+              <label>{t('beneficiary.suggestions')}</label>
+              <textarea rows="2" placeholder={t('beneficiary.suggestions_placeholder')} value={feedbackData.suggestions} onChange={e => setFeedbackData({...feedbackData, suggestions: e.target.value})} />
             </div>
 
             <div className="comments-section">
-              <label>Additional Comments:</label>
-              <textarea rows="2" placeholder="Any other comments..."
-                value={feedbackData.comments}
-                onChange={e => setFeedbackData({...feedbackData, comments: e.target.value})} />
+              <label>{t('beneficiary.comments')}</label>
+              <textarea rows="2" placeholder={t('beneficiary.comments_placeholder')} value={feedbackData.comments} onChange={e => setFeedbackData({...feedbackData, comments: e.target.value})} />
             </div>
 
             <div className="modal-actions">
-              <button className="submit-feedback-btn" onClick={handleFeedbackSubmit}>Submit Feedback</button>
-              <button className="cancel-btn" onClick={() => setFeedbackModal(null)}>Cancel</button>
+              <button className="submit-feedback-btn" onClick={handleFeedbackSubmit}>{t('beneficiary.submit_feedback')}</button>
+              <button className="cancel-btn" onClick={() => setFeedbackModal(null)}>{t('common.cancel')}</button>
             </div>
           </div>
         </div>

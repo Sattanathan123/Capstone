@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import './Login.css';
 
 const Login = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     mobileNumber: '',
     aadhaarNumber: '',
@@ -26,13 +28,13 @@ const Login = () => {
   const validateForm = () => {
     const newErrors = {};
     if (!formData.mobileNumber || !/^\d{10}$/.test(formData.mobileNumber)) {
-      newErrors.mobileNumber = 'Valid 10-digit mobile number required';
+      newErrors.mobileNumber = t('login.err_mobile');
     }
     if (!formData.aadhaarNumber || !/^\d{12}$/.test(formData.aadhaarNumber)) {
-      newErrors.aadhaarNumber = 'Valid 12-digit Aadhaar number required';
+      newErrors.aadhaarNumber = t('login.err_aadhaar');
     }
     if (!formData.password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = t('login.err_password');
     }
     return newErrors;
   };
@@ -103,18 +105,11 @@ const Login = () => {
             <img src="/logo.png" alt="" className="login-logo-img" onError={(e) => e.target.style.display='none'} />
             <h1>BeniNect</h1>
           </div>
-          <p className="subtitle">Secure • Transparent • Inclusive</p>
-          
+          <p className="subtitle">{t('login.tagline')}</p>
           <div className="features-list">
-            <div className="feature-item">
-              <span>Bank-grade Security</span>
-            </div>
-            <div className="feature-item">
-              <span>Instant Verification</span>
-            </div>
-            <div className="feature-item">
-              <span>Accessible to All</span>
-            </div>
+            <div className="feature-item"><span>{t('login.secure')}</span></div>
+            <div className="feature-item"><span>{t('login.instant')}</span></div>
+            <div className="feature-item"><span>{t('login.accessible')}</span></div>
           </div>
         </motion.div>
       </div>
@@ -127,33 +122,27 @@ const Login = () => {
         >
           <div className="form-header">
             <img src="/logo.png" alt="" className="form-logo" onError={(e) => e.target.style.display='none'} />
-            <h2>🔐 Login to Your BeniNect Account</h2>
-            <p className="form-subtitle">Access your verified beneficiary profile securely</p>
+            <h2>🔐 {t('login.title')}</h2>
+            <p className="form-subtitle">{t('login.subtitle')}</p>
           </div>
 
           <form onSubmit={handleSubmit} className="login-form">
             <div className="form-group">
-              <label>Registered Mobile Number *</label>
-              <input 
-                type="tel" 
-                name="mobileNumber" 
-                value={formData.mobileNumber} 
-                onChange={handleChange} 
-                placeholder="Enter 10-digit mobile number"
-                maxLength="10"
-              />
+              <label>{t('login.mobile_label')} *</label>
+              <input type="tel" name="mobileNumber" value={formData.mobileNumber} onChange={handleChange}
+                placeholder={t('login.mobile_placeholder')} maxLength="10" />
               {errors.mobileNumber && <span className="error">{errors.mobileNumber}</span>}
             </div>
 
             <div className="form-group">
-              <label>Aadhaar Number *</label>
+              <label>{t('login.aadhaar_label')} *</label>
               <div style={{ position: 'relative' }}>
                 <input 
                   type={showAadhaar ? 'text' : 'password'} 
                   name="aadhaarNumber" 
                   value={formData.aadhaarNumber} 
                   onChange={handleChange} 
-                  placeholder="Enter 12-digit Aadhaar number"
+                  placeholder={t('login.aadhaar_placeholder')}
                   maxLength="12"
                 />
                 <button 
@@ -165,18 +154,18 @@ const Login = () => {
                 </button>
               </div>
               {errors.aadhaarNumber && <span className="error">{errors.aadhaarNumber}</span>}
-              <small>Your Aadhaar is masked for security</small>
+              <small>{t('login.aadhaar_hint')}</small>
             </div>
 
             <div className="form-group">
-              <label>Password *</label>
+              <label>{t('login.password_label')} *</label>
               <div style={{ position: 'relative' }}>
                 <input 
                   type={showPassword ? 'text' : 'password'} 
                   name="password" 
                   value={formData.password} 
                   onChange={handleChange} 
-                  placeholder="Enter your password"
+                  placeholder={t('login.password_placeholder')}
                 />
                 <button 
                   type="button" 
@@ -190,13 +179,13 @@ const Login = () => {
             </div>
 
             <button type="submit" className="login-btn" disabled={loading}>
-              {loading ? 'Logging in...' : 'Login'}
+              {loading ? t('login.logging_in') : t('login.login_btn')}
             </button>
 
             <div className="form-links">
-              <a href="#" className="link">Forgot Password?</a>
+              <a href="#" className="link">{t('login.forgot_password')}</a>
               <a href="#" className="link primary" onClick={(e) => { e.preventDefault(); navigate('/register'); }}>
-                New User? Register Here
+                {t('login.new_user')}
               </a>
             </div>
           </form>

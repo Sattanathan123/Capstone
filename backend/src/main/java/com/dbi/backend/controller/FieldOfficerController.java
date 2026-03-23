@@ -2,9 +2,11 @@ package com.dbi.backend.controller;
 
 import com.dbi.backend.entity.Application;
 import com.dbi.backend.entity.User;
+import com.dbi.backend.entity.UserRole;
 import com.dbi.backend.repository.ApplicationRepository;
 import com.dbi.backend.repository.UserRepository;
 import com.dbi.backend.service.NotificationService;
+import com.dbi.backend.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +29,9 @@ public class FieldOfficerController {
     
     @Autowired
     private NotificationService notificationService;
+
+    @Autowired
+    private EmailService emailService;
 
     @GetMapping("/pending-verifications")
     public ResponseEntity<?> getPendingVerifications(@RequestHeader("Authorization") String token) {
@@ -207,18 +212,33 @@ public class FieldOfficerController {
             System.out.println("===================================");
 
             application.setStatus(status);
-            application.setRemarks("APPROVED".equals(status) 
+            application.setRemarks("APPROVED".equals(status)
                 ? "Field Verification Officer approved. Waiting for Sanctioning Officer approval."
                 : remarks);
             application.setVerificationOfficerId(officer.getId());
             application.setVerifiedDate(LocalDateTime.now());
-
             applicationRepository.save(application);
-            
-            String message = "APPROVED".equals(status) 
+
+            String beneficiaryMsg = "APPROVED".equals(status)
                 ? "Good news! Your application " + application.getApplicationId() + " for " + application.getScheme().getSchemeName() + " has been verified by the field officer and forwarded to the sanctioning authority for final approval."
                 : "Your application " + application.getApplicationId() + " for " + application.getScheme().getSchemeName() + " has been rejected by the field officer. Reason: " + remarks;
-            notificationService.createNotification(application.getUser().getId(), message, status, applicationId);
+            notificationService.createNotification(application.getUser().getId(), beneficiaryMsg, status, applicationId);
+
+            if ("APPROVED".equals(status)) {
+                // Stage 2 — email sanctioning authority of the same district
+                User beneficiary = application.getUser();
+                java.util.List<User> authorities = userRepository
+                    .findByRoleAndAssignedDistrict(UserRole.SCHEME_SANCTIONING_AUTHORITY, beneficiary.getDistrict());
+                for (User authority : authorities) {
+                    if (authority.getEmail() != null && !authority.getEmail().isBlank()) {
+                        emailService.sendSanctionRequestEmail(
+                            authority.getEmail(), authority.getFullName(),
+                            application.getApplicationId(), application.getScheme().getSchemeName(),
+                            beneficiary.getFullName(), beneficiary.getDistrict()
+                        );
+                    }
+                }
+            }
 
             return ResponseEntity.ok("Application " + status + " successfully");
         } catch (Exception e) {

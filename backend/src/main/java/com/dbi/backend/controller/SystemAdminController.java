@@ -20,6 +20,7 @@ import com.dbi.backend.entity.User;
 import com.dbi.backend.entity.UserRole;
 import com.dbi.backend.repository.ApplicationRepository;
 import com.dbi.backend.repository.UserRepository;
+import com.dbi.backend.service.FraudDetectionService;
 
 @RestController
 @RequestMapping("/api/sysadmin")
@@ -31,6 +32,14 @@ public class SystemAdminController {
 
     @Autowired
     private ApplicationRepository applicationRepository;
+
+    @Autowired
+    private FraudDetectionService fraudDetectionService;
+
+    @GetMapping("/fraud-alerts")
+    public ResponseEntity<List<Map<String, Object>>> getFraudAlerts() {
+        return ResponseEntity.ok(fraudDetectionService.getFraudAlerts());
+    }
 
     @GetMapping("/stats")
     public ResponseEntity<Map<String, Object>> getSystemStats() {

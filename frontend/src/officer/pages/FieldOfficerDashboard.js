@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import './FieldOfficerDashboard.css';
 
 const FieldOfficerDashboard = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [officer, setOfficer] = useState(null);
   const [applications, setApplications] = useState([]);
   const [stats, setStats] = useState({ today: 0, pending: 0, approved: 0, rejected: 0 });
@@ -38,9 +40,8 @@ const FieldOfficerDashboard = () => {
         console.log('Raw data from API:', data);
         console.log('Number of applications:', data.length);
         
-        const formattedData = data.map(app => {
-          console.log('Processing app:', app.id, 'Status:', app.status);
-          return {
+        const priorityOrder = { High: 0, Medium: 1, Low: 2 };
+        const formattedData = data.map(app => ({
             id: app.id,
             beneficiaryName: app.user.fullName,
             schemeName: app.scheme.schemeName,
@@ -49,8 +50,7 @@ const FieldOfficerDashboard = () => {
             location: `${app.user.village || 'N/A'}, ${app.user.block || 'N/A'}`,
             status: app.status === 'PENDING_VERIFICATION' ? 'PENDING' : app.status,
             remarks: app.remarks
-          };
-        });
+          })).sort((a, b) => (priorityOrder[a.priority] ?? 1) - (priorityOrder[b.priority] ?? 1));
         
         console.log('Formatted data:', formattedData);
         setApplications(formattedData);
@@ -130,7 +130,7 @@ const FieldOfficerDashboard = () => {
   };
 
   if (loading) {
-    return <div className="loading-screen">Loading dashboard...</div>;
+    return <div className="loading-screen">{t('dashboard.loading')}</div>;
   }
 
   return (
@@ -141,9 +141,7 @@ const FieldOfficerDashboard = () => {
             <h1>Field Verification Officer Dashboard</h1>
             <p className="role-badge">👤 {officer?.fullName} | 📍 {officer?.assignedDistrict}, {officer?.assignedState}</p>
           </div>
-          <button className="logout-btn" onClick={handleLogout}>
-            Logout
-          </button>
+          <button className="logout-btn" onClick={handleLogout}>{t('dashboard.logout')}</button>
         </div>
       </header>
 
@@ -160,21 +158,21 @@ const FieldOfficerDashboard = () => {
             <div className="stat-icon">⏳</div>
             <div className="stat-info">
               <h3>{stats.pending}</h3>
-              <p>Pending Verifications</p>
+              <p>{t('dashboard.pending')}</p>
             </div>
           </div>
           <div className="stat-card approved">
             <div className="stat-icon">✅</div>
             <div className="stat-info">
               <h3>{stats.approved}</h3>
-              <p>Total Approved</p>
+              <p>{t('dashboard.approved')}</p>
             </div>
           </div>
           <div className="stat-card rejected">
             <div className="stat-icon">❌</div>
             <div className="stat-info">
               <h3>{stats.rejected}</h3>
-              <p>Total Rejected</p>
+              <p>{t('dashboard.rejected')}</p>
             </div>
           </div>
         </section>
@@ -182,7 +180,7 @@ const FieldOfficerDashboard = () => {
         {/* Performance Analytics Widget */}
         <section className="performance-analytics">
           <div className="analytics-card">
-            <h3>📊 Performance Overview</h3>
+            <h3>📊 {t('dashboard.performance')}</h3>
             <div className="performance-chart">
               <div className="progress-rings">
                 <div className="ring-container">
@@ -211,7 +209,7 @@ const FieldOfficerDashboard = () => {
                   </svg>
                   <div className="ring-label">
                     <span className="ring-value">{Math.round((stats.approved / (stats.approved + stats.rejected + stats.pending) || 0) * 100)}%</span>
-                    <span className="ring-text">Approval Rate</span>
+                    <span className="ring-text">{t('dashboard.approval_rate')}</span>
                   </div>
                 </div>
                 <div className="performance-stats">
@@ -220,14 +218,14 @@ const FieldOfficerDashboard = () => {
                     <div className="perf-bar">
                       <div className="perf-fill" style={{ width: `${Math.min((stats.today / 10) * 100, 100)}%` }}></div>
                     </div>
-                    <span className="perf-value">{stats.today}/10 daily target</span>
+                    <span className="perf-value">{stats.today}/10 {t('dashboard.daily_target')}</span>
                   </div>
                   <div className="perf-stat">
                     <span className="perf-label">Workload</span>
                     <div className="perf-bar">
                       <div className="perf-fill workload" style={{ width: `${Math.min((stats.pending / 50) * 100, 100)}%` }}></div>
                     </div>
-                    <span className="perf-value">{stats.pending} pending</span>
+                    <span className="perf-value">{stats.pending} {t('dashboard.pending_workload')}</span>
                   </div>
                 </div>
               </div>
@@ -288,7 +286,7 @@ const FieldOfficerDashboard = () => {
                       className="btn-view"
                       onClick={() => handleViewDetails(app.id)}
                     >
-                      View Details
+                      {t('dashboard.view_details')}
                     </button>
                   </div>
                 </div>
@@ -339,6 +337,7 @@ const FieldOfficerDashboard = () => {
                 <p><strong>Annual Income:</strong> ₹{selectedApp.user?.annualIncome?.toLocaleString()}</p>
                 <p><strong>Caste Category:</strong> {selectedApp.user?.casteCategory}</p>
                 <p><strong>Income Source:</strong> {selectedApp.user?.incomeSource}</p>
+                <p><strong>Priority:</strong> <span className={`priority-badge ${selectedApp.priority?.toLowerCase()}`}>{selectedApp.priority || 'Medium'}</span></p>
               </div>
 
               <div className="detail-section">
@@ -381,34 +380,13 @@ const FieldOfficerDashboard = () => {
               </div>
 
               <div className="action-buttons">
-                <button 
-                  className="btn-approve"
-                  onClick={() => {
-                    const remarks = document.getElementById('remarks').value;
-                    handleVerify(selectedApp.id, 'APPROVED', remarks);
-                  }}
-                >
-                  ✅ Approve
-                </button>
-                <button 
-                  className="btn-reject"
-                  onClick={() => {
-                    const remarks = document.getElementById('remarks').value;
-                    if (!remarks) {
-                      alert('Please provide remarks for rejection');
-                      return;
-                    }
-                    handleVerify(selectedApp.id, 'REJECTED', remarks);
-                  }}
-                >
-                  ❌ Reject
-                </button>
-                <button 
-                  className="btn-cancel"
-                  onClick={() => setSelectedApp(null)}
-                >
-                  Cancel
-                </button>
+                  <button className="btn-approve" onClick={() => { const remarks = document.getElementById('remarks').value; handleVerify(selectedApp.id, 'APPROVED', remarks); }}>
+                      ✅ {t('common.approve')}
+                    </button>
+                    <button className="btn-reject" onClick={() => { const remarks = document.getElementById('remarks').value; if (!remarks) { alert('Please provide remarks for rejection'); return; } handleVerify(selectedApp.id, 'REJECTED', remarks); }}>
+                      ❌ {t('common.reject')}
+                    </button>
+                    <button className="btn-cancel" onClick={() => setSelectedApp(null)}>{t('common.cancel')}</button>
               </div>
             </div>
           </div>

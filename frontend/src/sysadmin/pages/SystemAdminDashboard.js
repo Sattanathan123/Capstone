@@ -9,6 +9,7 @@ const SystemAdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [filterRole, setFilterRole] = useState('ALL');
   const [selectedUser, setSelectedUser] = useState(null);
+  const [fraudAlerts, setFraudAlerts] = useState([]);
 
   useEffect(() => {
     fetchSystemData();
@@ -16,16 +17,15 @@ const SystemAdminDashboard = () => {
 
   const fetchSystemData = async () => {
     try {
-      const [usersRes, statsRes] = await Promise.all([
+      const [usersRes, statsRes, fraudRes] = await Promise.all([
         fetch('http://localhost:8080/api/sysadmin/users'),
-        fetch('http://localhost:8080/api/sysadmin/stats')
+        fetch('http://localhost:8080/api/sysadmin/stats'),
+        fetch('http://localhost:8080/api/sysadmin/fraud-alerts')
       ]);
 
-      const usersData = await usersRes.json();
-      const statsData = await statsRes.json();
-
-      setUsers(usersData);
-      setSystemStats(statsData);
+      setUsers(await usersRes.json());
+      setSystemStats(await statsRes.json());
+      setFraudAlerts(await fraudRes.json());
     } catch (error) {
       console.error('Error fetching data:', error);
       alert('Failed to load dashboard data');
@@ -203,6 +203,30 @@ const SystemAdminDashboard = () => {
               </tbody>
             </table>
           </div>
+        </section>
+
+        <section className="fraud-section">
+          <h2>🚨 Fraud Alerts {fraudAlerts.length > 0 && <span className="fraud-count">{fraudAlerts.length}</span>}</h2>
+          {fraudAlerts.length === 0 ? (
+            <p className="no-alerts">✅ No fraud alerts detected.</p>
+          ) : (
+            <div className="fraud-list">
+              {fraudAlerts.map((alert, i) => (
+                <div key={i} className={`fraud-card ${alert.severity.toLowerCase()}`}>
+                  <div className="fraud-card-header">
+                    <span className="fraud-type">{alert.type === 'DUPLICATE_BANK_ACCOUNT' ? '🏦 Duplicate Bank Account' : '💰 Income Mismatch'}</span>
+                    <span className={`severity-badge ${alert.severity.toLowerCase()}`}>{alert.severity}</span>
+                  </div>
+                  <p className="fraud-message">{alert.message}</p>
+                  <div className="fraud-users">
+                    {alert.users.map((u, j) => (
+                      <span key={j} className="fraud-user-tag">👤 {u.name} ({u.mobile})</span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </section>
 
         <section className="audit-section">

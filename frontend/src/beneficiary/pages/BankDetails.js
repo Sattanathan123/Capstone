@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import './BankDetails.css';
 
 const BankDetails = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [bankDetails, setBankDetails] = useState({
     bankAccountNumber: '',
     bankIfscCode: '',
@@ -74,87 +76,52 @@ const BankDetails = () => {
   };
 
   if (loading) {
-    return <div className="loading-screen">Loading...</div>;
+    return <div className="loading-screen">{t('common.loading')}</div>;
   }
 
   return (
     <div className="bank-details-page">
       <header className="bank-header">
         <div className="header-content">
-          <h1>Bank Account Details</h1>
-          <p>Add your bank details for Direct Benefit Transfer (DBT)</p>
+          <h1>{t('bank.title')}</h1>
+          <p>{t('bank.subtitle')}</p>
         </div>
       </header>
 
       <div className="bank-content">
         <form onSubmit={handleSubmit} className="bank-form">
           <div className="form-group">
-            <label>Account Holder Name *</label>
-            <input
-              type="text"
-              name="accountHolderName"
-              value={bankDetails.accountHolderName}
-              onChange={handleChange}
-              required
-              placeholder="As per bank records"
-            />
+            <label>{t('bank.holder_label')} *</label>
+            <input type="text" name="accountHolderName" value={bankDetails.accountHolderName} onChange={handleChange} required placeholder={t('bank.holder_placeholder')} />
           </div>
 
           <div className="form-group">
-            <label>Bank Account Number *</label>
-            <input
-              type="text"
-              name="bankAccountNumber"
-              value={bankDetails.bankAccountNumber}
-              onChange={handleChange}
-              required
-              maxLength="20"
-              placeholder="Enter account number"
-            />
+            <label>{t('bank.account_label')} *</label>
+            <input type="text" name="bankAccountNumber" value={bankDetails.bankAccountNumber} onChange={handleChange} required maxLength="20" placeholder={t('bank.account_placeholder')} />
           </div>
 
           <div className="form-group">
-            <label>IFSC Code *</label>
-            <input
-              type="text"
-              name="bankIfscCode"
-              value={bankDetails.bankIfscCode}
-              onChange={handleChange}
-              required
-              maxLength="11"
-              placeholder="e.g., SBIN0001234"
-              style={{ textTransform: 'uppercase' }}
-            />
+            <label>{t('bank.ifsc_label')} *</label>
+            <input type="text" name="bankIfscCode" value={bankDetails.bankIfscCode} onChange={handleChange} required maxLength="11" placeholder={t('bank.ifsc_placeholder')} style={{ textTransform: 'uppercase' }} />
           </div>
 
           <div className="form-group">
-            <label>Bank Name *</label>
-            <input
-              type="text"
-              name="bankName"
-              value={bankDetails.bankName}
-              onChange={handleChange}
-              required
-              placeholder="Enter bank name"
-            />
+            <label>{t('bank.bank_label')} *</label>
+            <input type="text" name="bankName" value={bankDetails.bankName} onChange={handleChange} required placeholder={t('bank.bank_placeholder')} />
           </div>
 
           <div className="info-box">
-            <p><strong>Important:</strong></p>
+            <p><strong>{t('bank.important')}:</strong></p>
             <ul>
-              <li>Ensure account details match your bank records</li>
-              <li>Account must be active and operational</li>
-              <li>Funds will be transferred via Direct Benefit Transfer (DBT)</li>
+              <li>{t('bank.info1')}</li>
+              <li>{t('bank.info2')}</li>
+              <li>{t('bank.info3')}</li>
             </ul>
           </div>
 
           <div className="form-actions">
-            <button type="button" onClick={() => navigate(-1)} className="cancel-btn">
-              Cancel
-            </button>
-            <button type="submit" disabled={saving} className="save-btn">
-              {saving ? 'Saving...' : 'Save Bank Details'}
-            </button>
+            <button type="button" onClick={() => navigate(-1)} className="cancel-btn">{t('bank.cancel')}</button>
+            <button type="submit" disabled={saving} className="save-btn">{saving ? t('bank.saving') : t('bank.save')}</button>
           </div>
         </form>
       </div>

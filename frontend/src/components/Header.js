@@ -1,6 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from './LanguageSwitcher';
 import './Header.css';
 
 const Header = ({ onLoginClick, onSignupClick }) => {
@@ -15,7 +17,8 @@ const Header = ({ onLoginClick, onSignupClick }) => {
   };
   
   const activeTab = getActiveTab();
-  
+  const { t } = useTranslation();
+
   return (
     <motion.header 
       className="header"
@@ -28,53 +31,34 @@ const Header = ({ onLoginClick, onSignupClick }) => {
           <img src="/logo.png" alt="" className="app-logo" onError={(e) => e.target.style.display='none'} />
           <div className="title-section">
             <h1>BeniNect</h1>
-            <p className="subtitle">Secure, Transparent & Inclusive Welfare Delivery</p>
+            <p className="subtitle">{t('header.subtitle')}</p>
           </div>
         </div>
         <div className="auth-buttons">
-          <motion.button 
-            className="btn-login" 
+          <LanguageSwitcher />
+          <motion.button
+            className="btn-login"
             onClick={onLoginClick}
             whileHover={{ scale: 1.05, y: -2 }}
             whileTap={{ scale: 0.98 }}
           >
-            Login
+            {t('nav.login')}
           </motion.button>
-          <motion.button 
-            className="btn-signup" 
+          <motion.button
+            className="btn-signup"
             onClick={onSignupClick}
             whileHover={{ scale: 1.05, y: -2 }}
             whileTap={{ scale: 0.98 }}
           >
-            Sign Up
+            {t('nav.signup')}
           </motion.button>
         </div>
       </div>
       <nav className="nav-tabs">
-        <button 
-          className={activeTab === 'home' ? 'tab active' : 'tab'}
-          onClick={() => navigate('/')}
-        >
-          Home
-        </button>
-        <button 
-          className={activeTab === 'about' ? 'tab active' : 'tab'}
-          onClick={() => navigate('/about')}
-        >
-          About
-        </button>
-        <button 
-          className={activeTab === 'features' ? 'tab active' : 'tab'}
-          onClick={() => navigate('/features')}
-        >
-          Features
-        </button>
-        <button 
-          className={activeTab === 'track' ? 'tab active' : 'tab'}
-          onClick={() => navigate('/track')}
-        >
-          Track Application
-        </button>
+        <button className={activeTab === 'home' ? 'tab active' : 'tab'} onClick={() => navigate('/')}>{t('nav.home')}</button>
+        <button className={activeTab === 'about' ? 'tab active' : 'tab'} onClick={() => navigate('/about')}>{t('nav.about')}</button>
+        <button className={activeTab === 'features' ? 'tab active' : 'tab'} onClick={() => navigate('/features')}>{t('nav.features')}</button>
+        <button className={activeTab === 'track' ? 'tab active' : 'tab'} onClick={() => navigate('/track')}>{t('nav.track')}</button>
       </nav>
     </motion.header>
   );

@@ -218,3 +218,29 @@
     font-size: 0.85rem;
   }
 }
+
+/* Visual Analytics */
+.analytics-section { margin-bottom: 2rem; }
+.analytics-card {
+  background: white;
+  padding: 2rem;
+  border-radius: var(--radius-lg, 12px);
+  box-shadow: var(--shadow-sm, 0 2px 8px rgba(0,0,0,0.1));
+}
+.analytics-card h3 { margin: 0 0 1.5rem 0; color: var(--text-primary, #2d3748); font-size: 1.3rem; }
+.performance-chart { display: flex; align-items: center; justify-content: center; }
+.progress-rings { display: flex; align-items: center; gap: 3rem; }
+.ring-container { position: relative; display: flex; align-items: center; justify-content: center; }
+.progress-ring { transform: rotate(-90deg); }
+.ring-label { position: absolute; text-align: center; }
+.ring-value { display: block; font-size: 1.8rem; font-weight: 700; }
+.ring-text { display: block; font-size: 0.9rem; color: var(--text-muted, #718096); margin-top: 0.2rem; }
+.performance-stats { display: flex; flex-direction: column; gap: 1.2rem; }
+.perf-stat { display: flex; flex-direction: column; gap: 0.4rem; min-width: 220px; }
+.perf-label { font-weight: 600; color: var(--text-primary, #2d3748); font-size: 0.95rem; }
+.perf-bar { height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
+.perf-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+.perf-value { font-size: 0.85rem; color: var(--text-muted, #718096); }
+@media (max-width: 768px) {
+  .progress-rings { flex-direction: column; gap: 2rem; }
+}

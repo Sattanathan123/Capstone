@@ -19,6 +19,9 @@ public class NotificationService {
     
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private WhatsAppService whatsAppService;
     
     public void createNotification(Long userId, String message, String type, Long applicationId) {
         Notification notification = new Notification();
@@ -33,6 +36,9 @@ public class NotificationService {
             sendSMS(user.getMobileNumber(), message);
             if (user.getEmail() != null && !user.getEmail().isEmpty()) {
                 sendEmail(user.getEmail(), getEmailSubject(type), message);
+            }
+            if (user.getMobileNumber() != null && !user.getMobileNumber().isEmpty()) {
+                whatsAppService.sendWhatsApp(user.getMobileNumber(), message);
             }
         });
     }

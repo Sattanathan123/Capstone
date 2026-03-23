@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +38,15 @@ public class BeneficiarySchemeService {
     
     @Autowired
     private NotificationService notificationService;
+
+    @Autowired
+    private PriorityCalculator priorityCalculator;
+
+    @Autowired
+    private FraudDetectionService fraudDetectionService;
+
+    @Autowired
+    private EmailService emailService;
     
     public ApplicationRepository getApplicationRepository() {
         return applicationRepository;
@@ -128,6 +136,7 @@ public class BeneficiarySchemeService {
         app.setScheme(scheme);
         app.setStatus("SUBMITTED");
         app.setAppliedDate(LocalDateTime.now());
+        app.setPriority(priorityCalculator.calculate(user));
         
         // Save documents if provided
         if (documents != null) {
@@ -146,21 +155,64 @@ public class BeneficiarySchemeService {
         }
         
         Application saved = applicationRepository.save(app);
+
+        // Fraud check — runs immediately after saving
+        List<String> fraudReasons = fraudDetectionService.checkApplicationFraud(user);
+        if (!fraudReasons.isEmpty()) {
+            saved.setStatus("FRAUD");
+            saved.setRemarks("Fraud detected: " + String.join("; ", fraudReasons));
+            applicationRepository.save(saved);
+
+            if (user.getEmail() != null && !user.getEmail().isBlank()) {
+                emailService.sendEmail(
+                    user.getEmail(),
+                    "⚠️ Fraud Alert: Your Application " + generatedAppId + " Has Been Flagged",
+                    "Dear " + user.getFullName() + ",\n\n" +
+                    "Your application (ID: " + generatedAppId + ") for the scheme \"" +
+                    scheme.getSchemeName() + "\" has been flagged as potentially fraudulent.\n\n" +
+                    "Reason(s):\n" + fraudReasons.stream()
+                        .map(r -> "  - " + r)
+                        .collect(java.util.stream.Collectors.joining("\n")) + "\n\n" +
+                    "Your application will not be processed further. " +
+                    "If you believe this is an error, please contact your district office.\n\n" +
+                    "Regards,\nDBI Scheme Management System"
+                );
+            }
+
+            SmartValidationEngine.ValidationResult fraudResult = new SmartValidationEngine.ValidationResult();
+            fraudResult.setGeneratedApplicationId(generatedAppId);
+            fraudResult.setNextStatus("FRAUD");
+            fraudResult.setMessage("Application flagged as fraudulent: " + String.join("; ", fraudReasons));
+            return fraudResult;
+        }
         
-        SmartValidationEngine.ValidationResult result = validationEngine.validateApplication(user, scheme, saved.getId());
+        SmartValidationEngine.ValidationResult result = validationEngine.validateApplication(user, scheme, saved.getId(), saved);
         result.setGeneratedApplicationId(generatedAppId);
         
         saved.setStatus(result.getNextStatus());
         saved.setRemarks(result.getMessage());
         applicationRepository.save(saved);
         
-        // Send email notification
+        // Notify beneficiary
         notificationService.createNotification(
             userId,
             "Your application for " + scheme.getSchemeName() + " has been submitted successfully. Application ID: " + generatedAppId + ". Your application will be reviewed by the field verification officer of " + user.getDistrict() + " district.",
             "APPLICATION_SUBMITTED",
             saved.getId()
         );
+
+        // Stage 1 — email field officer(s) of the same district
+        List<com.dbi.backend.entity.User> officers = userRepository
+            .findByRoleAndAssignedDistrict(com.dbi.backend.entity.UserRole.FIELD_VERIFICATION_OFFICER, user.getDistrict());
+        for (com.dbi.backend.entity.User officer : officers) {
+            if (officer.getEmail() != null && !officer.getEmail().isBlank()) {
+                emailService.sendVerificationRequestEmail(
+                    officer.getEmail(), officer.getFullName(),
+                    generatedAppId, scheme.getSchemeName(),
+                    user.getFullName(), user.getDistrict()
+                );
+            }
+        }
         
         return result;
     }

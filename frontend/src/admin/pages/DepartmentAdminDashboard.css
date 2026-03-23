@@ -277,6 +277,11 @@
   color: #721c24;
 }
 
+.status-badge.expired {
+  background: #e2e3e5;
+  color: #383d41;
+}
+
 .delete-btn {
   background: var(--status-danger);
   color: white;
