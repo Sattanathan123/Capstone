@@ -1,18 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useToast } from '../../components/Toast';
+import API_BASE from '../../config';
 import './FundTransferDashboard.css';
 
 const FundTransferDashboard = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const [dashboard, setDashboard] = useState({
-    initiated: 0,
-    processing: 0,
-    completed: 0,
-    failed: 0,
-    recentTransfers: []
-  });
+  const toast = useToast();
+  const [dashboard, setDashboard] = useState({ initiated: 0, processing: 0, completed: 0, failed: 0, recentTransfers: [] });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -24,16 +21,13 @@ const FundTransferDashboard = () => {
   const fetchDashboard = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:8080/api/fund-transfer/dashboard', {
+      const response = await fetch(`${API_BASE}/api/fund-transfer/dashboard`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      
-      if (response.ok) {
-        const data = await response.json();
-        setDashboard(data);
-      }
+      if (response.status === 401) { window.dispatchEvent(new CustomEvent('auth-error', { detail: 401 })); return; }
+      if (response.ok) setDashboard(await response.json());
     } catch (error) {
-      console.error('Error fetching dashboard:', error);
+      toast('Error loading dashboard', 'error');
     } finally {
       setLoading(false);
     }
@@ -42,23 +36,26 @@ const FundTransferDashboard = () => {
   const handleRetry = async (transferId) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:8080/api/fund-transfer/retry/${transferId}`, {
+      const response = await fetch(`${API_BASE}/api/fund-transfer/retry/${transferId}`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      
       if (response.ok) {
-        alert('Transfer retry initiated');
+        toast('Transfer retry initiated', 'success');
         fetchDashboard();
+      } else {
+        toast('Failed to retry transfer', 'error');
       }
     } catch (error) {
-      console.error('Error retrying transfer:', error);
+      toast('Error retrying transfer', 'error');
     }
   };
 
-  if (loading) {
-    return <div className="loading-screen">Loading Fund Transfer Dashboard...</div>;
-  }
+  if (loading) return <div className="loading-screen">{t('dashboard.loading')}</div>;
+
+  const total = dashboard.initiated + dashboard.processing + dashboard.completed + dashboard.failed;
+  const rate = total ? dashboard.completed / total : 0;
+  const r = 52, circ = 2 * Math.PI * r;
 
   return (
     <div className="fund-transfer-dashboard">
@@ -74,79 +71,40 @@ const FundTransferDashboard = () => {
 
       <div className="dashboard-content">
         <section className="stats-grid">
-          <div className="stat-card initiated">
-            <div className="stat-icon">🔄</div>
-            <div className="stat-info">
-              <h3>{dashboard.initiated}</h3>
-              <p>Initiated</p>
-            </div>
-          </div>
-          <div className="stat-card processing">
-            <div className="stat-icon">⏳</div>
-            <div className="stat-info">
-              <h3>{dashboard.processing}</h3>
-              <p>Processing</p>
-            </div>
-          </div>
-          <div className="stat-card completed">
-            <div className="stat-icon">✅</div>
-            <div className="stat-info">
-              <h3>{dashboard.completed}</h3>
-              <p>Completed</p>
-            </div>
-          </div>
-          <div className="stat-card failed">
-            <div className="stat-icon">❌</div>
-            <div className="stat-info">
-              <h3>{dashboard.failed}</h3>
-              <p>Failed</p>
-            </div>
-          </div>
+          <div className="stat-card initiated"><div className="stat-icon">🔄</div><div className="stat-info"><h3>{dashboard.initiated}</h3><p>Initiated</p></div></div>
+          <div className="stat-card processing"><div className="stat-icon">⏳</div><div className="stat-info"><h3>{dashboard.processing}</h3><p>Processing</p></div></div>
+          <div className="stat-card completed"><div className="stat-icon">✅</div><div className="stat-info"><h3>{dashboard.completed}</h3><p>Completed</p></div></div>
+          <div className="stat-card failed"><div className="stat-icon">❌</div><div className="stat-info"><h3>{dashboard.failed}</h3><p>Failed</p></div></div>
         </section>
 
-        {/* Visual Analytics */}
         <section className="analytics-section">
           <div className="analytics-card">
-            <h3>📊 Transfer Analytics</h3>
+            <h3>📊 {t('dashboard.success_rate')} — Transfer Analytics</h3>
             <div className="performance-chart">
               <div className="progress-rings">
                 <div className="ring-container">
-                  {(() => {
-                    const total = dashboard.initiated + dashboard.processing + dashboard.completed + dashboard.failed;
-                    const rate = total ? dashboard.completed / total : 0;
-                    const r = 52, circ = 2 * Math.PI * r;
-                    return (
-                      <>
-                        <svg className="progress-ring" width="120" height="120">
-                          <circle stroke="#e6e6e6" strokeWidth="8" fill="transparent" r={r} cx="60" cy="60" />
-                          <circle stroke="#48bb78" strokeWidth="8" fill="transparent" r={r} cx="60" cy="60"
-                            strokeDasharray={circ} strokeDashoffset={circ * (1 - rate)} transform="rotate(-90 60 60)" strokeLinecap="round" />
-                        </svg>
-                        <div className="ring-label">
-                          <span className="ring-value" style={{color:'#48bb78'}}>{Math.round(rate * 100)}%</span>
-                          <span className="ring-text">Success Rate</span>
-                        </div>
-                      </>
-                    );
-                  })()}
+                  <svg className="progress-ring" width="120" height="120">
+                    <circle stroke="#e6e6e6" strokeWidth="8" fill="transparent" r={r} cx="60" cy="60" />
+                    <circle stroke="#48bb78" strokeWidth="8" fill="transparent" r={r} cx="60" cy="60"
+                      strokeDasharray={circ} strokeDashoffset={circ * (1 - rate)} transform="rotate(-90 60 60)" strokeLinecap="round" />
+                  </svg>
+                  <div className="ring-label">
+                    <span className="ring-value" style={{ color: '#48bb78' }}>{Math.round(rate * 100)}%</span>
+                    <span className="ring-text">{t('dashboard.success_rate')}</span>
+                  </div>
                 </div>
                 <div className="performance-stats">
-                  {[{label:'Initiated', val:dashboard.initiated, color:'#4299e1'},
-                    {label:'Processing', val:dashboard.processing, color:'#ed8936'},
-                    {label:'Completed', val:dashboard.completed, color:'#48bb78'},
-                    {label:'Failed', val:dashboard.failed, color:'#f56565'}]
-                    .map(({label,val,color}) => {
-                      const total = dashboard.initiated + dashboard.processing + dashboard.completed + dashboard.failed;
-                      return (
-                        <div className="perf-stat" key={label}>
-                          <span className="perf-label">{label}</span>
-                          <div className="perf-bar">
-                            <div className="perf-fill" style={{width:`${total?Math.round((val/total)*100):0}%`, background:color}}></div>
-                          </div>
-                          <span className="perf-value">{val} ({total?Math.round((val/total)*100):0}%)</span>
-                        </div>
-                      );
-                    })}
+                  {[{ label: 'Initiated', val: dashboard.initiated, color: '#4299e1' },
+                    { label: 'Processing', val: dashboard.processing, color: '#ed8936' },
+                    { label: 'Completed', val: dashboard.completed, color: '#48bb78' },
+                    { label: 'Failed', val: dashboard.failed, color: '#f56565' }]
+                    .map(({ label, val, color }) => (
+                      <div className="perf-stat" key={label}>
+                        <span className="perf-label">{label}</span>
+                        <div className="perf-bar"><div className="perf-fill" style={{ width: `${total ? Math.round((val / total) * 100) : 0}%`, background: color }}></div></div>
+                        <span className="perf-value">{val} ({total ? Math.round((val / total) * 100) : 0}%)</span>
+                      </div>
+                    ))}
                 </div>
               </div>
             </div>
@@ -160,13 +118,8 @@ const FundTransferDashboard = () => {
               <table>
                 <thead>
                   <tr>
-                    <th>Transfer ID</th>
-                    <th>Application ID</th>
-                    <th>Amount</th>
-                    <th>Account Number</th>
-                    <th>Status</th>
-                    <th>Date</th>
-                    <th>Actions</th>
+                    <th>Transfer ID</th><th>Application ID</th><th>Amount</th>
+                    <th>Account Number</th><th>Status</th><th>Date</th><th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -176,22 +129,9 @@ const FundTransferDashboard = () => {
                       <td>{transfer.application?.applicationId || 'N/A'}</td>
                       <td>₹{transfer.amount?.toLocaleString()}</td>
                       <td>{transfer.beneficiaryAccount}</td>
-                      <td>
-                        <span className={`status-badge ${transfer.status.toLowerCase()}`}>
-                          {transfer.status}
-                        </span>
-                      </td>
+                      <td><span className={`status-badge ${transfer.status.toLowerCase()}`}>{transfer.status}</span></td>
                       <td>{new Date(transfer.initiatedDate).toLocaleDateString()}</td>
-                      <td>
-                        {transfer.status === 'FAILED' && (
-                          <button 
-                            className="retry-btn"
-                            onClick={() => handleRetry(transfer.transferId)}
-                          >
-                            Retry
-                          </button>
-                        )}
-                      </td>
+                      <td>{transfer.status === 'FAILED' && <button className="retry-btn" onClick={() => handleRetry(transfer.transferId)}>Retry</button>}</td>
                     </tr>
                   ))}
                 </tbody>

@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useToast } from '../../components/Toast';
+import API_BASE from '../../config';
 import SchemeCard from '../components/SchemeCard';
 import './BeneficiaryDashboard.css';
 
@@ -8,6 +10,7 @@ const BeneficiaryDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation();
+  const toast = useToast();
   const schemesRef = useRef(null);
   const [beneficiary, setBeneficiary] = useState(null);
   const [eligibleSchemes, setEligibleSchemes] = useState([]);
@@ -43,7 +46,7 @@ const BeneficiaryDashboard = () => {
       const token = localStorage.getItem('token');
       console.log('Token:', token);
       
-      const schemesRes = await fetch('http://localhost:8080/api/beneficiary/eligible-schemes', {
+      const schemesRes = await fetch(`${API_BASE}/api/beneficiary/eligible-schemes`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
@@ -59,7 +62,7 @@ const BeneficiaryDashboard = () => {
       }
       
       try {
-        const appsRes = await fetch('http://localhost:8080/api/beneficiary/applications', {
+        const appsRes = await fetch(`${API_BASE}/api/beneficiary/applications`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (appsRes.ok) {
@@ -72,7 +75,7 @@ const BeneficiaryDashboard = () => {
         setApplications([]);
       }
     } catch (error) {
-      console.error('Error fetching data:', error);
+      toast('Error loading dashboard', 'error');
     } finally {
       setLoading(false);
     }
@@ -87,7 +90,7 @@ const BeneficiaryDashboard = () => {
       const token = localStorage.getItem('token');
       const payload = { applicationId: feedbackModal.id, ...feedbackData };
       console.log('Submitting feedback:', payload);
-      const response = await fetch('http://localhost:8080/api/feedback/submit', {
+      const response = await fetch(`${API_BASE}/api/feedback/submit`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -95,16 +98,15 @@ const BeneficiaryDashboard = () => {
       const result = await response.json();
       console.log('Feedback response:', result);
       if (response.ok) {
-        alert('Thank you for your feedback!');
+        toast('Thank you for your feedback!', 'success');
         setSubmittedFeedbacks([...submittedFeedbacks, feedbackModal.id]);
         setFeedbackModal(null);
         setFeedbackData({ rating: 5, comments: '', amountSpentOn: '', benefitReceived: '', wouldRecommend: true, suggestions: '' });
       } else {
-        alert(result.error || 'Failed to submit feedback');
+        toast(result.error || 'Failed to submit feedback', 'error');
       }
     } catch (e) {
-      console.error('Feedback error:', e);
-      alert('Error submitting feedback');
+      toast('Error submitting feedback', 'error');
     }
   };
 
@@ -173,11 +175,19 @@ const BeneficiaryDashboard = () => {
                     <h3>{app.schemeName}</h3>
                     <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                       {app.applicationId && (
-                        <span style={{ fontSize: '14px', color: '#666' }}>ID: {app.applicationId}</span>
+                        <span style={{ fontSize: '13px', color: '#555', fontWeight: '600', background: '#eef2ff', padding: '3px 10px', borderRadius: '12px' }}>🆔 {app.applicationId}</span>
                       )}
                       <span className={`status-badge ${app.status.toLowerCase()}`}>
                         {app.status}
                       </span>
+                      {app.applicationId && (
+                        <button
+                          onClick={() => navigate(`/track?id=${app.applicationId}`)}
+                          style={{ padding: '6px 14px', background: '#3498db', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}
+                        >
+                          🔍 Track
+                        </button>
+                      )}
                     </div>
                   </div>
                   <div className="app-details">

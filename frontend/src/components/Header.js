@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from './LanguageSwitcher';
+import DarkModeToggle from './DarkModeToggle';
 import './Header.css';
 
 const Header = ({ onLoginClick, onSignupClick }) => {
@@ -36,6 +37,7 @@ const Header = ({ onLoginClick, onSignupClick }) => {
         </div>
         <div className="auth-buttons">
           <LanguageSwitcher />
+          <DarkModeToggle />
           <motion.button
             className="btn-login"
             onClick={onLoginClick}

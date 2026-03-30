@@ -2,11 +2,14 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useToast } from '../components/Toast';
+import API_BASE from '../config';
 import './Login.css';
 
 const Login = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const toast = useToast();
   const [formData, setFormData] = useState({
     mobileNumber: '',
     aadhaarNumber: '',
@@ -52,7 +55,7 @@ const Login = () => {
     try {
       console.log('Login attempt with:', { mobileNumber: formData.mobileNumber, aadhaarNumber: formData.aadhaarNumber });
       
-      const response = await fetch('http://localhost:8080/api/users/login', {
+      const response = await fetch(`${API_BASE}/api/users/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
@@ -63,7 +66,7 @@ const Login = () => {
         console.log('Login successful:', data);
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
-        alert('Login successful!');
+        toast('Login successful!', 'success');
         
         // Redirect based on role
         if (data.user.role === 'BENEFICIARY') {
@@ -82,11 +85,11 @@ const Login = () => {
       } else {
         const errorData = await response.text();
         console.error('Login failed:', errorData);
-        alert('Login failed: ' + errorData);
+        toast('Login failed: ' + errorData, 'error');
       }
     } catch (error) {
       console.error('Login error:', error);
-      alert('Error connecting to server: ' + error.message);
+      toast('Error connecting to server: ' + error.message, 'error');
     } finally {
       setLoading(false);
     }

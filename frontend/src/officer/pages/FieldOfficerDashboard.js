@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useToast } from '../../components/Toast';
+import API_BASE from '../../config';
 import './FieldOfficerDashboard.css';
 
 const FieldOfficerDashboard = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const toast = useToast();
   const [officer, setOfficer] = useState(null);
   const [applications, setApplications] = useState([]);
   const [stats, setStats] = useState({ today: 0, pending: 0, approved: 0, rejected: 0 });
@@ -14,63 +17,44 @@ const FieldOfficerDashboard = () => {
   const [viewingDoc, setViewingDoc] = useState(null);
   const [activeTab, setActiveTab] = useState('PENDING');
 
-  useEffect(() => {
-    fetchOfficerData();
-  }, []);
+  useEffect(() => { fetchOfficerData(); }, []);
 
   const fetchOfficerData = async () => {
     try {
       const token = localStorage.getItem('token');
       const user = JSON.parse(localStorage.getItem('user') || '{}');
       setOfficer(user);
-      
-      console.log('=== FETCHING OFFICER DATA ===');
-      console.log('Officer:', user);
-      console.log('Token:', token);
 
-      // Fetch all verifications
-      const verificationsRes = await fetch('http://localhost:8080/api/officer/all-verifications', {
+      const verificationsRes = await fetch(`${API_BASE}/api/officer/all-verifications`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
-      console.log('Response status:', verificationsRes.status);
-      
+      if (verificationsRes.status === 401) { window.dispatchEvent(new CustomEvent('auth-error', { detail: 401 })); return; }
+
       if (verificationsRes.ok) {
         const data = await verificationsRes.json();
-        console.log('Raw data from API:', data);
-        console.log('Number of applications:', data.length);
-        
         const priorityOrder = { High: 0, Medium: 1, Low: 2 };
         const formattedData = data.map(app => ({
-            id: app.id,
-            beneficiaryName: app.user.fullName,
-            schemeName: app.scheme.schemeName,
-            applicationDate: app.appliedDate,
-            priority: app.priority || 'Medium',
-            location: `${app.user.village || 'N/A'}, ${app.user.block || 'N/A'}`,
-            status: app.status === 'PENDING_VERIFICATION' ? 'PENDING' : app.status,
-            remarks: app.remarks
-          })).sort((a, b) => (priorityOrder[a.priority] ?? 1) - (priorityOrder[b.priority] ?? 1));
-        
-        console.log('Formatted data:', formattedData);
+          id: app.id,
+          beneficiaryName: app.user.fullName,
+          schemeName: app.scheme.schemeName,
+          applicationDate: app.appliedDate,
+          priority: app.priority || 'Medium',
+          location: `${app.user.village || 'N/A'}, ${app.user.block || 'N/A'}`,
+          status: app.status === 'PENDING_VERIFICATION' ? 'PENDING' : app.status,
+          remarks: app.remarks
+        })).sort((a, b) => (priorityOrder[a.priority] ?? 1) - (priorityOrder[b.priority] ?? 1));
         setApplications(formattedData);
       } else {
-        const errorText = await verificationsRes.text();
-        console.error('API Error:', errorText);
+        toast('Failed to load verifications', 'error');
       }
 
-      // Fetch stats
-      const statsRes = await fetch('http://localhost:8080/api/officer/stats', {
+      const statsRes = await fetch(`${API_BASE}/api/officer/stats`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-
-      if (statsRes.ok) {
-        const statsData = await statsRes.json();
-        console.log('Stats data:', statsData);
-        setStats(statsData);
-      }
+      if (statsRes.ok) setStats(await statsRes.json());
     } catch (error) {
-      console.error('Error fetching data:', error);
+      toast('Error loading dashboard', 'error');
     } finally {
       setLoading(false);
     }
@@ -79,47 +63,33 @@ const FieldOfficerDashboard = () => {
   const handleViewDetails = async (appId) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:8080/api/officer/application/${appId}`, {
+      const response = await fetch(`${API_BASE}/api/officer/application/${appId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Application data received:', {
-          hasAadhaar: !!data.aadhaarDoc,
-          hasIncome: !!data.incomeCertDoc,
-          hasCommunity: !!data.communityCertDoc,
-          hasOccupation: !!data.occupationProofDoc
-        });
-        setSelectedApp(data);
-      }
+      if (response.ok) setSelectedApp(await response.json());
+      else toast('Failed to load application details', 'error');
     } catch (error) {
-      console.error('Error:', error);
+      toast('Error loading application', 'error');
     }
   };
 
   const handleVerify = async (appId, status, remarks) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:8080/api/officer/verify/${appId}`, {
+      const response = await fetch(`${API_BASE}/api/officer/verify/${appId}`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ status, remarks })
       });
-
       if (response.ok) {
-        alert(`Application ${status} successfully!`);
+        toast(`Application ${status} successfully!`, 'success');
         setSelectedApp(null);
         fetchOfficerData();
       } else {
-        alert('Failed to update application');
+        toast('Failed to update application', 'error');
       }
     } catch (error) {
-      console.error('Error verifying:', error);
-      alert('Error: ' + error.message);
+      toast('Error: ' + error.message, 'error');
     }
   };
 
@@ -129,9 +99,7 @@ const FieldOfficerDashboard = () => {
     navigate('/login');
   };
 
-  if (loading) {
-    return <div className="loading-screen">{t('dashboard.loading')}</div>;
-  }
+  if (loading) return <div className="loading-screen">{t('dashboard.loading')}</div>;
 
   return (
     <div className="officer-dashboard">
@@ -149,35 +117,22 @@ const FieldOfficerDashboard = () => {
         <section className="stats-section">
           <div className="stat-card today">
             <div className="stat-icon">📅</div>
-            <div className="stat-info">
-              <h3>{stats.today}</h3>
-              <p>Verified Today</p>
-            </div>
+            <div className="stat-info"><h3>{stats.today}</h3><p>{t('dashboard.verified_today')}</p></div>
           </div>
           <div className="stat-card pending">
             <div className="stat-icon">⏳</div>
-            <div className="stat-info">
-              <h3>{stats.pending}</h3>
-              <p>{t('dashboard.pending')}</p>
-            </div>
+            <div className="stat-info"><h3>{stats.pending}</h3><p>{t('dashboard.pending')}</p></div>
           </div>
           <div className="stat-card approved">
             <div className="stat-icon">✅</div>
-            <div className="stat-info">
-              <h3>{stats.approved}</h3>
-              <p>{t('dashboard.approved')}</p>
-            </div>
+            <div className="stat-info"><h3>{stats.approved}</h3><p>{t('dashboard.approved')}</p></div>
           </div>
           <div className="stat-card rejected">
             <div className="stat-icon">❌</div>
-            <div className="stat-info">
-              <h3>{stats.rejected}</h3>
-              <p>{t('dashboard.rejected')}</p>
-            </div>
+            <div className="stat-info"><h3>{stats.rejected}</h3><p>{t('dashboard.rejected')}</p></div>
           </div>
         </section>
 
-        {/* Performance Analytics Widget */}
         <section className="performance-analytics">
           <div className="analytics-card">
             <h3>📊 {t('dashboard.performance')}</h3>
@@ -185,27 +140,11 @@ const FieldOfficerDashboard = () => {
               <div className="progress-rings">
                 <div className="ring-container">
                   <svg className="progress-ring" width="120" height="120">
-                    <circle
-                      className="progress-ring-bg"
-                      stroke="#e6e6e6"
-                      strokeWidth="8"
-                      fill="transparent"
-                      r="52"
-                      cx="60"
-                      cy="60"
-                    />
-                    <circle
-                      className="progress-ring-fill"
-                      stroke="#4CAF50"
-                      strokeWidth="8"
-                      fill="transparent"
-                      r="52"
-                      cx="60"
-                      cy="60"
+                    <circle className="progress-ring-bg" stroke="#e6e6e6" strokeWidth="8" fill="transparent" r="52" cx="60" cy="60" />
+                    <circle className="progress-ring-fill" stroke="#4CAF50" strokeWidth="8" fill="transparent" r="52" cx="60" cy="60"
                       strokeDasharray={`${2 * Math.PI * 52}`}
                       strokeDashoffset={`${2 * Math.PI * 52 * (1 - (stats.approved / (stats.approved + stats.rejected + stats.pending) || 0))}`}
-                      transform="rotate(-90 60 60)"
-                    />
+                      transform="rotate(-90 60 60)" />
                   </svg>
                   <div className="ring-label">
                     <span className="ring-value">{Math.round((stats.approved / (stats.approved + stats.rejected + stats.pending) || 0) * 100)}%</span>
@@ -215,16 +154,12 @@ const FieldOfficerDashboard = () => {
                 <div className="performance-stats">
                   <div className="perf-stat">
                     <span className="perf-label">Efficiency</span>
-                    <div className="perf-bar">
-                      <div className="perf-fill" style={{ width: `${Math.min((stats.today / 10) * 100, 100)}%` }}></div>
-                    </div>
+                    <div className="perf-bar"><div className="perf-fill" style={{ width: `${Math.min((stats.today / 10) * 100, 100)}%` }}></div></div>
                     <span className="perf-value">{stats.today}/10 {t('dashboard.daily_target')}</span>
                   </div>
                   <div className="perf-stat">
                     <span className="perf-label">Workload</span>
-                    <div className="perf-bar">
-                      <div className="perf-fill workload" style={{ width: `${Math.min((stats.pending / 50) * 100, 100)}%` }}></div>
-                    </div>
+                    <div className="perf-bar"><div className="perf-fill workload" style={{ width: `${Math.min((stats.pending / 50) * 100, 100)}%` }}></div></div>
                     <span className="perf-value">{stats.pending} {t('dashboard.pending_workload')}</span>
                   </div>
                 </div>
@@ -235,59 +170,32 @@ const FieldOfficerDashboard = () => {
 
         <section className="verifications-section">
           <div className="tabs-header">
-            <button className={`tab ${activeTab === 'PENDING' ? 'active' : ''}`} onClick={() => setActiveTab('PENDING')}>⏳ Pending ({applications.filter(app => app.status === 'PENDING').length})</button>
-            <button className={`tab ${activeTab === 'APPROVED' ? 'active' : ''}`} onClick={() => setActiveTab('APPROVED')}>✅ Approved ({applications.filter(app => app.status === 'APPROVED').length})</button>
-            <button className={`tab ${activeTab === 'REJECTED' ? 'active' : ''}`} onClick={() => setActiveTab('REJECTED')}>❌ Rejected ({applications.filter(app => app.status === 'REJECTED').length})</button>
+            <button className={`tab ${activeTab === 'PENDING' ? 'active' : ''}`} onClick={() => setActiveTab('PENDING')}>⏳ Pending ({applications.filter(a => a.status === 'PENDING').length})</button>
+            <button className={`tab ${activeTab === 'APPROVED' ? 'active' : ''}`} onClick={() => setActiveTab('APPROVED')}>✅ Approved ({applications.filter(a => a.status === 'APPROVED').length})</button>
+            <button className={`tab ${activeTab === 'REJECTED' ? 'active' : ''}`} onClick={() => setActiveTab('REJECTED')}>❌ Rejected ({applications.filter(a => a.status === 'REJECTED').length})</button>
           </div>
-          
-          <div style={{ padding: '10px', background: '#f0f0f0', marginBottom: '10px', fontSize: '12px' }}>
-            Debug: Total applications loaded: {applications.length} | Active tab: {activeTab} | Filtered: {applications.filter(app => app.status === activeTab).length}
-          </div>
-          
-          {applications.filter(app => app.status === activeTab).length === 0 ? (
-            <div className="no-data">
-              <p>No {activeTab.toLowerCase()} applications.</p>
-            </div>
+
+          {applications.filter(a => a.status === activeTab).length === 0 ? (
+            <div className="no-data"><p>No {activeTab.toLowerCase()} applications.</p></div>
           ) : (
             <div className="verifications-list">
-              {applications.filter(app => app.status === activeTab).map((app) => (
+              {applications.filter(a => a.status === activeTab).map((app) => (
                 <div key={app.id} className="verification-card">
                   <div className="card-header">
                     <div>
                       <h3>{app.beneficiaryName}</h3>
                       <p className="scheme-name">{app.schemeName}</p>
                     </div>
-                    <span className={`priority-badge ${app.priority.toLowerCase()}`}>
-                      {app.priority} Priority
-                    </span>
+                    <span className={`priority-badge ${app.priority.toLowerCase()}`}>{app.priority} Priority</span>
                   </div>
                   <div className="card-body">
-                    <div className="info-row">
-                      <span className="label">📍 Location:</span>
-                      <span className="value">{app.location}</span>
-                    </div>
-                    <div className="info-row">
-                      <span className="label">📅 Applied:</span>
-                      <span className="value">{new Date(app.applicationDate).toLocaleDateString()}</span>
-                    </div>
-                    <div className="info-row">
-                      <span className="label">📊 Status:</span>
-                      <span className={`status-badge ${app.status.toLowerCase()}`}>{app.status}</span>
-                    </div>
-                    {app.remarks && (
-                      <div className="info-row">
-                        <span className="label">💬 Remarks:</span>
-                        <span className="value">{app.remarks}</span>
-                      </div>
-                    )}
+                    <div className="info-row"><span className="label">📍 {t('common.location')}:</span><span className="value">{app.location}</span></div>
+                    <div className="info-row"><span className="label">📅 {t('common.applied')}:</span><span className="value">{new Date(app.applicationDate).toLocaleDateString()}</span></div>
+                    <div className="info-row"><span className="label">📊 {t('common.status')}:</span><span className={`status-badge ${app.status.toLowerCase()}`}>{app.status}</span></div>
+                    {app.remarks && <div className="info-row"><span className="label">💬 {t('common.remarks')}:</span><span className="value">{app.remarks}</span></div>}
                   </div>
                   <div className="card-actions">
-                    <button 
-                      className="btn-view"
-                      onClick={() => handleViewDetails(app.id)}
-                    >
-                      {t('dashboard.view_details')}
-                    </button>
+                    <button className="btn-view" onClick={() => handleViewDetails(app.id)}>{t('dashboard.view_details')}</button>
                   </div>
                 </div>
               ))}
@@ -311,7 +219,6 @@ const FieldOfficerDashboard = () => {
                 <p><strong>Applied Date:</strong> {new Date(selectedApp.appliedDate).toLocaleDateString()}</p>
                 <p><strong>Status:</strong> {selectedApp.status}</p>
               </div>
-
               <div className="detail-section">
                 <h3>👤 Beneficiary Details</h3>
                 <p><strong>Name:</strong> {selectedApp.user?.fullName}</p>
@@ -321,7 +228,6 @@ const FieldOfficerDashboard = () => {
                 <p><strong>DOB:</strong> {selectedApp.user?.dateOfBirth || 'N/A'}</p>
                 <p><strong>Gender:</strong> {selectedApp.user?.gender || 'N/A'}</p>
               </div>
-
               <div className="detail-section">
                 <h3>📍 Address Details</h3>
                 <p><strong>Address:</strong> {selectedApp.user?.address}</p>
@@ -331,7 +237,6 @@ const FieldOfficerDashboard = () => {
                 <p><strong>State:</strong> {selectedApp.user?.state}</p>
                 <p><strong>Pincode:</strong> {selectedApp.user?.pincode}</p>
               </div>
-
               <div className="detail-section">
                 <h3>💰 Eligibility Information</h3>
                 <p><strong>Annual Income:</strong> ₹{selectedApp.user?.annualIncome?.toLocaleString()}</p>
@@ -339,54 +244,24 @@ const FieldOfficerDashboard = () => {
                 <p><strong>Income Source:</strong> {selectedApp.user?.incomeSource}</p>
                 <p><strong>Priority:</strong> <span className={`priority-badge ${selectedApp.priority?.toLowerCase()}`}>{selectedApp.priority || 'Medium'}</span></p>
               </div>
-
               <div className="detail-section">
                 <h3>📄 Required Documents</h3>
                 <div className="documents-list">
-                  {selectedApp.aadhaarDoc && (
-                    <div className="doc-item clickable" onClick={() => setViewingDoc({ name: 'Aadhaar Card', data: selectedApp.aadhaarDoc })}>
-                      📎 Aadhaar Card - Click to View
-                    </div>
-                  )}
-                  {selectedApp.incomeCertDoc && (
-                    <div className="doc-item clickable" onClick={() => setViewingDoc({ name: 'Income Certificate', data: selectedApp.incomeCertDoc })}>
-                      📎 Income Certificate - Click to View
-                    </div>
-                  )}
-                  {selectedApp.communityCertDoc && (
-                    <div className="doc-item clickable" onClick={() => setViewingDoc({ name: 'Community Certificate', data: selectedApp.communityCertDoc })}>
-                      📎 Community Certificate - Click to View
-                    </div>
-                  )}
-                  {selectedApp.occupationProofDoc && (
-                    <div className="doc-item clickable" onClick={() => setViewingDoc({ name: 'Occupation Proof', data: selectedApp.occupationProofDoc })}>
-                      📎 Occupation Proof - Click to View
-                    </div>
-                  )}
+                  {selectedApp.aadhaarDoc && <div className="doc-item clickable" onClick={() => setViewingDoc({ name: 'Aadhaar Card', data: selectedApp.aadhaarDoc })}>📎 Aadhaar Card - Click to View</div>}
+                  {selectedApp.incomeCertDoc && <div className="doc-item clickable" onClick={() => setViewingDoc({ name: 'Income Certificate', data: selectedApp.incomeCertDoc })}>📎 Income Certificate - Click to View</div>}
+                  {selectedApp.communityCertDoc && <div className="doc-item clickable" onClick={() => setViewingDoc({ name: 'Community Certificate', data: selectedApp.communityCertDoc })}>📎 Community Certificate - Click to View</div>}
+                  {selectedApp.occupationProofDoc && <div className="doc-item clickable" onClick={() => setViewingDoc({ name: 'Occupation Proof', data: selectedApp.occupationProofDoc })}>📎 Occupation Proof - Click to View</div>}
                 </div>
-                {(!selectedApp.aadhaarDoc && !selectedApp.incomeCertDoc && !selectedApp.communityCertDoc && !selectedApp.occupationProofDoc) && (
-                  <p className="doc-note">No documents uploaded</p>
-                )}
+                {(!selectedApp.aadhaarDoc && !selectedApp.incomeCertDoc && !selectedApp.communityCertDoc && !selectedApp.occupationProofDoc) && <p className="doc-note">No documents uploaded</p>}
               </div>
-              
               <div className="detail-section">
                 <h3>✍️ Verification Remarks</h3>
-                <textarea 
-                  placeholder="Enter field verification remarks (address verification, document authenticity, beneficiary interview notes, etc.)..."
-                  rows="5"
-                  id="remarks"
-                  className="remarks-input"
-                />
+                <textarea placeholder="Enter field verification remarks..." rows="5" id="remarks" className="remarks-input" />
               </div>
-
               <div className="action-buttons">
-                  <button className="btn-approve" onClick={() => { const remarks = document.getElementById('remarks').value; handleVerify(selectedApp.id, 'APPROVED', remarks); }}>
-                      ✅ {t('common.approve')}
-                    </button>
-                    <button className="btn-reject" onClick={() => { const remarks = document.getElementById('remarks').value; if (!remarks) { alert('Please provide remarks for rejection'); return; } handleVerify(selectedApp.id, 'REJECTED', remarks); }}>
-                      ❌ {t('common.reject')}
-                    </button>
-                    <button className="btn-cancel" onClick={() => setSelectedApp(null)}>{t('common.cancel')}</button>
+                <button className="btn-approve" onClick={() => handleVerify(selectedApp.id, 'APPROVED', document.getElementById('remarks').value)}>✅ {t('common.approve')}</button>
+                <button className="btn-reject" onClick={() => { const r = document.getElementById('remarks').value; if (!r) { toast('Please provide remarks for rejection', 'warning'); return; } handleVerify(selectedApp.id, 'REJECTED', r); }}>❌ {t('common.reject')}</button>
+                <button className="btn-cancel" onClick={() => setSelectedApp(null)}>{t('common.cancel')}</button>
               </div>
             </div>
           </div>
@@ -401,11 +276,7 @@ const FieldOfficerDashboard = () => {
               <button className="close-btn" onClick={() => setViewingDoc(null)}>×</button>
             </div>
             <div className="modal-body" style={{ height: '80vh', padding: 0 }}>
-              <iframe
-                src={viewingDoc.data}
-                style={{ width: '100%', height: '100%', border: 'none' }}
-                title={viewingDoc.name}
-              />
+              <iframe src={viewingDoc.data} style={{ width: '100%', height: '100%', border: 'none' }} title={viewingDoc.name} />
             </div>
           </div>
         </div>

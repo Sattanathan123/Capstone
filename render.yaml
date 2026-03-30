@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: capstone-backend
+    runtime: java
+    buildCommand: cd backend && ./mvnw clean package -DskipTests
+    startCommand: java -jar backend/target/backend-0.0.1-SNAPSHOT.jar
+    envVars:
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false

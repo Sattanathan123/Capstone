@@ -1,6 +1,7 @@
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import './App.css';
+import { ToastProvider } from './components/Toast';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Chatbot from './components/Chatbot';
@@ -27,9 +28,27 @@ import Analytics from './sysadmin/pages/Analytics';
 import SanctioningDashboard from './sanctioning/pages/SanctioningDashboard';
 import FundTransferDashboard from './sanctioning/pages/FundTransferDashboard';
 
+function SessionWatcher() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.detail === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        navigate('/login');
+      }
+    };
+    window.addEventListener('auth-error', handler);
+    return () => window.removeEventListener('auth-error', handler);
+  }, [navigate]);
+  return null;
+}
+
 function App() {
   return (
+    <ToastProvider>
     <div className="App">
+      <SessionWatcher />
       <Chatbot />
       <Routes>
         <Route path="/login" element={<Login />} />
@@ -53,6 +72,7 @@ function App() {
         <Route path="/*" element={<MainLayout />} />
       </Routes>
     </div>
+    </ToastProvider>
   );
 }
 
