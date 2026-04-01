@@ -73,7 +73,7 @@
     "timeline": "Application Timeline",
     "step1": "Application Submitted", "step2": "Under Review",
     "step3": "Verified by Field Officer", "step4_sanctioned": "Sanctioned ✓",
-    "step4_rejected": "Rejected ✗", "step4_pending": "Pending Sanction",
+    "step4_rejected": "Rejected ✗", "step4_pending": "Sanction",
     "pending": "Pending", "waiting": "Waiting for verification", "verified": "Verified"
   },
   "beneficiary": {

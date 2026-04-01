@@ -68,6 +68,15 @@ const BeneficiaryDashboard = () => {
         if (appsRes.ok) {
           const apps = await appsRes.json();
           setApplications(apps);
+          const sanctionedApps = apps.filter(a => a.status === 'SANCTIONED');
+          const feedbackChecks = await Promise.all(
+            sanctionedApps.map(a =>
+              fetch(`http://localhost:8080/api/feedback/check/${a.id}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+              }).then(r => r.json()).then(d => d.submitted ? a.id : null)
+            )
+          );
+          setSubmittedFeedbacks(feedbackChecks.filter(Boolean));
         } else {
           setApplications([]);
         }

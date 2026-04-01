@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useToast } from '../../components/Toast';
-import API_BASE from '../../config';
 import './SchemeApplication.css';
 
 const SchemeApplication = () => {
   const navigate = useNavigate();
   const { schemeId } = useParams();
   const { t } = useTranslation();
-  const toast = useToast();
   const [scheme, setScheme] = useState(null);
   const [beneficiary, setBeneficiary] = useState(null);
   const [documents, setDocuments] = useState({ aadhaar: null, incomeCertificate: null, communityCertificate: null, occupationProof: null });
@@ -24,8 +21,8 @@ const SchemeApplication = () => {
     try {
       const token = localStorage.getItem('token');
       const [schemeRes, profileRes] = await Promise.all([
-        fetch(`${API_BASE}/api/beneficiary/schemes/${schemeId}`, { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch(`${API_BASE}/api/users/profile`, { headers: { 'Authorization': `Bearer ${token}` } })
+        fetch(`http://localhost:8080/api/beneficiary/schemes/${schemeId}`, { headers: { 'Authorization': `Bearer ${token}` } }),
+        fetch(`http://localhost:8080/api/users/profile`, { headers: { 'Authorization': `Bearer ${token}` } })
       ]);
       if (schemeRes.ok) setScheme(await schemeRes.json());
       if (profileRes.ok) {
@@ -35,7 +32,7 @@ const SchemeApplication = () => {
         setParentDetails({ parentName: data.parentName || '', parentOccupation: data.parentOccupation || '', parentIncome: data.parentIncome || '', parentMobileNumber: data.parentMobileNumber || '' });
       }
     } catch (error) {
-      toast('Error loading data', 'error');
+      alert('Error loading data');
     } finally {
       setLoading(false);
     }
@@ -48,40 +45,46 @@ const SchemeApplication = () => {
     const newIncome = prompt('Enter your updated annual income (₹):');
     if (!newIncome || isNaN(newIncome)) return;
     const token = localStorage.getItem('token');
-    fetch(`${API_BASE}/api/users/update-income`, {
+    fetch(`http://localhost:8080/api/users/update-income`, {
       method: 'PUT',
       headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ annualIncome: parseFloat(newIncome) })
     }).then(res => res.json()).then(data => {
       if (data.annualIncome) {
         setBeneficiary({ ...beneficiary, annualIncome: data.annualIncome });
-        toast('Income updated successfully!', 'success');
+        alert('✅ Income updated successfully! Please upload a new income certificate.');
         navigate('/beneficiary/dashboard', { state: { scrollTo: 'eligible-schemes', refreshSchemes: true } });
       } else {
-        toast('Failed to update income', 'error');
+        alert('Failed to update income');
       }
     });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!documents.aadhaar || !documents.incomeCertificate || !documents.communityCertificate || !documents.occupationProof) {
-      toast('Please upload all required documents', 'warning');
+      alert('Please upload all required documents');
       return;
     }
+
     if (scheme && beneficiary?.annualIncome !== undefined) {
       if (beneficiary.annualIncome < scheme.minIncome || beneficiary.annualIncome > scheme.maxIncome) {
-        toast(`Not Eligible! Your income ₹${beneficiary.annualIncome?.toLocaleString()} is outside the scheme range.`, 'error');
+        alert(`❌ Not Eligible!\n\nYour annual income ₹${beneficiary.annualIncome?.toLocaleString()} does not fall within the scheme's income range:\nMinimum: ₹${scheme.minIncome?.toLocaleString()}\nMaximum: ₹${scheme.maxIncome?.toLocaleString()}\n\nYou cannot apply for this scheme.`);
         return;
       }
     }
+
     const isEducationScheme = beneficiary?.incomeSource?.toLowerCase() === 'student' ||
       scheme?.schemeComponent?.toLowerCase().includes('education') ||
       scheme?.schemeName?.toLowerCase().includes('education');
-    if (isEducationScheme && (!parentDetails.parentName || !parentDetails.parentOccupation || !parentDetails.parentIncome || !parentDetails.parentMobileNumber)) {
-      toast('Please fill all parent details for education scheme', 'warning');
+
+    if (isEducationScheme && (!parentDetails.parentName || !parentDetails.parentOccupation ||
+      !parentDetails.parentIncome || !parentDetails.parentMobileNumber)) {
+      alert('Please fill all parent details for education scheme');
       return;
     }
+
     if (!window.confirm('Are you sure you want to submit this application?')) return;
 
     try {
@@ -92,6 +95,7 @@ const SchemeApplication = () => {
         reader.onload = () => resolve(reader.result);
         reader.onerror = (err) => reject(err);
       });
+
       const docs = {
         aadhaarDoc: await toBase64(documents.aadhaar),
         incomeCertDoc: await toBase64(documents.incomeCertificate),
@@ -99,24 +103,30 @@ const SchemeApplication = () => {
         occupationProofDoc: await toBase64(documents.occupationProof),
         ...(isEducationScheme && { parentDetails: JSON.stringify(parentDetails) })
       };
-      const response = await fetch(`${API_BASE}/api/beneficiary/apply/${schemeId}`, {
+
+      const response = await fetch(`http://localhost:8080/api/beneficiary/apply/${schemeId}`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify(docs)
       });
+
       if (response.ok) {
         const result = await response.json();
-        toast(result.message || 'Application submitted successfully!', 'success');
-        setTimeout(() => { window.location.href = '/beneficiary/dashboard'; }, 1500);
+        let message = result.message + '\n\nValidation Checks:\n';
+        result.checks.forEach(check => {
+          message += `\n${check.passed ? '✅' : '❌'} ${check.checkName}: ${check.details}`;
+        });
+        alert(message);
+        window.location.href = '/beneficiary/dashboard';
       } else {
-        toast('Application failed: ' + await response.text(), 'error');
+        alert('Application failed: ' + await response.text());
       }
     } catch (error) {
-      toast('Error submitting application', 'error');
+      alert('Error submitting application');
     }
   };
 
-  if (loading) return <div className="loading">{t('common.loading')}</div>;
+  if (loading) return <div className="loading">Loading...</div>;
 
   const isEducationScheme = beneficiary?.incomeSource?.toLowerCase() === 'student' ||
     scheme?.schemeComponent?.toLowerCase().includes('education') ||
@@ -125,74 +135,75 @@ const SchemeApplication = () => {
   return (
     <div className="application-page">
       <div className="application-container">
-        <button className="back-btn" onClick={() => navigate('/beneficiary/dashboard')}>{t('scheme_app.back')}</button>
-        <h1>{t('scheme_app.form_title')}</h1>
+        <button className="back-btn" onClick={() => navigate('/beneficiary/dashboard')}>← Back to Dashboard</button>
+        <h1>Scheme Application Form</h1>
 
         <div className="scheme-info">
           <h2>{scheme?.schemeName}</h2>
           <p>{scheme?.schemeDescription}</p>
-          <div className="benefit-highlight">{t('scheme_app.max_benefit')}: ₹{scheme?.maxBenefitAmount?.toLocaleString()}</div>
+          <div className="benefit-highlight">Maximum Benefit: ₹{scheme?.maxBenefitAmount?.toLocaleString()}</div>
         </div>
 
         <form onSubmit={handleSubmit} className="application-form">
           <section className="form-section">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h3 style={{ margin: 0 }}>{t('scheme_app.personal_details')}</h3>
+              <h3 style={{ margin: 0 }}>Personal Details</h3>
               <button type="button" className="edit-btn" onClick={() => setEditMode(!editMode)}>
-                {editMode ? t('scheme_app.lock') : t('scheme_app.edit')}
+                {editMode ? '🔒 Lock' : '✏️ Edit'}
               </button>
             </div>
             <div className="details-grid">
-              <div className="detail-item"><label>{t('scheme_app.full_name')}</label>
+              <div className="detail-item"><label>Full Name</label>
                 <input type="text" value={editMode ? (editedData?.fullName || '') : (beneficiary?.fullName || '')} onChange={(e) => handleEditChange('fullName', e.target.value)} disabled={!editMode} />
               </div>
-              <div className="detail-item"><label>{t('scheme_app.mobile')}</label>
+              <div className="detail-item"><label>Mobile Number</label>
                 <input type="text" value={editMode ? (editedData?.mobileNumber || '') : (beneficiary?.mobileNumber || '')} onChange={(e) => handleEditChange('mobileNumber', e.target.value)} disabled={!editMode} />
               </div>
-              <div className="detail-item"><label>{t('scheme_app.email')}</label>
+              <div className="detail-item"><label>Email</label>
                 <input type="text" value={editMode ? (editedData?.email || 'N/A') : (beneficiary?.email || 'N/A')} onChange={(e) => handleEditChange('email', e.target.value)} disabled={!editMode} />
               </div>
-              <div className="detail-item"><label>{t('scheme_app.dob')}</label>
+              <div className="detail-item"><label>Date of Birth</label>
                 <input type="text" value={editMode ? (editedData?.dateOfBirth || 'N/A') : (beneficiary?.dateOfBirth || 'N/A')} onChange={(e) => handleEditChange('dateOfBirth', e.target.value)} disabled={!editMode} />
               </div>
             </div>
           </section>
 
           <section className="form-section">
-            <h3>{t('scheme_app.address_details')}</h3>
+            <h3>Address Details</h3>
             <div className="details-grid">
-              <div className="detail-item full-width"><label>{t('scheme_app.address')}</label>
+              <div className="detail-item full-width"><label>Address</label>
                 <textarea value={editMode ? (editedData?.address || '') : (beneficiary?.address || '')} onChange={(e) => handleEditChange('address', e.target.value)} disabled={!editMode} rows="2"></textarea>
               </div>
-              <div className="detail-item"><label>{t('scheme_app.state')}</label>
+              <div className="detail-item"><label>State</label>
                 <input type="text" value={editMode ? (editedData?.state || '') : (beneficiary?.state || '')} onChange={(e) => handleEditChange('state', e.target.value)} disabled={!editMode} />
               </div>
-              <div className="detail-item"><label>{t('scheme_app.district')}</label>
+              <div className="detail-item"><label>District</label>
                 <input type="text" value={editMode ? (editedData?.district || '') : (beneficiary?.district || '')} onChange={(e) => handleEditChange('district', e.target.value)} disabled={!editMode} />
               </div>
-              <div className="detail-item"><label>{t('scheme_app.pincode')}</label>
+              <div className="detail-item"><label>Pincode</label>
                 <input type="text" value={editMode ? (editedData?.pincode || '') : (beneficiary?.pincode || '')} onChange={(e) => handleEditChange('pincode', e.target.value)} disabled={!editMode} />
               </div>
             </div>
           </section>
 
           <section className="form-section">
-            <h3>{t('scheme_app.eligibility_details')}</h3>
+            <h3>Eligibility Details</h3>
             <div className="details-grid">
-              <div className="detail-item"><label>{t('scheme_app.income')}</label>
+              <div className="detail-item">
+                <label>Annual Income</label>
                 <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                   <input type="text" value={`₹${beneficiary?.annualIncome?.toLocaleString() || 'N/A'}`} disabled style={{ flex: 1 }} />
-                  <button type="button" className="edit-btn" onClick={handleUpdateIncome}>{t('scheme_app.update')}</button>
+                  <button type="button" className="edit-btn" onClick={handleUpdateIncome}>Update</button>
                 </div>
-                <small style={{ color: '#888' }}>{t('scheme_app.income_hint')}</small>
+                <small style={{ color: '#888' }}>Income certificate valid for 1 year. Update if changed.</small>
               </div>
-              <div className="detail-item"><label>{t('scheme_app.community')}</label>
+              <div className="detail-item"><label>Community</label>
                 <input type="text" value={beneficiary?.casteCategory || ''} disabled />
               </div>
-              <div className="detail-item"><label>{t('scheme_app.occupation_label')}</label>
+              <div className="detail-item"><label>Occupation</label>
                 <input type="text" value={beneficiary?.incomeSource || ''} disabled />
               </div>
-              <div className="detail-item"><label>{t('scheme_app.income_range')}</label>
+              <div className="detail-item"><label>Scheme Income Range</label>
                 <input type="text" value={`₹${scheme?.minIncome?.toLocaleString()} - ₹${scheme?.maxIncome?.toLocaleString()}`} disabled
                   style={{ color: beneficiary?.annualIncome >= scheme?.minIncome && beneficiary?.annualIncome <= scheme?.maxIncome ? 'green' : 'red', fontWeight: 'bold' }} />
               </div>
@@ -201,18 +212,18 @@ const SchemeApplication = () => {
 
           {isEducationScheme && (
             <section className="form-section">
-              <h3>{t('scheme_app.parent_details')}</h3>
+              <h3>Parent Details (Required for Students/Education Schemes)</h3>
               <div className="details-grid">
-                <div className="detail-item"><label>{t('scheme_app.parent_name')} *</label>
+                <div className="detail-item"><label>Parent Name *</label>
                   <input type="text" value={parentDetails.parentName} onChange={(e) => setParentDetails({ ...parentDetails, parentName: e.target.value })} required />
                 </div>
-                <div className="detail-item"><label>{t('scheme_app.parent_occupation')} *</label>
+                <div className="detail-item"><label>Parent Occupation *</label>
                   <input type="text" value={parentDetails.parentOccupation} onChange={(e) => setParentDetails({ ...parentDetails, parentOccupation: e.target.value })} required />
                 </div>
-                <div className="detail-item"><label>{t('scheme_app.parent_income')} *</label>
+                <div className="detail-item"><label>Parent Annual Income *</label>
                   <input type="number" value={parentDetails.parentIncome} onChange={(e) => setParentDetails({ ...parentDetails, parentIncome: e.target.value })} required />
                 </div>
-                <div className="detail-item"><label>{t('scheme_app.parent_mobile')} *</label>
+                <div className="detail-item"><label>Parent Mobile Number *</label>
                   <input type="tel" value={parentDetails.parentMobileNumber} maxLength="10" onChange={(e) => setParentDetails({ ...parentDetails, parentMobileNumber: e.target.value })} required />
                 </div>
               </div>
@@ -220,18 +231,18 @@ const SchemeApplication = () => {
           )}
 
           <section className="form-section">
-            <h3>{t('scheme_app.documents')}</h3>
+            <h3>Required Documents</h3>
             <div className="documents-grid">
-              <div className="document-upload"><label>{t('scheme_app.aadhaar_doc')} *</label>
+              <div className="document-upload"><label>Aadhaar Card *</label>
                 <input type="file" onChange={(e) => handleFileChange(e, 'aadhaar')} accept=".pdf,.jpg,.jpeg,.png" required />
               </div>
-              <div className="document-upload"><label>{t('scheme_app.income_cert')} *</label>
+              <div className="document-upload"><label>Income Certificate *</label>
                 <input type="file" onChange={(e) => handleFileChange(e, 'incomeCertificate')} accept=".pdf,.jpg,.jpeg,.png" required />
               </div>
-              <div className="document-upload"><label>{t('scheme_app.community_cert')} *</label>
+              <div className="document-upload"><label>Community Certificate *</label>
                 <input type="file" onChange={(e) => handleFileChange(e, 'communityCertificate')} accept=".pdf,.jpg,.jpeg,.png" required />
               </div>
-              <div className="document-upload"><label>{t('scheme_app.occupation_proof')} *</label>
+              <div className="document-upload"><label>Occupation Proof *</label>
                 <input type="file" onChange={(e) => handleFileChange(e, 'occupationProof')} accept=".pdf,.jpg,.jpeg,.png" required />
               </div>
             </div>
@@ -239,10 +250,10 @@ const SchemeApplication = () => {
 
           <div className="declaration">
             <input type="checkbox" id="declare" required />
-            <label htmlFor="declare">{t('scheme_app.declaration')}</label>
+            <label htmlFor="declare">I hereby declare that all the information provided is true and correct to the best of my knowledge.</label>
           </div>
 
-          <button type="submit" className="submit-btn">{t('scheme_app.submit')}</button>
+          <button type="submit" className="submit-btn">Submit Application</button>
         </form>
       </div>
     </div>
