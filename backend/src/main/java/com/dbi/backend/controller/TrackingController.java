@@ -10,7 +10,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/track")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:4000"})
 public class TrackingController {
     
     @Autowired
@@ -32,15 +32,21 @@ public class TrackingController {
             tracking.put("sanctionedDate", app.getSanctionedDate());
             tracking.put("sanctionedAmount", app.getSanctionedAmount());
             tracking.put("remarks", app.getRemarks());
-            tracking.put("verificationRemarks", app.getVerificationRemarks());
-            tracking.put("sanctioningRemarks", app.getSanctioningRemarks());
+            tracking.put("verificationRemarks", app.getRemarks());
+            tracking.put("sanctioningRemarks", app.getRemarks());
             
+            // Determine who rejected
+            boolean rejectedByFieldOfficer = "REJECTED".equals(app.getStatus()) && app.getVerificationOfficerId() != null;
+            boolean rejectedBySanctioning = "REJECTED".equals(app.getStatus()) && app.getSanctioningOfficerId() != null;
+
             Map<String, Object> timeline = new HashMap<>();
             timeline.put("submitted", app.getAppliedDate() != null);
             timeline.put("underReview", app.getAppliedDate() != null);
-            timeline.put("verified", "APPROVED".equals(app.getStatus()) || "SANCTIONED".equals(app.getStatus()) || app.getVerifiedDate() != null);
+            timeline.put("verified", "APPROVED".equals(app.getStatus()) || "SANCTIONED".equals(app.getStatus()) || rejectedBySanctioning);
             timeline.put("sanctioned", "SANCTIONED".equals(app.getStatus()));
             timeline.put("rejected", "REJECTED".equals(app.getStatus()));
+            timeline.put("rejectedByFieldOfficer", rejectedByFieldOfficer);
+            timeline.put("rejectedBySanctioning", rejectedBySanctioning);
             tracking.put("timeline", timeline);
             
             return ResponseEntity.ok(tracking);

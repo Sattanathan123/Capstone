@@ -156,16 +156,16 @@ const TrackApplication = () => {
                     info: tracking.timeline.underReview ? (tracking.remarks || t('track.verified')) : tracking.timeline.submitted ? t('track.waiting') : null
                   },
                   {
-                    icon: '✔️',
-                    label: t('track.step3'),
-                    state: tracking.timeline.verified ? 'completed' : tracking.timeline.underReview ? 'active' : 'pending',
-                    info: tracking.timeline.verified ? (tracking.verifiedDate ? new Date(tracking.verifiedDate).toLocaleString() : t('track.verified')) : tracking.timeline.underReview ? t('track.waiting') : null
+                    icon: tracking.timeline.rejectedByFieldOfficer ? '❌' : '📋',
+                    label: tracking.timeline.rejectedByFieldOfficer ? '❌ Rejected by Field Officer' : t('track.step3'),
+                    state: tracking.timeline.rejectedByFieldOfficer ? 'rejected' : tracking.timeline.verified ? 'completed' : tracking.timeline.underReview ? 'active' : 'pending',
+                    info: tracking.timeline.rejectedByFieldOfficer ? (tracking.remarks || 'Rejected by Field Verification Officer') : tracking.timeline.verified ? (tracking.verifiedDate ? new Date(tracking.verifiedDate).toLocaleString() : t('track.verified')) : tracking.timeline.underReview ? t('track.waiting') : null
                   },
                   {
                     icon: tracking.timeline.sanctioned ? '🎉' : tracking.timeline.rejected ? '❌' : '⏳',
-                    label: tracking.timeline.sanctioned ? t('track.step4_sanctioned') : tracking.timeline.rejected ? t('track.step4_rejected') : t('track.step4_pending'),
+                    label: tracking.timeline.sanctioned ? 'Verified by Sanctioning Officer ✓' : tracking.timeline.rejectedBySanctioning ? 'Rejected by Sanctioning Officer ✗' : tracking.timeline.rejectedByFieldOfficer ? 'Rejected by Sanctioning Officer ✗' : t('track.step4_pending'),
                     state: tracking.timeline.sanctioned ? 'completed' : tracking.timeline.rejected ? 'rejected' : tracking.timeline.verified ? 'active' : 'pending',
-                    info: tracking.timeline.sanctioned ? (tracking.sanctionedDate ? new Date(tracking.sanctionedDate).toLocaleString() : null) : tracking.timeline.rejected ? (tracking.sanctioningRemarks || null) : tracking.timeline.verified ? t('track.waiting') : null
+                    info: tracking.timeline.sanctioned ? (tracking.sanctionedDate ? new Date(tracking.sanctionedDate).toLocaleString() : null) : tracking.timeline.rejected ? (tracking.remarks || null) : tracking.timeline.verified ? t('track.waiting') : null
                   }
                 ].map((step, i, arr) => (
                   <div key={i} className="stepper-item">

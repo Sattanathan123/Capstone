@@ -237,6 +237,7 @@
     "login": "Login", "login_sub": "Access your account",
     "quick": "Quick Registration", "secure": "100% Secure", "verified": "Government Verified"
   },
+  "register": {
     "back": "← Back to Role Selection", "title": "Create Your DBI Account",
     "subtitle": "Register to access government welfare schemes securely",
     "identity": "Identity Details", "contact": "Contact Details", "password_section": "Create Password",
