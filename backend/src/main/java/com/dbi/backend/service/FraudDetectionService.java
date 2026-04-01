@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.springframework.cache.annotation.Cacheable;
+
 @Service
 public class FraudDetectionService {
 
@@ -16,6 +18,7 @@ public class FraudDetectionService {
     private UserRepository userRepository;
 
     /** Called by SystemAdmin dashboard — returns all current fraud alerts */
+    @Cacheable(value = "fraudAlerts", unless = "#result.isEmpty()")
     public List<Map<String, Object>> getFraudAlerts() {
         List<Map<String, Object>> alerts = new ArrayList<>();
         List<User> beneficiaries = userRepository.findByRole(UserRole.BENEFICIARY);
@@ -34,10 +37,7 @@ public class FraudDetectionService {
 
         // Check 1: duplicate bank account
         if (user.getBankAccountNumber() != null && !user.getBankAccountNumber().isBlank()) {
-            long count = userRepository.findAll().stream()
-                .filter(u -> !u.getId().equals(user.getId())
-                    && user.getBankAccountNumber().equals(u.getBankAccountNumber()))
-                .count();
+            long count = userRepository.countByBankAccountNumberAndIdNot(user.getBankAccountNumber(), user.getId());
             if (count > 0)
                 reasons.add("Bank account " + mask(user.getBankAccountNumber()) +
                         " is already registered with another user");

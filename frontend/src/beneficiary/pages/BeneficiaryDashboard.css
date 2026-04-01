@@ -584,3 +584,56 @@
   animation: highlightSection 2s ease;
   border-radius: var(--radius-lg);
 }
+
+.tabs-section {
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  margin-top: 2rem;
+  overflow: hidden;
+}
+
+.tabs-header {
+  display: flex;
+  border-bottom: 2px solid var(--border-light);
+  background: var(--bg-light);
+}
+
+.tab-btn {
+  padding: 1rem 2rem;
+  border: none;
+  background: none;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tab-btn.active {
+  color: var(--primary-orange);
+  border-bottom-color: var(--primary-orange);
+  background: white;
+}
+
+.tab-btn:hover:not(.active) {
+  color: var(--text-secondary);
+  background: var(--border-light);
+}
+
+.tab-count {
+  background: var(--primary-orange);
+  color: white;
+  border-radius: 20px;
+  padding: 0.1rem 0.6rem;
+  font-size: 0.8rem;
+}
+
+.tab-content {
+  padding: 2rem;
+}

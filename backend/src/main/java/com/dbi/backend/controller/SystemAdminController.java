@@ -7,6 +7,9 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -55,11 +58,22 @@ public class SystemAdminController {
     }
 
     @GetMapping("/users")
-    public ResponseEntity<List<Map<String, Object>>> getAllUsers() {
-        List<User> users = userRepository.findAll();
+    public ResponseEntity<Map<String, Object>> getAllUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "ALL") String role) {
+
+        PageRequest pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<User> userPage;
+
+        if ("ALL".equals(role)) {
+            userPage = userRepository.findAll(pageable);
+        } else {
+            userPage = userRepository.findByRole(UserRole.valueOf(role), pageable);
+        }
+
         List<Map<String, Object>> userList = new ArrayList<>();
-        
-        for (User user : users) {
+        for (User user : userPage.getContent()) {
             Map<String, Object> userMap = new HashMap<>();
             userMap.put("id", user.getId());
             userMap.put("fullName", user.getFullName());
@@ -72,8 +86,14 @@ public class SystemAdminController {
             userMap.put("district", user.getDistrict());
             userList.add(userMap);
         }
-        
-        return ResponseEntity.ok(userList);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("users", userList);
+        response.put("totalPages", userPage.getTotalPages());
+        response.put("totalElements", userPage.getTotalElements());
+        response.put("currentPage", page);
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/users/{id}")

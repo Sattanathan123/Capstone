@@ -16,6 +16,7 @@ const BeneficiaryDashboard = () => {
   const [eligibleSchemes, setEligibleSchemes] = useState([]);
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('applied');
   const [feedbackModal, setFeedbackModal] = useState(null);
   const [feedbackData, setFeedbackData] = useState({ rating: 5, comments: '', amountSpentOn: '', benefitReceived: '', wouldRecommend: true, suggestions: '' });
   const [submittedFeedbacks, setSubmittedFeedbacks] = useState([]);
@@ -173,52 +174,9 @@ const BeneficiaryDashboard = () => {
           </div>
         </section>
 
-        {/* Application Tracking Section */}
-        {applications.length > 0 && (
-          <section className="tracking-section">
-            <h2>{t('beneficiary.your_applications')}</h2>
-            <div className="applications-list">
-              {applications.map((app) => (
-                <div key={app.id} className="application-card">
-                  <div className="app-header">
-                    <h3>{app.schemeName}</h3>
-                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                      {app.applicationId && (
-                        <span style={{ fontSize: '13px', color: '#555', fontWeight: '600', background: '#eef2ff', padding: '3px 10px', borderRadius: '12px' }}>🆔 {app.applicationId}</span>
-                      )}
-                      <span className={`status-badge ${app.status.toLowerCase()}`}>
-                        {app.status}
-                      </span>
-                      {app.applicationId && (
-                        <button
-                          onClick={() => navigate(`/track?id=${app.applicationId}`)}
-                          style={{ padding: '6px 14px', background: '#3498db', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}
-                        >
-                          🔍 Track
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                  <div className="app-details">
-                    <span>Applied: {new Date(app.appliedDate).toLocaleDateString()}</span>
-                    {app.remarks && <p className="remarks">{t('beneficiary.remarks')}: {app.remarks}</p>}
-                    {app.status === 'SANCTIONED' && !submittedFeedbacks.includes(app.id) && (
-                      <button className="feedback-btn" onClick={() => setFeedbackModal(app)}>{t('beneficiary.give_feedback')}</button>
-                    )}
-                    {submittedFeedbacks.includes(app.id) && (
-                      <span className="feedback-done">{t('beneficiary.feedback_done')}</span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
         {/* Eligible Schemes Section */}
         <section className="schemes-section" ref={schemesRef}>
           <h2>{t('beneficiary.eligible_schemes')}</h2>
-          
           {eligibleSchemes.length === 0 ? (
             <div className="no-schemes">
               <div className="no-schemes-icon">📋</div>
@@ -228,14 +186,68 @@ const BeneficiaryDashboard = () => {
           ) : (
             <div className="schemes-grid">
               {eligibleSchemes.map((scheme) => (
-                <SchemeCard
-                  key={scheme.id}
-                  scheme={scheme}
-                  onApply={handleApply}
-                />
+                <SchemeCard key={scheme.id} scheme={scheme} onApply={handleApply} />
               ))}
             </div>
           )}
+        </section>
+
+        {/* Tabs Section */}
+        <section className="tabs-section">
+          <div className="tabs-header">
+            <button
+              className={`tab-btn ${activeTab === 'applied' ? 'active' : ''}`}
+              onClick={() => setActiveTab('applied')}
+            >
+              📄 {t('beneficiary.your_applications')} {applications.length > 0 && <span className="tab-count">{applications.length}</span>}
+            </button>
+          </div>
+
+          <div className="tab-content">
+            {activeTab === 'applied' && (
+              applications.length === 0 ? (
+                <div className="no-schemes">
+                  <div className="no-schemes-icon">📭</div>
+                  <h3>No applications yet</h3>
+                  <p>Apply for eligible schemes above to get started.</p>
+                </div>
+              ) : (
+                <div className="applications-list">
+                  {applications.map((app) => (
+                    <div key={app.id} className="application-card">
+                      <div className="app-header">
+                        <h3>{app.schemeName}</h3>
+                        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                          {app.applicationId && (
+                            <span style={{ fontSize: '13px', color: '#555', fontWeight: '600', background: '#eef2ff', padding: '3px 10px', borderRadius: '12px' }}>🆔 {app.applicationId}</span>
+                          )}
+                          <span className={`status-badge ${app.status.toLowerCase()}`}>{app.status}</span>
+                          {app.applicationId && (
+                            <button
+                              onClick={() => navigate(`/track?id=${app.applicationId}`)}
+                              style={{ padding: '6px 14px', background: '#3498db', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}
+                            >
+                              🔍 Track
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                      <div className="app-details">
+                        <span>Applied: {new Date(app.appliedDate).toLocaleDateString()}</span>
+                        {app.remarks && <p className="remarks">{t('beneficiary.remarks')}: {app.remarks}</p>}
+                        {app.status === 'SANCTIONED' && !submittedFeedbacks.includes(app.id) && (
+                          <button className="feedback-btn" onClick={() => setFeedbackModal(app)}>{t('beneficiary.give_feedback')}</button>
+                        )}
+                        {submittedFeedbacks.includes(app.id) && (
+                          <span className="feedback-done">{t('beneficiary.feedback_done')}</span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )
+            )}
+          </div>
         </section>
       </div>
 

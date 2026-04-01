@@ -1,5 +1,6 @@
 package com.dbi.backend.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -7,15 +8,27 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class CorsConfig {
+
+    @Value("${FRONTEND_URL:http://localhost:3000}")
+    private String frontendUrl;
+
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:3002", "http://localhost:4000", "http://localhost:3001","http://localhost:3003")
+                        .allowedOrigins(
+                            "http://localhost:3000",
+                            "http://localhost:3001",
+                            "http://localhost:3002",
+                            "http://localhost:3003",
+                            "http://localhost:4000",
+                            frontendUrl
+                        )
                         .allowedMethods("*")
-                        .allowedHeaders("*");
+                        .allowedHeaders("*")
+                        .allowCredentials(true);
             }
         };
     }

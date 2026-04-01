@@ -23,3 +23,5 @@ services:
         sync: false
       - key: TWILIO_AUTH_TOKEN
         sync: false
+      - key: FRONTEND_URL
+        sync: false

@@ -1,9 +1,12 @@
-# Sensitive Configuration Files
+# Sensitive Configuration Files - keep application.properties out of git
+# (use environment variables on Render instead)
 backend/src/main/resources/application.properties
 
 # Environment files
 .env
 .env.local
+.env.production
+.env.development
 
 # IDE
 .idea/

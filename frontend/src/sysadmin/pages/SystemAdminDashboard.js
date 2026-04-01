@@ -10,27 +10,43 @@ const SystemAdminDashboard = () => {
   const [filterRole, setFilterRole] = useState('ALL');
   const [selectedUser, setSelectedUser] = useState(null);
   const [fraudAlerts, setFraudAlerts] = useState([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+  const PAGE_SIZE = 10;
 
   useEffect(() => {
-    fetchSystemData();
+    fetchSystemData(0, filterRole);
+    fetchFraudAlerts();
   }, []);
 
-  const fetchSystemData = async () => {
+  const fetchSystemData = async (page = 0, role = 'ALL') => {
     try {
-      const [usersRes, statsRes, fraudRes] = await Promise.all([
-        fetch('http://localhost:8080/api/sysadmin/users'),
-        fetch('http://localhost:8080/api/sysadmin/stats'),
-        fetch('http://localhost:8080/api/sysadmin/fraud-alerts')
+      const [usersRes, statsRes] = await Promise.all([
+        fetch(`http://localhost:8080/api/sysadmin/users?page=${page}&size=${PAGE_SIZE}&role=${role}`),
+        fetch('http://localhost:8080/api/sysadmin/stats')
       ]);
 
-      setUsers(await usersRes.json());
+      const usersData = await usersRes.json();
+      setUsers(usersData.users);
+      setTotalPages(usersData.totalPages);
+      setTotalElements(usersData.totalElements);
+      setCurrentPage(usersData.currentPage);
       setSystemStats(await statsRes.json());
-      setFraudAlerts(await fraudRes.json());
     } catch (error) {
       console.error('Error fetching data:', error);
       alert('Failed to load dashboard data');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchFraudAlerts = async () => {
+    try {
+      const fraudRes = await fetch('http://localhost:8080/api/sysadmin/fraud-alerts');
+      setFraudAlerts(await fraudRes.json());
+    } catch (error) {
+      console.error('Error fetching fraud alerts:', error);
     }
   };
 
@@ -46,7 +62,7 @@ const SystemAdminDashboard = () => {
 
       if (response.ok) {
         alert('User deleted successfully!');
-        fetchSystemData();
+        fetchSystemData(currentPage, filterRole);
       } else {
         alert('Failed to delete user');
       }
@@ -79,7 +95,18 @@ const SystemAdminDashboard = () => {
     return roleNames[role] || role;
   };
 
-  const filteredUsers = filterRole === 'ALL' ? users : users.filter(u => u.role === filterRole);
+  const filteredUsers = users;
+
+  const handleRoleFilter = (role) => {
+    setFilterRole(role);
+    setCurrentPage(0);
+    fetchSystemData(0, role);
+  };
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+    fetchSystemData(newPage, filterRole);
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -142,7 +169,7 @@ const SystemAdminDashboard = () => {
             <h2>👤 User Management</h2>
             <div className="filter-controls">
               <label>Filter by Role:</label>
-              <select value={filterRole} onChange={(e) => setFilterRole(e.target.value)}>
+              <select value={filterRole} onChange={(e) => handleRoleFilter(e.target.value)}>
                 <option value="ALL">All Roles</option>
                 <option value="BENEFICIARY">Beneficiary</option>
                 <option value="FIELD_VERIFICATION_OFFICER">Field Officer</option>
@@ -202,6 +229,26 @@ const SystemAdminDashboard = () => {
                 ))}
               </tbody>
             </table>
+          </div>
+
+          <div className="pagination-controls">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 0}
+              className="page-btn"
+            >
+              ← Prev
+            </button>
+            <span className="page-info">
+              Page {currentPage + 1} of {totalPages} &nbsp;({totalElements} users)
+            </span>
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage >= totalPages - 1}
+              className="page-btn"
+            >
+              Next →
+            </button>
           </div>
         </section>
 
