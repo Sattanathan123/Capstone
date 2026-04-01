@@ -18,6 +18,9 @@ import com.dbi.backend.repository.UserRepository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
+
 @Service
 public class BeneficiarySchemeService {
     
@@ -52,6 +55,7 @@ public class BeneficiarySchemeService {
         return applicationRepository;
     }
     
+    @Cacheable(value = "eligibleSchemes", key = "#userId")
     public BeneficiaryEligibleSchemesDTO getEligibleSchemes(Long userId) throws Exception {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new Exception("User not found"));
@@ -67,13 +71,9 @@ public class BeneficiarySchemeService {
             .map(app -> app.getScheme().getId())
             .collect(Collectors.toList());
         
-        System.out.println("Total schemes: " + allSchemes.size() + ", Applied (non-rejected): " + appliedSchemeIds);
-        
         List<Scheme> eligibleSchemes = allSchemes.stream()
             .filter(scheme -> isEligible(user, scheme) && !appliedSchemeIds.contains(scheme.getId()))
             .collect(Collectors.toList());
-        
-        System.out.println("Eligible schemes: " + eligibleSchemes.size());
         
         BeneficiaryEligibleSchemesDTO.BeneficiaryProfileDTO profile = 
             new BeneficiaryEligibleSchemesDTO.BeneficiaryProfileDTO(
@@ -90,6 +90,7 @@ public class BeneficiarySchemeService {
         return true;
     }
     
+    @CacheEvict(value = "eligibleSchemes", key = "#userId")
     @Transactional
     public SmartValidationEngine.ValidationResult applyForScheme(Long userId, Long schemeId, Map<String, String> documents) throws Exception {
         User user = userRepository.findById(userId).orElseThrow(() -> new Exception("User not found"));
@@ -123,10 +124,7 @@ public class BeneficiarySchemeService {
             }
         }
         
-        Long maxId = applicationRepository.findAll().stream()
-            .map(Application::getId)
-            .max(Long::compareTo)
-            .orElse(0L) + 1;
+        Long maxId = applicationRepository.findMaxId() + 1;
         
         String generatedAppId = applicationIdGenerator.generateApplicationId(user.getState(), maxId);
         

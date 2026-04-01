@@ -57,104 +57,141 @@ const TrackApplication = () => {
   };
 
   return (
-    <div className="track-container">
-      <div className="track-header">
+    <div className="track-page">
+      <div className="track-hero">
         <h1>{t('track.title')}</h1>
         <p>{t('track.subtitle')}</p>
-      </div>
-      
-      <div className="search-section">
-        <input
-          type="text"
-          placeholder={t('track.placeholder')}
-          value={applicationId}
-          onChange={(e) => setApplicationId(e.target.value.toUpperCase())}
-          onKeyPress={handleKeyPress}
-          className="track-input"
-        />
-        <button onClick={handleTrack} disabled={loading} className="track-button">
-          {loading ? t('track.tracking') : t('track.btn')}
-        </button>
-      </div>
-
-      {error && <div className="error-message">{error}</div>}
-
-      {tracking && (
-        <div className="tracking-results">
-          <div className="details-card">
-            <h3>{t('track.app_details')}</h3>
-            <div className="detail-row">
-              <span className="label">{t('track.app_id')}:</span>
-              <span className="value">{tracking.applicationId}</span>
-            </div>
-            <div className="detail-row">
-              <span className="label">{t('track.scheme')}:</span>
-              <span className="value">{tracking.schemeName}</span>
-            </div>
-            <div className="detail-row">
-              <span className="label">{t('track.applicant')}:</span>
-              <span className="value">{tracking.applicantName}</span>
-            </div>
-            <div className="detail-row">
-              <span className="label">{t('track.status')}:</span>
-              <span className={`status-badge ${tracking.status.toLowerCase()}`}>
-                {tracking.status}
-              </span>
-            </div>
-            {tracking.sanctionedAmount && (
-              <div className="detail-row">
-                <span className="label">{t('track.sanctioned_amount')}:</span>
-                <span className="value amount">₹{tracking.sanctionedAmount.toLocaleString()}</span>
-              </div>
-            )}
-          </div>
-
-          <div className="timeline-section">
-            <h3>{t('track.timeline')}</h3>
-            
-            <div className={`timeline-step ${tracking.timeline.submitted ? 'completed' : ''}`}>
-              <div className="step-marker">1</div>
-              <div className="step-content">
-                <h4>{t('track.step1')}</h4>
-                <p>{tracking.appliedDate ? new Date(tracking.appliedDate).toLocaleString() : t('track.pending')}</p>
-              </div>
-            </div>
-
-            <div className={`timeline-step ${tracking.timeline.underReview ? 'completed' : ''}`}>
-              <div className="step-marker">2</div>
-              <div className="step-content">
-                <h4>{t('track.step2')}</h4>
-                <p>{tracking.remarks || t('track.waiting')}</p>
-              </div>
-            </div>
-
-            <div className={`timeline-step ${tracking.timeline.verified ? 'completed' : ''}`}>
-              <div className="step-marker">3</div>
-              <div className="step-content">
-                <h4>{t('track.step3')}</h4>
-                <p>{tracking.timeline.verified && tracking.verifiedDate ? tracking.remarks || t('track.verified') : t('track.pending')}</p>
-                {tracking.verifiedDate && (
-                  <small>{new Date(tracking.verifiedDate).toLocaleString()}</small>
-                )}
-              </div>
-            </div>
-
-            <div className={`timeline-step ${tracking.timeline.sanctioned ? 'completed' : tracking.timeline.rejected ? 'rejected' : ''}`}>
-              <div className="step-marker">4</div>
-              <div className="step-content">
-                <h4>
-                  {tracking.timeline.sanctioned ? t('track.step4_sanctioned') :
-                   tracking.timeline.rejected ? t('track.step4_rejected') : t('track.step4_pending')}
-                </h4>
-                <p>{tracking.sanctioningRemarks || t('track.pending')}</p>
-                {tracking.sanctionedDate && (
-                  <small>{new Date(tracking.sanctionedDate).toLocaleString()}</small>
-                )}
-              </div>
-            </div>
-          </div>
+        <div className="search-box">
+          <input
+            type="text"
+            placeholder={t('track.placeholder')}
+            value={applicationId}
+            onChange={(e) => setApplicationId(e.target.value.toUpperCase())}
+            onKeyPress={handleKeyPress}
+            className="track-input"
+          />
+          <button onClick={handleTrack} disabled={loading} className="track-button">
+            {loading ? t('track.tracking') : t('track.btn')}
+          </button>
         </div>
-      )}
+      </div>
+
+      <div className="track-body">
+        {error && <div className="error-message">{error}</div>}
+
+        {!tracking && !error && (
+          <div className="track-empty">
+            <div className="track-empty-icon">🔍</div>
+            <h3>Enter your Application ID above to track status</h3>
+            <p>e.g. TN24000001</p>
+          </div>
+        )}
+
+        {tracking && (
+          <div className="tracking-results">
+
+            {/* Status Banner */}
+            <div className={`status-banner status-banner--${tracking.status.toLowerCase()}`}>
+              <span className="status-banner-icon">
+                {['SANCTIONED','APPROVED','DISBURSED'].includes(tracking.status) ? '✅' :
+                 tracking.status === 'REJECTED' ? '❌' :
+                 tracking.status === 'FRAUD' ? '🚨' : '⏳'}
+              </span>
+              <div>
+                <div className="status-banner-label">Current Status</div>
+                <div className="status-banner-value">{tracking.status.replace(/_/g,' ')}</div>
+              </div>
+            </div>
+
+            {/* Details Card */}
+            <div className="details-card">
+              <div className="details-card-header">
+                <span>📄</span>
+                <h3>{t('track.app_details')}</h3>
+              </div>
+              <div className="details-card-body">
+                <div className="detail-row">
+                  <span className="label">{t('track.app_id')}</span>
+                  <span className="value">{tracking.applicationId}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="label">{t('track.scheme')}</span>
+                  <span className="value">{tracking.schemeName}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="label">{t('track.applicant')}</span>
+                  <span className="value">{tracking.applicantName}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="label">{t('track.status')}</span>
+                  <span className={`status-badge ${tracking.status.toLowerCase()}`}>{tracking.status.replace(/_/g,' ')}</span>
+                </div>
+                {tracking.sanctionedAmount && (
+                  <div className="detail-row">
+                    <span className="label">{t('track.sanctioned_amount')}</span>
+                    <span className="value amount">₹{tracking.sanctionedAmount.toLocaleString()}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Visual Stepper */}
+            <div className="stepper-section">
+              <div className="stepper-header">
+                <span>🗓️</span>
+                <h3>{t('track.timeline')}</h3>
+              </div>
+              <div className="stepper-body">
+                {[
+                  {
+                    icon: '📝',
+                    label: t('track.step1'),
+                    state: tracking.timeline.submitted ? 'completed' : 'pending',
+                    info: tracking.appliedDate ? new Date(tracking.appliedDate).toLocaleString() : null
+                  },
+                  {
+                    icon: '🔍',
+                    label: t('track.step2'),
+                    state: tracking.timeline.underReview ? 'completed' : tracking.timeline.submitted ? 'active' : 'pending',
+                    info: tracking.timeline.underReview ? (tracking.remarks || t('track.verified')) : tracking.timeline.submitted ? t('track.waiting') : null
+                  },
+                  {
+                    icon: '✔️',
+                    label: t('track.step3'),
+                    state: tracking.timeline.verified ? 'completed' : tracking.timeline.underReview ? 'active' : 'pending',
+                    info: tracking.timeline.verified ? (tracking.verifiedDate ? new Date(tracking.verifiedDate).toLocaleString() : t('track.verified')) : tracking.timeline.underReview ? t('track.waiting') : null
+                  },
+                  {
+                    icon: tracking.timeline.sanctioned ? '🎉' : tracking.timeline.rejected ? '❌' : '⏳',
+                    label: tracking.timeline.sanctioned ? t('track.step4_sanctioned') : tracking.timeline.rejected ? t('track.step4_rejected') : t('track.step4_pending'),
+                    state: tracking.timeline.sanctioned ? 'completed' : tracking.timeline.rejected ? 'rejected' : tracking.timeline.verified ? 'active' : 'pending',
+                    info: tracking.timeline.sanctioned ? (tracking.sanctionedDate ? new Date(tracking.sanctionedDate).toLocaleString() : null) : tracking.timeline.rejected ? (tracking.sanctioningRemarks || null) : tracking.timeline.verified ? t('track.waiting') : null
+                  }
+                ].map((step, i, arr) => (
+                  <div key={i} className="stepper-item">
+                    <div className="stepper-left">
+                      <div className={`stepper-circle stepper-circle--${step.state}`}>
+                        <span>{step.icon}</span>
+                      </div>
+                      {i < arr.length - 1 && (
+                        <div className={`stepper-line stepper-line--${step.state === 'completed' ? 'completed' : 'pending'}`} />
+                      )}
+                    </div>
+                    <div className={`stepper-content stepper-content--${step.state}`}>
+                      <div className="stepper-step-label">{step.label}</div>
+                      {step.info && <div className="stepper-step-info">{step.info}</div>}
+                      <span className={`stepper-badge stepper-badge--${step.state}`}>
+                        {step.state === 'completed' ? '✓ Done' : step.state === 'active' ? '● In Progress' : step.state === 'rejected' ? '✗ Rejected' : '○ Pending'}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
+        )}
+      </div>
     </div>
   );
 };

@@ -212,7 +212,31 @@
     "s3_title": "Blockchain Backed", "s3_desc": "Immutable records for enhanced security and trust",
     "s4_title": "Access Control", "s4_desc": "Role-based permissions and activity monitoring"
   },
-  "register": {
+  "awareness": {
+    "title": "Understanding Digital Beneficiary Identification",
+    "subtitle": "Building trust through transparency and technology",
+    "card1_title": "What is DBI?", "card1_desc": "Digital system to identify and verify beneficiaries for welfare schemes.",
+    "card1_d1": "Unified digital identity platform", "card1_d2": "Connects citizens with government schemes", "card1_d3": "Eliminates manual verification delays",
+    "card2_title": "Why Digital Verification?", "card2_desc": "Prevents duplication, ensures fairness, improves efficiency.",
+    "card2_d1": "Real-time eligibility checks", "card2_d2": "Prevents fraudulent claims", "card2_d3": "Faster benefit delivery",
+    "card3_title": "Direct Benefit Delivery", "card3_desc": "Benefits reach verified citizens directly, without intermediaries.",
+    "card3_d1": "Bank account integration", "card3_d2": "Instant fund transfer", "card3_d3": "No middleman involvement",
+    "card4_title": "Reduced Errors & Leakages", "card4_desc": "Eliminates inclusion and exclusion errors.",
+    "card4_d1": "AI-powered verification", "card4_d2": "Duplicate detection system", "card4_d3": "Transparent audit trail"
+  },
+  "trust": {
+    "title": "Why Trust DBI?", "subtitle": "Built on the pillars of security, transparency, and inclusivity",
+    "b1_title": "Secure", "b1_desc": "Bank-grade encryption protects your data",
+    "b2_title": "Transparent", "b2_desc": "Complete visibility of application status",
+    "b3_title": "Government Verified", "b3_desc": "Official government authentication system",
+    "b4_title": "Inclusive", "b4_desc": "Accessible to all citizens across India"
+  },
+  "cta": {
+    "title": "Ready to Get Started?", "subtitle": "Join millions of beneficiaries accessing welfare schemes through DBI",
+    "register": "Register Now", "register_sub": "Create your digital identity",
+    "login": "Login", "login_sub": "Access your account",
+    "quick": "Quick Registration", "secure": "100% Secure", "verified": "Government Verified"
+  },
     "back": "← Back to Role Selection", "title": "Create Your DBI Account",
     "subtitle": "Register to access government welfare schemes securely",
     "identity": "Identity Details", "contact": "Contact Details", "password_section": "Create Password",

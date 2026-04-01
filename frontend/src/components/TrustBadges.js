@@ -1,33 +1,16 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import './TrustBadges.css';
 
 const TrustBadges = () => {
+  const { t } = useTranslation();
+
   const badges = [
-    {
-      icon: '🔒',
-      title: 'Secure',
-      description: 'Bank-grade encryption protects your data',
-      color: '#003d82'
-    },
-    {
-      icon: '🛡️',
-      title: 'Transparent',
-      description: 'Complete visibility of application status',
-      color: '#0056b3'
-    },
-    {
-      icon: '✅',
-      title: 'Government Verified',
-      description: 'Official government authentication system',
-      color: '#138808'
-    },
-    {
-      icon: '🌍',
-      title: 'Inclusive',
-      description: 'Accessible to all citizens across India',
-      color: '#ff9933'
-    }
+    { icon: '🔒', title: t('trust.b1_title'), description: t('trust.b1_desc'), color: '#003d82' },
+    { icon: '🛡️', title: t('trust.b2_title'), description: t('trust.b2_desc'), color: '#0056b3' },
+    { icon: '✅', title: t('trust.b3_title'), description: t('trust.b3_desc'), color: '#138808' },
+    { icon: '🌍', title: t('trust.b4_title'), description: t('trust.b4_desc'), color: '#ff9933' }
   ];
 
   return (
@@ -39,8 +22,8 @@ const TrustBadges = () => {
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
       >
-        <h2>Why Trust DBI?</h2>
-        <p>Built on the pillars of security, transparency, and inclusivity</p>
+        <h2>{t('trust.title')}</h2>
+        <p>{t('trust.subtitle')}</p>
       </motion.div>
 
       <div className="trust-grid">

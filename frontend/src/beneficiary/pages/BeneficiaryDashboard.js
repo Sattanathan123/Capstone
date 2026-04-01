@@ -16,7 +16,8 @@ const BeneficiaryDashboard = () => {
   const [eligibleSchemes, setEligibleSchemes] = useState([]);
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('applied');
+  const [activeTab, setActiveTab] = useState('eligible');
+  const [activeSubTab, setActiveSubTab] = useState('all');
   const [feedbackModal, setFeedbackModal] = useState(null);
   const [feedbackData, setFeedbackData] = useState({ rating: 5, comments: '', amountSpentOn: '', benefitReceived: '', wouldRecommend: true, suggestions: '' });
   const [submittedFeedbacks, setSubmittedFeedbacks] = useState([]);
@@ -174,79 +175,110 @@ const BeneficiaryDashboard = () => {
           </div>
         </section>
 
-        {/* Eligible Schemes Section */}
-        <section className="schemes-section" ref={schemesRef}>
-          <h2>{t('beneficiary.eligible_schemes')}</h2>
-          {eligibleSchemes.length === 0 ? (
-            <div className="no-schemes">
-              <div className="no-schemes-icon">📋</div>
-              <h3>{t('beneficiary.no_schemes')}</h3>
-              <p>{t('beneficiary.no_schemes_sub')}</p>
-            </div>
-          ) : (
-            <div className="schemes-grid">
-              {eligibleSchemes.map((scheme) => (
-                <SchemeCard key={scheme.id} scheme={scheme} onApply={handleApply} />
-              ))}
-            </div>
-          )}
-        </section>
-
-        {/* Tabs Section */}
-        <section className="tabs-section">
+        {/* Main Tabs: Eligible Schemes & Applied Schemes */}
+        <section className="tabs-section" ref={schemesRef}>
           <div className="tabs-header">
+            <button
+              className={`tab-btn ${activeTab === 'eligible' ? 'active' : ''}`}
+              onClick={() => setActiveTab('eligible')}
+            >
+              🎯 {t('beneficiary.eligible_schemes')}
+              {eligibleSchemes.length > 0 && <span className="tab-count">{eligibleSchemes.length}</span>}
+            </button>
             <button
               className={`tab-btn ${activeTab === 'applied' ? 'active' : ''}`}
               onClick={() => setActiveTab('applied')}
             >
-              📄 {t('beneficiary.your_applications')} {applications.length > 0 && <span className="tab-count">{applications.length}</span>}
+              📄 {t('beneficiary.your_applications')}
+              {applications.length > 0 && <span className="tab-count">{applications.length}</span>}
             </button>
           </div>
 
           <div className="tab-content">
-            {activeTab === 'applied' && (
-              applications.length === 0 ? (
+            {/* Eligible Schemes Tab */}
+            {activeTab === 'eligible' && (
+              eligibleSchemes.length === 0 ? (
                 <div className="no-schemes">
-                  <div className="no-schemes-icon">📭</div>
-                  <h3>No applications yet</h3>
-                  <p>Apply for eligible schemes above to get started.</p>
+                  <div className="no-schemes-icon">📋</div>
+                  <h3>{t('beneficiary.no_schemes')}</h3>
+                  <p>{t('beneficiary.no_schemes_sub')}</p>
                 </div>
               ) : (
-                <div className="applications-list">
-                  {applications.map((app) => (
-                    <div key={app.id} className="application-card">
-                      <div className="app-header">
-                        <h3>{app.schemeName}</h3>
-                        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                          {app.applicationId && (
-                            <span style={{ fontSize: '13px', color: '#555', fontWeight: '600', background: '#eef2ff', padding: '3px 10px', borderRadius: '12px' }}>🆔 {app.applicationId}</span>
-                          )}
-                          <span className={`status-badge ${app.status.toLowerCase()}`}>{app.status}</span>
-                          {app.applicationId && (
-                            <button
-                              onClick={() => navigate(`/track?id=${app.applicationId}`)}
-                              style={{ padding: '6px 14px', background: '#3498db', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}
-                            >
-                              🔍 Track
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                      <div className="app-details">
-                        <span>Applied: {new Date(app.appliedDate).toLocaleDateString()}</span>
-                        {app.remarks && <p className="remarks">{t('beneficiary.remarks')}: {app.remarks}</p>}
-                        {app.status === 'SANCTIONED' && !submittedFeedbacks.includes(app.id) && (
-                          <button className="feedback-btn" onClick={() => setFeedbackModal(app)}>{t('beneficiary.give_feedback')}</button>
-                        )}
-                        {submittedFeedbacks.includes(app.id) && (
-                          <span className="feedback-done">{t('beneficiary.feedback_done')}</span>
-                        )}
-                      </div>
-                    </div>
+                <div className="schemes-grid">
+                  {eligibleSchemes.map((scheme) => (
+                    <SchemeCard key={scheme.id} scheme={scheme} onApply={handleApply} />
                   ))}
                 </div>
               )
             )}
+
+            {/* Applied Schemes Tab */}
+            {activeTab === 'applied' && (() => {
+              const pending = applications.filter(a => ['SUBMITTED','PENDING_VERIFICATION','UNDER_REVIEW','FIELD_VERIFIED'].includes(a.status));
+              const approved = applications.filter(a => ['APPROVED','SANCTIONED','DISBURSED'].includes(a.status));
+              const rejected = applications.filter(a => a.status === 'REJECTED');
+              const subMap = { all: applications, pending, approved, rejected };
+              const filtered = subMap[activeSubTab] || applications;
+
+              return (
+                <>
+                  <div className="sub-tabs">
+                    {[['all','All'], ['pending','⏳ Pending'], ['approved','✅ Approved'], ['rejected','❌ Rejected']].map(([key, label]) => (
+                      <button
+                        key={key}
+                        className={`sub-tab-btn ${activeSubTab === key ? 'active' : ''}`}
+                        onClick={() => setActiveSubTab(key)}
+                      >
+                        {label}
+                        <span className="sub-tab-count">{subMap[key].length}</span>
+                      </button>
+                    ))}
+                  </div>
+
+                  {filtered.length === 0 ? (
+                    <div className="no-schemes">
+                      <div className="no-schemes-icon">📭</div>
+                      <h3>No {activeSubTab === 'all' ? '' : activeSubTab} applications</h3>
+                      <p>{activeSubTab === 'all' ? 'Apply for eligible schemes to get started.' : `You have no ${activeSubTab} applications.`}</p>
+                    </div>
+                  ) : (
+                    <div className="applications-list">
+                      {filtered.map((app) => (
+                        <div key={app.id} className={`application-card border-${app.status.toLowerCase()}`}>
+                          <div className="app-header">
+                            <h3>{app.schemeName}</h3>
+                            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                              {app.applicationId && (
+                                <span style={{ fontSize: '13px', color: '#555', fontWeight: '600', background: '#eef2ff', padding: '3px 10px', borderRadius: '12px' }}>🆔 {app.applicationId}</span>
+                              )}
+                              <span className={`status-badge ${app.status.toLowerCase()}`}>{app.status}</span>
+                              {app.applicationId && (
+                                <button
+                                  onClick={() => navigate(`/track?id=${app.applicationId}`)}
+                                  style={{ padding: '6px 14px', background: '#3498db', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}
+                                >
+                                  🔍 Track
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                          <div className="app-details">
+                            <span>Applied: {new Date(app.appliedDate).toLocaleDateString()}</span>
+                            {app.remarks && <p className="remarks">{t('beneficiary.remarks')}: {app.remarks}</p>}
+                            {app.status === 'SANCTIONED' && !submittedFeedbacks.includes(app.id) && (
+                              <button className="feedback-btn" onClick={() => setFeedbackModal(app)}>{t('beneficiary.give_feedback')}</button>
+                            )}
+                            {submittedFeedbacks.includes(app.id) && (
+                              <span className="feedback-done">{t('beneficiary.feedback_done')}</span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
+              );
+            })()}
           </div>
         </section>
       </div>

@@ -14,6 +14,7 @@ const SanctioningDashboard = () => {
   const [stats, setStats] = useState({ today: 0, pending: 0, sanctioned: 0, rejected: 0 });
   const [loading, setLoading] = useState(true);
   const [selectedApp, setSelectedApp] = useState(null);
+  const [successPopup, setSuccessPopup] = useState(null);
 
   useEffect(() => { fetchData(); }, []);
 
@@ -49,9 +50,10 @@ const SanctioningDashboard = () => {
         body: JSON.stringify({ status, remarks, amount })
       });
       if (response.ok) {
-        toast(`Application ${status} successfully!`, 'success');
         setSelectedApp(null);
         fetchData();
+        setSuccessPopup({ status, name: selectedApp?.user?.fullName || 'Application' });
+        setTimeout(() => setSuccessPopup(null), 3000);
       } else {
         toast('Failed to update application', 'error');
       }
@@ -180,6 +182,18 @@ const SanctioningDashboard = () => {
                 <button className="btn-reject" onClick={() => { const rem = document.getElementById('remarks').value; if (!rem) { toast('Please provide remarks for rejection', 'warning'); return; } handleSanction(selectedApp.id, 'REJECTED', rem, null); }}>❌ {t('common.reject')}</button>
                 <button className="btn-cancel" onClick={() => setSelectedApp(null)}>{t('common.cancel')}</button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {successPopup && (
+        <div className="success-popup">
+          <div className={`success-popup-box ${successPopup.status === 'SANCTIONED' ? 'popup-approved' : 'popup-rejected'}`}>
+            <div className="success-popup-icon">{successPopup.status === 'SANCTIONED' ? '✅' : '❌'}</div>
+            <div className="success-popup-text">
+              <strong>{successPopup.status === 'SANCTIONED' ? 'Application Sanctioned!' : 'Application Rejected!'}</strong>
+              <span>{successPopup.name} has been {successPopup.status.toLowerCase()} successfully.</span>
             </div>
           </div>
         </div>

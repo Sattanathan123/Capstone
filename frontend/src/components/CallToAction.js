@@ -1,10 +1,12 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import './CallToAction.css';
 
 const CallToAction = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   
   return (
     <motion.section 
@@ -22,8 +24,8 @@ const CallToAction = () => {
           viewport={{ once: true }}
           transition={{ delay: 0.2, duration: 0.6 }}
         >
-          <h2>Ready to Get Started?</h2>
-          <p>Join millions of beneficiaries accessing welfare schemes through DBI</p>
+          <h2>{t('cta.title')}</h2>
+          <p>{t('cta.subtitle')}</p>
         </motion.div>
 
         <motion.div
@@ -35,35 +37,27 @@ const CallToAction = () => {
         >
           <motion.button
             className="cta-btn-primary"
-            whileHover={{ 
-              scale: 1.08,
-              y: -5,
-              boxShadow: "0 15px 40px rgba(255, 153, 51, 0.5)"
-            }}
+            whileHover={{ scale: 1.08, y: -5, boxShadow: "0 15px 40px rgba(255, 153, 51, 0.5)" }}
             whileTap={{ scale: 0.95 }}
             onClick={() => { navigate('/register'); window.scrollTo(0, 0); }}
           >
             <span className="btn-icon">📝</span>
             <span className="btn-text">
-              <strong>Register Now</strong>
-              <small>Create your digital identity</small>
+              <strong>{t('cta.register')}</strong>
+              <small>{t('cta.register_sub')}</small>
             </span>
           </motion.button>
 
           <motion.button
             className="cta-btn-secondary"
-            whileHover={{ 
-              scale: 1.08,
-              y: -5,
-              boxShadow: "0 15px 40px rgba(0, 61, 130, 0.3)"
-            }}
+            whileHover={{ scale: 1.08, y: -5, boxShadow: "0 15px 40px rgba(0, 61, 130, 0.3)" }}
             whileTap={{ scale: 0.95 }}
             onClick={() => { navigate('/login'); window.scrollTo(0, 0); }}
           >
             <span className="btn-icon">🔑</span>
             <span className="btn-text">
-              <strong>Login</strong>
-              <small>Access your account</small>
+              <strong>{t('cta.login')}</strong>
+              <small>{t('cta.login_sub')}</small>
             </span>
           </motion.button>
         </motion.div>
@@ -75,18 +69,9 @@ const CallToAction = () => {
           viewport={{ once: true }}
           transition={{ delay: 0.6, duration: 0.6 }}
         >
-          <div className="info-item">
-            <span className="info-icon">⚡</span>
-            <span>Quick Registration</span>
-          </div>
-          <div className="info-item">
-            <span className="info-icon">🔒</span>
-            <span>100% Secure</span>
-          </div>
-          <div className="info-item">
-            <span className="info-icon">✅</span>
-            <span>Government Verified</span>
-          </div>
+          <div className="info-item"><span className="info-icon">⚡</span><span>{t('cta.quick')}</span></div>
+          <div className="info-item"><span className="info-icon">🔒</span><span>{t('cta.secure')}</span></div>
+          <div className="info-item"><span className="info-icon">✅</span><span>{t('cta.verified')}</span></div>
         </motion.div>
       </div>
     </motion.section>

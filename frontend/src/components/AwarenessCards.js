@@ -1,48 +1,35 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import './AwarenessCards.css';
 
 const AwarenessCards = () => {
+  const { t } = useTranslation();
+
   const cards = [
     {
       icon: '📋',
-      title: 'What is DBI?',
-      description: 'Digital system to identify and verify beneficiaries for welfare schemes.',
-      details: [
-        'Unified digital identity platform',
-        'Connects citizens with government schemes',
-        'Eliminates manual verification delays'
-      ]
+      title: t('awareness.card1_title'),
+      description: t('awareness.card1_desc'),
+      details: [t('awareness.card1_d1'), t('awareness.card1_d2'), t('awareness.card1_d3')]
     },
     {
       icon: '🔍',
-      title: 'Why Digital Verification?',
-      description: 'Prevents duplication, ensures fairness, improves efficiency.',
-      details: [
-        'Real-time eligibility checks',
-        'Prevents fraudulent claims',
-        'Faster benefit delivery'
-      ]
+      title: t('awareness.card2_title'),
+      description: t('awareness.card2_desc'),
+      details: [t('awareness.card2_d1'), t('awareness.card2_d2'), t('awareness.card2_d3')]
     },
     {
       icon: '💳',
-      title: 'Direct Benefit Delivery',
-      description: 'Benefits reach verified citizens directly, without intermediaries.',
-      details: [
-        'Bank account integration',
-        'Instant fund transfer',
-        'No middleman involvement'
-      ]
+      title: t('awareness.card3_title'),
+      description: t('awareness.card3_desc'),
+      details: [t('awareness.card3_d1'), t('awareness.card3_d2'), t('awareness.card3_d3')]
     },
     {
       icon: '✅',
-      title: 'Reduced Errors & Leakages',
-      description: 'Eliminates inclusion and exclusion errors.',
-      details: [
-        'AI-powered verification',
-        'Duplicate detection system',
-        'Transparent audit trail'
-      ]
+      title: t('awareness.card4_title'),
+      description: t('awareness.card4_desc'),
+      details: [t('awareness.card4_d1'), t('awareness.card4_d2'), t('awareness.card4_d3')]
     }
   ];
 
@@ -55,8 +42,8 @@ const AwarenessCards = () => {
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
       >
-        <h2>Understanding Digital Beneficiary Identification</h2>
-        <p>Building trust through transparency and technology</p>
+        <h2>{t('awareness.title')}</h2>
+        <p>{t('awareness.subtitle')}</p>
       </motion.div>
 
       <div className="awareness-grid">

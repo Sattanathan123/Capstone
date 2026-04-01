@@ -16,6 +16,7 @@ const FieldOfficerDashboard = () => {
   const [selectedApp, setSelectedApp] = useState(null);
   const [viewingDoc, setViewingDoc] = useState(null);
   const [activeTab, setActiveTab] = useState('PENDING');
+  const [successPopup, setSuccessPopup] = useState(null); // { status, name }
 
   useEffect(() => { fetchOfficerData(); }, []);
 
@@ -82,9 +83,10 @@ const FieldOfficerDashboard = () => {
         body: JSON.stringify({ status, remarks })
       });
       if (response.ok) {
-        toast(`Application ${status} successfully!`, 'success');
         setSelectedApp(null);
         fetchOfficerData();
+        setSuccessPopup({ status, name: selectedApp?.beneficiaryName || 'Application' });
+        setTimeout(() => { setSuccessPopup(null); }, 3000);
       } else {
         toast('Failed to update application', 'error');
       }
@@ -277,6 +279,18 @@ const FieldOfficerDashboard = () => {
             </div>
             <div className="modal-body" style={{ height: '80vh', padding: 0 }}>
               <iframe src={viewingDoc.data} style={{ width: '100%', height: '100%', border: 'none' }} title={viewingDoc.name} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {successPopup && (
+        <div className="success-popup">
+          <div className={`success-popup-box ${successPopup.status === 'APPROVED' ? 'popup-approved' : 'popup-rejected'}`}>
+            <div className="success-popup-icon">{successPopup.status === 'APPROVED' ? '✅' : '❌'}</div>
+            <div className="success-popup-text">
+              <strong>{successPopup.status === 'APPROVED' ? 'Application Approved!' : 'Application Rejected!'}</strong>
+              <span>{successPopup.name} has been {successPopup.status.toLowerCase()} successfully.</span>
             </div>
           </div>
         </div>

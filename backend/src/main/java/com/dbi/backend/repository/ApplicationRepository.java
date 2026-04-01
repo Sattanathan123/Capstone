@@ -39,4 +39,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
     long countByStatus(String status);
     
     long countBySchemeId(Long schemeId);
+
+    @Query("SELECT COALESCE(MAX(a.id), 0) FROM Application a")
+    Long findMaxId();
 }
