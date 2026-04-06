@@ -18,9 +18,6 @@ import com.dbi.backend.repository.UserRepository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.CacheEvict;
-
 @Service
 public class BeneficiarySchemeService {
     
@@ -55,7 +52,6 @@ public class BeneficiarySchemeService {
         return applicationRepository;
     }
     
-    @Cacheable(value = "eligibleSchemes", key = "#userId")
     public BeneficiaryEligibleSchemesDTO getEligibleSchemes(Long userId) throws Exception {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new Exception("User not found"));
@@ -87,10 +83,24 @@ public class BeneficiarySchemeService {
     }
     
     private boolean isEligible(User user, Scheme scheme) {
-        return true;
+        // Community check - exact match only, no ALL
+        boolean communityMatch = scheme.getCommunity().equalsIgnoreCase(user.getCasteCategory());
+
+        // Income check
+        boolean incomeMatch = user.getAnnualIncome() != null &&
+            user.getAnnualIncome() >= scheme.getMinIncome() &&
+            user.getAnnualIncome() <= scheme.getMaxIncome();
+
+        // Occupation check
+        boolean occupationMatch = "ALL".equalsIgnoreCase(scheme.getOccupation()) ||
+            scheme.getOccupation().equalsIgnoreCase(user.getIncomeSource()) ||
+            (scheme.getOccupation().toUpperCase().contains("AGRI") &&
+             user.getIncomeSource() != null &&
+             user.getIncomeSource().toUpperCase().contains("AGRI"));
+
+        return communityMatch && incomeMatch && occupationMatch;
     }
     
-    @CacheEvict(value = "eligibleSchemes", key = "#userId")
     @Transactional
     public SmartValidationEngine.ValidationResult applyForScheme(Long userId, Long schemeId, Map<String, String> documents) throws Exception {
         User user = userRepository.findById(userId).orElseThrow(() -> new Exception("User not found"));
