@@ -16,13 +16,14 @@ public class DocumentColumnsInitializer implements CommandLineRunner {
         try {
             System.out.println("=== ADDING DOCUMENT COLUMNS ===");
             
-            jdbcTemplate.execute(
-                "ALTER TABLE applications " +
-                "ADD COLUMN IF NOT EXISTS aadhaar_doc LONGTEXT, " +
-                "ADD COLUMN IF NOT EXISTS income_cert_doc LONGTEXT, " +
-                "ADD COLUMN IF NOT EXISTS community_cert_doc LONGTEXT, " +
-                "ADD COLUMN IF NOT EXISTS occupation_proof_doc LONGTEXT"
-            );
+            for (String col : new String[]{"aadhaar_doc", "income_cert_doc", "community_cert_doc", "occupation_proof_doc"}) {
+                int count = jdbcTemplate.queryForObject(
+                    "SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'applications' AND COLUMN_NAME = ?",
+                    Integer.class, col);
+                if (count == 0) {
+                    jdbcTemplate.execute("ALTER TABLE applications ADD COLUMN " + col + " LONGTEXT");
+                }
+            }
             
             System.out.println("Document columns added successfully");
             System.out.println("===============================");
